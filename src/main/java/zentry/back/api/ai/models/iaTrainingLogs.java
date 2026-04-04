@@ -2,20 +2,24 @@ package zentry.back.api.ai.models;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
-import java.sql.Timestamp;//importaciones para timestamp
+import java.sql.Timestamp;
 
-@Entity
-@Table(name = "prediction_history")
+@Entity 
+@Table (name="ia_training_logs")
 @Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
 
-public class predictionHistory {
+
+public class iaTrainingLogs {
     @Id 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private UUID id;
 
-    @Column(name ="prediction_id", nullable = false)
-    private int predictionId;
+    @Column(name = "model_id")
+    private Integer modelId;
+
+    @Column(name = "estado", length = 50, nullable = false)
+    private String estado;
 
     @Column(name = "fecha", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp fecha;

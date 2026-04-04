@@ -14,8 +14,8 @@ public class iaRecommendations {
     @Column(name = "id")
     private UUID id;
 
-   @Column(name= "user_id", nullable = false )
-   private Integer userId;
+   @Column(name= "recommendation_id", nullable = false )
+   private int recommendationId;
 
    @Column(name="score", nullable = false, precision = 5, scale = 4)
     private BigDecimal score;
