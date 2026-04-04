@@ -2,12 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+	<!-- ===== PARENT: Spring Boot BOM para gestión centralizada de versiones ===== -->
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.13</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
+	<!-- ===== IDENTIFICACIÓN DEL PROYECTO ===== -->
 	<groupId>zentry.back</groupId>
 	<artifactId>api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -26,88 +30,119 @@
 		<tag/>
 		<url/>
 	</scm>
+
+	<!-- ===== PROPIEDADES GLOBALES ===== -->
 	<properties>
 		<java.version>17</java.version>
 	</properties>
+
 	<dependencies>
+
+		<!-- ===== SPRING BOOT CORE ===== -->
+		<!-- JPA: ORM con Hibernate para acceso a bases de datos relacionales -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		<!-- MongoDB: soporte para base de datos NoSQL orientada a documentos -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
+		<!-- Security: autenticación, autorización y filtros de seguridad HTTP -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<!-- Validation: validación de beans con anotaciones (JSR-380 / Jakarta) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
+		<!-- Web: servidor embebido Tomcat + Spring MVC para APIs REST -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<!-- WebSocket: comunicación bidireccional en tiempo real sobre STOMP/SockJS -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-websocket</artifactId>
 		</dependency>
+
+		<!-- ===== DOCUMENTACIÓN API ===== -->
+		<!-- SpringDoc OpenAPI: genera UI de Swagger automáticamente desde los controladores -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.8.16</version>
 		</dependency>
 
+		<!-- ===== BASE DE DATOS ===== -->
+		<!-- PostgreSQL: driver JDBC para la base de datos relacional (solo en runtime) -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+		<!-- ===== UTILIDADES ===== -->
+		<!-- Lombok: reduce boilerplate con anotaciones (@Getter, @Builder, etc.) -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+		<!-- ===== TESTING ===== -->
+		<!-- Spring Boot Test: JUnit 5 + Mockito + contexto de Spring para pruebas -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Spring Security Test: utilidades para probar endpoints protegidos -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 
-		<!-- JWT -->
+		<!-- ===== JWT (JSON Web Tokens) ===== -->
+		<!-- jjwt-api: interfaces y anotaciones públicas de la librería JJWT -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>0.11.5</version>
 		</dependency>
+		<!-- jjwt-impl: implementación interna (solo necesaria en runtime) -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
+		<!-- jjwt-jackson: serialización/deserialización JSON de claims via Jackson -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>
 		<plugins>
+
+			<!-- ===== SPRING BOOT MAVEN PLUGIN ===== -->
+			<!-- Empaqueta el proyecto como JAR ejecutable; excluye Lombok del artefacto final -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<excludes>
+						<!-- Lombok solo es necesario en compile-time, no en el JAR final -->
 						<exclude>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
@@ -115,10 +150,14 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+			<!-- ===== MAVEN COMPILER PLUGIN ===== -->
+			<!-- Configura el procesador de anotaciones de Lombok para compile y test-compile -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<executions>
+					<!-- Fase de compilación principal -->
 					<execution>
 						<id>default-compile</id>
 						<phase>compile</phase>
@@ -127,6 +166,7 @@
 						</goals>
 						<configuration>
 							<annotationProcessorPaths>
+								<!-- Lombok genera código (getters, setters, etc.) en tiempo de compilación -->
 								<path>
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
@@ -134,6 +174,7 @@
 							</annotationProcessorPaths>
 						</configuration>
 					</execution>
+					<!-- Fase de compilación de tests -->
 					<execution>
 						<id>default-testCompile</id>
 						<phase>test-compile</phase>
@@ -142,6 +183,7 @@
 						</goals>
 						<configuration>
 							<annotationProcessorPaths>
+								<!-- Lombok también debe procesar anotaciones en las clases de test -->
 								<path>
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
@@ -151,6 +193,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 
