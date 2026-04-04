@@ -3,20 +3,22 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
+
 @Entity 
-@Table(name="ia_training_data")
+@Table (name="ia_feedback")
     @Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
 
-    public class iaTrainingData {
+
+public class iaFeedback {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @Column(name ="id")
     private UUID id;
 
-    @Column(name=" data_input", nullable = false)
-    private String dataInput;
+    @Column(name ="user_id", nullable = false)
+     private Integer userId;
 
-    @Column(name="data_output", nullable = false)
-    private String dataOutput;
+     @Column(name="comentario", nullable = false)
+     private String comentario;
 
-    }
+}

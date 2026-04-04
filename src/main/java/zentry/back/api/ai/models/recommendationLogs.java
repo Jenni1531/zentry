@@ -1,7 +1,6 @@
 package zentry.back.api.ai.models;
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
 import java.util.UUID;
 import java.sql.Timestamp;  // Importaciones para timestamp
 

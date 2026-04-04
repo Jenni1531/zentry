@@ -4,21 +4,20 @@ import lombok.*;
 import java.util.UUID;
 
 
-@Entity 
-@Table(name="ia_configs")
+@Entity
+@Table(name="feedback_labels")
 @Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
- 
 
-public class iaConfigs{
-
+public class feedbackLabels {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private UUID id;
 
-   @Column(name= "model_id", nullable = false )
-   private Integer modelid;
+    @Column(name=" feedback_id", nullable = false)
+    private int feedbackId;   
 
-   @Column(name="parametros", nullable = false)
-    private String parametros ;
+    @Column(name="etiqueta", length = 50, nullable = false)
+    private String etiqueta;
+    
 }
