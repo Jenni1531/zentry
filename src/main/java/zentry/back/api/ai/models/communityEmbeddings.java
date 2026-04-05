@@ -3,19 +3,17 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
-@Entity 
-@Table(name="community_embeddings")
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
-
+@Entity
+@Table(name = "community_embeddings", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class communityEmbeddings {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "community_id", nullable = false)
     private Integer communityId;
 
-    @Column(name = "vetor", nullable = false)
-    private String vetor;
+    @Column(name = "vector", nullable = false)
+    private String vector;
 }

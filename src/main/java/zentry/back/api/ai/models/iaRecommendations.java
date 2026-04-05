@@ -4,20 +4,20 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Entity 
-@Table(name="ia_recommendations")
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
-
+@Entity
+@Table(name = "ai_recommendations", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class iaRecommendations {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-   @Column(name= "recommendation_id", nullable = false )
-   private int recommendationId;
+    @Column(name = "user_id", nullable = false)
+    private Integer userId;
 
-   @Column(name="score", nullable = false, precision = 5, scale = 4)
+    @Column(name = "contenido_id", nullable = false)
+    private Integer contenidoId;
+
+    @Column(name = "score", nullable = false, precision = 5, scale = 4)
     private BigDecimal score;
 }
-

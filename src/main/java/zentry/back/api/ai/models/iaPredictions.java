@@ -1,22 +1,19 @@
 package zentry.back.api.ai.models;
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.UUID;  
+import java.util.UUID;
 
-@Entity 
-@Table(name = "ia_predictions")
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
-
+@Entity
+@Table(name = "ai_predictions", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class iaPredictions {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-   @Column(name="model_id", nullable = false)
-   private Integer modelId;
+    @Column(name = "model_id", nullable = false)
+    private Integer modelId;
 
-   @Column (name="resultado", nullable = false)
+    @Column(name = "resultado", nullable = false)
     private String resultado;
 }
- 

@@ -5,12 +5,11 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "ia_behaivor_analitycs") //revisar los argsconstructor y no argsconstructor
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
+@Table(name = "ai_behavior_analysis", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class iaBehaivorAnalitycs {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
@@ -18,5 +17,4 @@ public class iaBehaivorAnalitycs {
 
     @Column(name = "score", nullable = false, precision = 5, scale = 4)
     private BigDecimal score;
-
 }

@@ -4,15 +4,12 @@ import lombok.*;
 import java.util.UUID;
 import java.sql.Timestamp;
 
-@Entity 
-@Table (name="ia_training_logs")
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
-
-
+@Entity
+@Table(name = "ai_training_logs", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class iaTrainingLogs {
-    @Id 
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "model_id")
