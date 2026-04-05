@@ -1,19 +1,19 @@
 package zentry.back.api.ai.models;
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 
-@Entity 
-@Table (name ="ia_scores")
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
+
+@Entity
+@Table(name = "ai_scores", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 
 public class iaScores {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name="post_id", nullable = false)

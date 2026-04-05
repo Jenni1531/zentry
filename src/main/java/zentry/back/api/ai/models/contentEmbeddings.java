@@ -4,18 +4,16 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "content_embeddings") //revisar los argsconstructor y no argsconstructor
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
- 
+@Table(name = "content_embeddings", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class contentEmbeddings {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "post_id", nullable = false)
-    private int  postId;
+    private Integer postId;
 
-    @Column(name = "vetor", nullable = false)
-    private String vetor;
+    @Column(name = "vector", nullable = false)
+    private String vector;
 }

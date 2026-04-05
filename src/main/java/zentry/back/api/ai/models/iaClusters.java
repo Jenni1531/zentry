@@ -3,19 +3,15 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
-
 @Entity
-@Table(name ="ia_clusters")
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
-
+@Table(name = "ai_clusters", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 
 public class iaClusters {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name="description", length = 100, nullable = false)
-    private String description;
-    
+    @Column(name = "descripcion", length = 100)
+    private String descripcion;
 }

@@ -3,21 +3,17 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
-
 @Entity
-@Table(name="feedback_labels")
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
-
+@Table(name = "feedback_labels", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class feedbackLabels {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name=" feedback_id", nullable = false)
-    private int feedbackId;   
+    @Column(name = "feedback_id", nullable = false)
+    private Integer feedbackId;
 
-    @Column(name="etiqueta", length = 50, nullable = false)
+    @Column(name = "etiqueta", length = 50, nullable = false)
     private String etiqueta;
-    
 }

@@ -3,22 +3,17 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
-
-@Entity 
-@Table(name ="ia_content_generation")
-@Getter @Setter  @Builder @NoArgsConstructor @AllArgsConstructor
-
+@Entity
+@Table(name = "ai_content_generation", schema = "zentry_ai")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class iaContentGeneration {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(name="id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "prompt_id", nullable = false)
+    private Integer promptId;
 
-    @Column (name= "prompt_id", nullable = false)
-    private int promptId;
-
-    @Column (name="resultado", nullable = false)
+    @Column(name = "resultado", nullable = false)
     private String resultado;
-    
 }
