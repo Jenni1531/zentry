@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.util.UUID;
+import zentry.back.api.core.models.User;
 
 @Entity
 @Table(name = "marketplace_products", schema = "zentry_business")
@@ -14,6 +15,10 @@ public class MarketplaceProducts {
 
     @Column(name = "seller_id", nullable = false)
     private Integer sellerId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", insertable = false, updatable = false)
+    private User seller;
 
     @Column(name = "nombre", length = 255, nullable = false)
     private String nombre;
