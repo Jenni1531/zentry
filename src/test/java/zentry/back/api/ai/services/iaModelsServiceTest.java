@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import zentry.back.api.ai.dtos.iaModelsRequest;
 import zentry.back.api.ai.dtos.iaModelsResponse;
-import zentry.back.api.ai.models.iaModels;
+import zentry.back.api.ai.models.IaModels;
 import zentry.back.api.ai.repositories.iaModelsRepository;
 
 import java.util.List;
@@ -40,12 +40,12 @@ class iaModelsServiceTest {
     private iaModelsService service;
 
     private UUID existingId;
-    private iaModels sampleModel;
+    private IaModels sampleModel;
 
     @BeforeEach
     void setUp() {
         existingId = UUID.randomUUID();
-        sampleModel = iaModels.builder()
+        sampleModel = IaModels.builder()
                 .id(existingId)
                 .nombre("GPT-4")
                 .build();
@@ -63,7 +63,7 @@ class iaModelsServiceTest {
         @DisplayName("returns a page of responses mapped from entities")
         void returnsPageOfResponses() {
             Pageable pageable = PageRequest.of(0, 10);
-            Page<iaModels> page = new PageImpl<>(List.of(sampleModel));
+            Page<IaModels> page = new PageImpl<>(List.of(sampleModel));
             when(repo.findAll(pageable)).thenReturn(page);
 
             Page<iaModelsResponse> result = service.list(pageable);
@@ -131,15 +131,15 @@ class iaModelsServiceTest {
             iaModelsRequest request = new iaModelsRequest();
             request.setNombre("Claude-3");
 
-            iaModels saved = iaModels.builder().id(UUID.randomUUID()).nombre("Claude-3").build();
+            IaModels saved = IaModels.builder().id(UUID.randomUUID()).nombre("Claude-3").build();
 
             when(repo.existsByNombre("Claude-3")).thenReturn(false);
-            when(repo.save(any(iaModels.class))).thenReturn(saved);
+            when(repo.save(any(IaModels.class))).thenReturn(saved);
 
             iaModelsResponse result = service.create(request);
 
             assertThat(result.getNombre()).isEqualTo("Claude-3");
-            verify(repo).save(any(iaModels.class));
+            verify(repo).save(any(IaModels.class));
         }
 
         @Test
@@ -173,7 +173,7 @@ class iaModelsServiceTest {
             iaModelsRequest request = new iaModelsRequest();
             request.setNombre("GPT-4-turbo");
 
-            iaModels updated = iaModels.builder().id(existingId).nombre("GPT-4-turbo").build();
+            IaModels updated = IaModels.builder().id(existingId).nombre("GPT-4-turbo").build();
 
             when(repo.findById(existingId)).thenReturn(Optional.of(sampleModel));
             when(repo.save(sampleModel)).thenReturn(updated);
