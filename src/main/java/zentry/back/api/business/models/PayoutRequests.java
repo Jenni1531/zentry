@@ -3,21 +3,24 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.util.UUID;
-
+import zentry.back.api.core.models.User;
 
 @Entity
 @Table(name = "payout_requests", schema = "zentry_business")
-@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor 
-
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class PayoutRequests {
-        @Id
-        @GeneratedValue(strategy = GenerationType.UUID)     
-        private UUID id;
 
-        @Column(name = "user_id", nullable = false)
-        private Integer userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-        @Column(name = "amount", nullable = false, precision = 10, scale = 2)
-        private BigDecimal amount;
-    
+    @Column(name = "user_id", nullable = false)
+    private Integer userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
+
+    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal amount;
 }
