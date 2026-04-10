@@ -12,7 +12,7 @@ public final class mappers {
     private mappers() {}
 
 //#region IA
-public static iaModelsResponse toResponse(iaModels entity) {
+public static iaModelsResponse toResponse(IaModels entity) {
     if (entity == null) return null;
     return iaModelsResponse.builder()
             .id(entity.getId())

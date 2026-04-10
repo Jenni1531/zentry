@@ -8,7 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import zentry.back.api.ai.dtos.iaModelsRequest;
 import zentry.back.api.ai.dtos.iaModelsResponse;
-import zentry.back.api.ai.models.iaModels;
+import zentry.back.api.ai.models.IaModels;
 import zentry.back.api.ai.repositories.iaModelsRepository;
 import zentry.back.api.global.mappers;
 
@@ -28,7 +28,7 @@ public class iaModelsService {
     }
 
     public iaModelsResponse getById(UUID id) {
-        iaModels model = repo.findById(id)
+        IaModels model = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Model not found"));
         return mappers.toResponse(model);
     }
@@ -37,21 +37,21 @@ public class iaModelsService {
         if (repo.existsByNombre(request.getNombre())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Model already exists");
         }
-        iaModels model = iaModels.builder()
+        IaModels model = IaModels.builder()
                 .nombre(request.getNombre())
                 .build();
         return mappers.toResponse(repo.save(model));
     }
 
     public iaModelsResponse update(UUID id, iaModelsRequest request) {
-        iaModels model = repo.findById(id)
+        IaModels model = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Model not found"));
         model.setNombre(request.getNombre());
         return mappers.toResponse(repo.save(model));
     }
 
     public void delete(UUID id) {
-        iaModels model = repo.findById(id)
+        IaModels model = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Model not found"));
         repo.delete(model);
     }
