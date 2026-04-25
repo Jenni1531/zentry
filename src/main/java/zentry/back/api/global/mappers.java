@@ -1,7 +1,15 @@
 package zentry.back.api.global;
-
+//IA
 import zentry.back.api.ai.dtos.*;
 import zentry.back.api.ai.models.*;
+
+//Business
+import zentry.back.api.business.dtos.*;
+import zentry.back.api.business.models.*;
+
+//core
+import zentry.back.api.core.dtos.*;
+import zentry.back.api.core.models.*;
 
 public final class mappers {
     private mappers() {}
@@ -216,5 +224,16 @@ public final class mappers {
     }
 
     //#endregion
+
+    //#region Bussyness
+    
+
+    //#endregion
+
+    //#region Core
+    
+
+    //#endregion
 }
+
 
