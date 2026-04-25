@@ -108,27 +108,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- ===== JWT (JSON Web Tokens) ===== -->
-		<!-- jjwt-api: interfaces y anotaciones públicas de la librería JJWT -->
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-		<!-- jjwt-impl: implementación interna (solo necesaria en runtime) -->
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-impl</artifactId>
-			<version>0.11.5</version>
-			<scope>runtime</scope>
-		</dependency>
-		<!-- jjwt-jackson: serialización/deserialización JSON de claims via Jackson -->
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-jackson</artifactId>
-			<version>0.11.5</version>
-			<scope>runtime</scope>
-		</dependency>
 
 	</dependencies>
 
