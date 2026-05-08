@@ -1,5 +1,10 @@
 package zentry.back.api.core.repositories;
 
-public class SeriesRepository {
-    
+import zentry.back.api.core.models.Series;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface SeriesRepository extends JpaRepository<Series, Integer> {
+   
 }
