@@ -22,6 +22,8 @@ public class OrderItems {
 
     // Clase interna para la clave primaria compuesta
     @lombok.EqualsAndHashCode
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
     public static class OrderItemsId implements java.io.Serializable {
         private Integer orderId;
         private Integer productId;

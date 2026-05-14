@@ -1,0 +1,19 @@
+package zentry.back.api.bussiness;
+
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import zentry.back.api.config.securityConfig;
+
+import java.lang.annotation.*;
+
+/**
+ * Meta-annotation applied to every business controller test.
+ * Imports the real SecurityFilterChain (permitAll) so MockMvc
+ * doesn't reject requests with 401/403.
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Import(securityConfig.class)
+public @interface BusinessControllerTest {
+}
