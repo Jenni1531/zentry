@@ -11,6 +11,52 @@ import zentry.back.api.business.models.*;
 import zentry.back.api.core.dtos.*;
 import zentry.back.api.core.models.*;
 
+//Realtime models (Notification excluded — conflicts with core)
+import zentry.back.api.realtime.models.CollabLiveUpdate;
+import zentry.back.api.realtime.models.Conversation;
+import zentry.back.api.realtime.models.ConversationParticipant;
+import zentry.back.api.realtime.models.EditingChange;
+import zentry.back.api.realtime.models.EditingSession;
+import zentry.back.api.realtime.models.EditingSessionUser;
+import zentry.back.api.realtime.models.EventStream;
+import zentry.back.api.realtime.models.LiveComment;
+import zentry.back.api.realtime.models.LiveEvent;
+import zentry.back.api.realtime.models.Message;
+import zentry.back.api.realtime.models.OnlineUser;
+import zentry.back.api.realtime.models.PresenceLog;
+import zentry.back.api.realtime.models.PushQueue;
+import zentry.back.api.realtime.models.RealtimeReaction;
+import zentry.back.api.realtime.models.SocketConnection;
+import zentry.back.api.realtime.models.StreamEvent;
+import zentry.back.api.realtime.models.TypingStatus;
+import zentry.back.api.realtime.models.VideoSession;
+import zentry.back.api.realtime.models.VideoSessionParticipant;
+import zentry.back.api.realtime.models.VoiceSession;
+import zentry.back.api.realtime.models.VoiceSessionParticipant;
+
+//Realtime DTOs (NotificationResponse excluded — conflicts with core)
+import zentry.back.api.realtime.dtos.CollabLiveUpdateResponse;
+import zentry.back.api.realtime.dtos.ConversationResponse;
+import zentry.back.api.realtime.dtos.ConversationParticipantResponse;
+import zentry.back.api.realtime.dtos.EditingChangeResponse;
+import zentry.back.api.realtime.dtos.EditingSessionResponse;
+import zentry.back.api.realtime.dtos.EditingSessionUserResponse;
+import zentry.back.api.realtime.dtos.EventStreamResponse;
+import zentry.back.api.realtime.dtos.LiveCommentResponse;
+import zentry.back.api.realtime.dtos.LiveEventResponse;
+import zentry.back.api.realtime.dtos.MessageResponse;
+import zentry.back.api.realtime.dtos.OnlineUserResponse;
+import zentry.back.api.realtime.dtos.PresenceLogResponse;
+import zentry.back.api.realtime.dtos.PushQueueResponse;
+import zentry.back.api.realtime.dtos.RealtimeReactionResponse;
+import zentry.back.api.realtime.dtos.SocketConnectionResponse;
+import zentry.back.api.realtime.dtos.StreamEventResponse;
+import zentry.back.api.realtime.dtos.TypingStatusResponse;
+import zentry.back.api.realtime.dtos.VideoSessionResponse;
+import zentry.back.api.realtime.dtos.VideoSessionParticipantResponse;
+import zentry.back.api.realtime.dtos.VoiceSessionResponse;
+import zentry.back.api.realtime.dtos.VoiceSessionParticipantResponse;
+
 public final class mappers {
     private mappers() {}
 
@@ -762,6 +808,231 @@ public final class mappers {
         return ForumReplyResponse.builder()
                 .id(entity.getId())
                 .threadId(entity.getThreadId())
+                .build();
+    }
+
+    //#endregion
+
+    //#region Realtime
+
+    public static CollabLiveUpdateResponse toResponse(CollabLiveUpdate entity) {
+        if (entity == null) return null;
+        return CollabLiveUpdateResponse.builder()
+                .id(entity.getId())
+                .projectId(entity.getProjectId())
+                .updateData(entity.getUpdateData())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static ConversationResponse toResponse(Conversation entity) {
+        if (entity == null) return null;
+        return ConversationResponse.builder()
+                .id(entity.getId())
+                .isGroup(entity.getIsGroup())
+                .name(entity.getName())
+                .createdBy(entity.getCreatedBy())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static ConversationParticipantResponse toResponse(ConversationParticipant entity) {
+        if (entity == null) return null;
+        return ConversationParticipantResponse.builder()
+                .conversationId(entity.getConversationId())
+                .userId(entity.getUserId())
+                .role(entity.getRole())
+                .joinedAt(entity.getJoinedAt())
+                .build();
+    }
+
+    public static EditingChangeResponse toResponse(EditingChange entity) {
+        if (entity == null) return null;
+        return EditingChangeResponse.builder()
+                .id(entity.getId())
+                .sessionId(entity.getSessionId())
+                .changeData(entity.getChangeData())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static EditingSessionResponse toResponse(EditingSession entity) {
+        if (entity == null) return null;
+        return EditingSessionResponse.builder()
+                .id(entity.getId())
+                .docId(entity.getDocId())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static EditingSessionUserResponse toResponse(EditingSessionUser entity) {
+        if (entity == null) return null;
+        return EditingSessionUserResponse.builder()
+                .sessionId(entity.getSessionId())
+                .userId(entity.getUserId())
+                .build();
+    }
+
+    public static EventStreamResponse toResponse(EventStream entity) {
+        if (entity == null) return null;
+        return EventStreamResponse.builder()
+                .id(entity.getId())
+                .type(entity.getType())
+                .data(entity.getData())
+                .timestamp(entity.getTimestamp())
+                .build();
+    }
+
+    public static LiveCommentResponse toResponse(LiveComment entity) {
+        if (entity == null) return null;
+        return LiveCommentResponse.builder()
+                .id(entity.getId())
+                .postId(entity.getPostId())
+                .userId(entity.getUserId())
+                .comment(entity.getComment())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static LiveEventResponse toResponse(LiveEvent entity) {
+        if (entity == null) return null;
+        return LiveEventResponse.builder()
+                .id(entity.getId())
+                .eventType(entity.getEventType())
+                .payload(entity.getPayload())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static MessageResponse toResponse(Message entity) {
+        if (entity == null) return null;
+        return MessageResponse.builder()
+                .id(entity.getId())
+                .conversationId(entity.getConversationId())
+                .senderId(entity.getSenderId())
+                .content(entity.getContent())
+                .type(entity.getType())
+                .read(entity.getRead())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static zentry.back.api.realtime.dtos.NotificationResponse toResponse(zentry.back.api.realtime.models.Notification entity) {
+        if (entity == null) return null;
+        return zentry.back.api.realtime.dtos.NotificationResponse.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .type(entity.getType())
+                .data(entity.getData())
+                .read(entity.getRead())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static OnlineUserResponse toResponse(OnlineUser entity) {
+        if (entity == null) return null;
+        return OnlineUserResponse.builder()
+                .userId(entity.getUserId())
+                .status(entity.getStatus())
+                .lastSeen(entity.getLastSeen())
+                .build();
+    }
+
+    public static PresenceLogResponse toResponse(PresenceLog entity) {
+        if (entity == null) return null;
+        return PresenceLogResponse.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .status(entity.getStatus())
+                .timestamp(entity.getTimestamp())
+                .build();
+    }
+
+    public static PushQueueResponse toResponse(PushQueue entity) {
+        if (entity == null) return null;
+        return PushQueueResponse.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .message(entity.getMessage())
+                .sent(entity.getSent())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static RealtimeReactionResponse toResponse(RealtimeReaction entity) {
+        if (entity == null) return null;
+        return RealtimeReactionResponse.builder()
+                .id(entity.getId())
+                .postId(entity.getPostId())
+                .userId(entity.getUserId())
+                .reaction(entity.getReaction())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static SocketConnectionResponse toResponse(SocketConnection entity) {
+        if (entity == null) return null;
+        return SocketConnectionResponse.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .socketId(entity.getSocketId())
+                .connectedAt(entity.getConnectedAt())
+                .build();
+    }
+
+    public static StreamEventResponse toResponse(StreamEvent entity) {
+        if (entity == null) return null;
+        return StreamEventResponse.builder()
+                .id(entity.getId())
+                .streamId(entity.getStreamId())
+                .userId(entity.getUserId())
+                .action(entity.getAction())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static TypingStatusResponse toResponse(TypingStatus entity) {
+        if (entity == null) return null;
+        return TypingStatusResponse.builder()
+                .userId(entity.getUserId())
+                .conversationId(entity.getConversationId())
+                .isTyping(entity.getIsTyping())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
+    public static VideoSessionResponse toResponse(VideoSession entity) {
+        if (entity == null) return null;
+        return VideoSessionResponse.builder()
+                .id(entity.getId())
+                .quality(entity.getQuality())
+                .startedAt(entity.getStartedAt())
+                .endedAt(entity.getEndedAt())
+                .build();
+    }
+
+    public static VideoSessionParticipantResponse toResponse(VideoSessionParticipant entity) {
+        if (entity == null) return null;
+        return VideoSessionParticipantResponse.builder()
+                .sessionId(entity.getSessionId())
+                .userId(entity.getUserId())
+                .build();
+    }
+
+    public static VoiceSessionResponse toResponse(VoiceSession entity) {
+        if (entity == null) return null;
+        return VoiceSessionResponse.builder()
+                .id(entity.getId())
+                .startedAt(entity.getStartedAt())
+                .endedAt(entity.getEndedAt())
+                .build();
+    }
+
+    public static VoiceSessionParticipantResponse toResponse(VoiceSessionParticipant entity) {
+        if (entity == null) return null;
+        return VoiceSessionParticipantResponse.builder()
+                .sessionId(entity.getSessionId())
+                .userId(entity.getUserId())
                 .build();
     }
 
