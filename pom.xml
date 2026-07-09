@@ -44,11 +44,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-		<!-- MongoDB: soporte para base de datos NoSQL orientada a documentos -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-mongodb</artifactId>
-		</dependency>
 		<!-- Security: autenticación, autorización y filtros de seguridad HTTP -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
