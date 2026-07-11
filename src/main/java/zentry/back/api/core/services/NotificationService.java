@@ -12,7 +12,7 @@ import zentry.back.api.core.models.Notification;
 import zentry.back.api.core.repositories.NotificationRepository;
 import zentry.back.api.global.mappers;
 
-@Service
+@Service("coreNotificationService")
 public class NotificationService {
 
     private final NotificationRepository repo;
