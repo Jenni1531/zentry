@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "RealtimeNotification")
 @Table(name = "notifications", schema = "zentry_realtime")
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class Notification {

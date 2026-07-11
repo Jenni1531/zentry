@@ -57,6 +57,7 @@ public class GlobalExceptionHandler {
     // ─── 500: Cualquier excepción no capturada ───────────────────────────────────
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
+        ex.printStackTrace(); // Agregado para ver la causa real en los logs
         Map<String, Object> body = buildBody(HttpStatus.INTERNAL_SERVER_ERROR,
                 "Error interno del servidor. Contacte al administrador.", null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
