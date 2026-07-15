@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -52,6 +53,14 @@ public class GlobalExceptionHandler {
         Map<String, Object> body = buildBody(HttpStatus.BAD_REQUEST,
                 "Argumento inválido: " + ex.getMessage(), null);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    // ─── 404: Recurso no encontrado (rutas inexistentes) ──────────────────────
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResourceFound(NoResourceFoundException ex) {
+        Map<String, Object> body = buildBody(HttpStatus.NOT_FOUND,
+                "El recurso solicitado no existe: " + ex.getResourcePath(), null);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     // ─── 500: Cualquier excepción no capturada ───────────────────────────────────
