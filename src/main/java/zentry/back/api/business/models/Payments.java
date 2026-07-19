@@ -15,14 +15,14 @@ public class Payments {
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private UUID userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
     @Column(name = "payment_method_id", nullable = false)
-    private Integer paymentMethodId;
+    private UUID paymentMethodId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_method_id", insertable = false, updatable = false)

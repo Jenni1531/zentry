@@ -14,14 +14,14 @@ public class Subscriptions {
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private UUID userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
     @Column(name = "plan_id", nullable = false)
-    private Integer planId;
+    private UUID planId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", insertable = false, updatable = false)
