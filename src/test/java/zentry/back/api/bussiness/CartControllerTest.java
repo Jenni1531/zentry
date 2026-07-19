@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,11 +34,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(securityConfig.class)
 @WebMvcTest(CartController.class)
 @DisplayName("CartController")
+@SuppressWarnings("all")
 class CartControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  CartService service;
+    @MockitoBean  CartService service;
 
     private static final String BASE = "/api/business/carts";
     private final UUID id = UUID.randomUUID();
@@ -48,7 +49,8 @@ class CartControllerTest {
     }
 
     @Nested @DisplayName("GET /")
-    class ListTests {
+    
+class ListTests {
         @Test @DisplayName("200 returns page")
         void list_200() throws Exception {
             when(service.list(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(sample())));
@@ -58,7 +60,8 @@ class CartControllerTest {
     }
 
     @Nested @DisplayName("GET /{id}")
-    class GetByIdTests {
+    
+class GetByIdTests {
         @Test @DisplayName("200 when found")
         void getById_200() throws Exception {
             when(service.getById(id)).thenReturn(sample());
@@ -75,7 +78,8 @@ class CartControllerTest {
     }
 
     @Nested @DisplayName("POST /")
-    class CreateTests {
+    
+class CreateTests {
         @Test @DisplayName("201 on success")
         void create_201() throws Exception {
             CartRequest req = CartRequest.builder().userId(1).build();
@@ -87,7 +91,8 @@ class CartControllerTest {
     }
 
     @Nested @DisplayName("PUT /{id}")
-    class UpdateTests {
+    
+class UpdateTests {
         @Test @DisplayName("200 on success")
         void update_200() throws Exception {
             CartRequest req = CartRequest.builder().userId(2).build();
@@ -107,7 +112,8 @@ class CartControllerTest {
     }
 
     @Nested @DisplayName("DELETE /{id}")
-    class DeleteTests {
+    
+class DeleteTests {
         @Test @DisplayName("204 on success")
         void delete_204() throws Exception {
             doNothing().when(service).delete(id);

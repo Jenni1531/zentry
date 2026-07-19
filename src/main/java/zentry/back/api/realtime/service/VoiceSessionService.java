@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.VoiceSessionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class VoiceSessionService {
 
     private final VoiceSessionRepository repo;

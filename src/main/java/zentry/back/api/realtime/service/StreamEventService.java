@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.StreamEventRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class StreamEventService {
 
     private final StreamEventRepository repo;

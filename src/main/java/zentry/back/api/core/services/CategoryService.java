@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.CategoryRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class CategoryService {
 
     private final CategoryRepository repo;

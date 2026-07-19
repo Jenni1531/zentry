@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.ErrorTrackingRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ErrorTrackingService {
 
     private final ErrorTrackingRepository repo;

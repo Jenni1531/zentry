@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.SessionTrackingRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class SessionTrackingService {
 
     private final SessionTrackingRepository repo;

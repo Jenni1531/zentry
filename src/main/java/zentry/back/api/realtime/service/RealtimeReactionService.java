@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.RealtimeReactionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class RealtimeReactionService {
 
     private final RealtimeReactionRepository repo;

@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.SeriesRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class SeriesService {
 
     private final SeriesRepository repo;

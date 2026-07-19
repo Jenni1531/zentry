@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.LiveEventRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class LiveEventService {
 
     private final LiveEventRepository repo;

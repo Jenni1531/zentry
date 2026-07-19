@@ -6,15 +6,16 @@ import zentry.back.api.business.models.OrderItems;
 import zentry.back.api.business.models.OrderItems.OrderItemsId;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface OrderItemsRepository extends JpaRepository<OrderItems, OrderItemsId> {
 
-    List<OrderItems> findByOrderId(Integer orderId);
+    List<OrderItems> findByOrderId(UUID orderId);
 
-    List<OrderItems> findByProductId(Integer productId);
+    List<OrderItems> findByProductId(UUID productId);
 
-    boolean existsByOrderIdAndProductId(Integer orderId, Integer productId);
+    boolean existsByOrderIdAndProductId(UUID orderId, UUID productId);
 
-    void deleteByOrderId(Integer orderId);
+    void deleteByOrderId(UUID orderId);
 }

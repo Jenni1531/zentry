@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.DataLakeEventRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class DataLakeEventService {
 
     private final DataLakeEventRepository repo;

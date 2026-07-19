@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.FriendRequestRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class FriendRequestService {
 
     private final FriendRequestRepository repo;

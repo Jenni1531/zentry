@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.VideoSessionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class VideoSessionService {
 
     private final VideoSessionRepository repo;

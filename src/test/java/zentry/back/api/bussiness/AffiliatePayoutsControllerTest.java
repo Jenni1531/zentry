@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -34,20 +34,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(securityConfig.class)
 @WebMvcTest(AffiliatePayoutsController.class)
 @DisplayName("AffiliatePayoutsController")
+@SuppressWarnings("all")
 class AffiliatePayoutsControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  AffiliatePayoutsService service;
+    @MockitoBean  AffiliatePayoutsService service;
 
     private static final String BASE = "/api/business/affiliate-payouts";
     private final UUID id = UUID.randomUUID();
+    private static final UUID affiliateUuid = UUID.randomUUID();
 
     private AffiliatePayoutsResponse sample() {
-        return AffiliatePayoutsResponse.builder().id(id).affiliateId(7).amount(new BigDecimal("15.00")).build();
+        return AffiliatePayoutsResponse.builder().id(id).affiliateId(affiliateUuid).amount(new BigDecimal("15.00")).build();
     }
 
-    @Nested @DisplayName("GET /") class ListTests {
+    @Nested @DisplayName("GET /") @SuppressWarnings("all")
+class ListTests {
         @Test void list_200() throws Exception {
             when(service.list(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(sample())));
             mvc.perform(get(BASE)).andExpect(status().isOk())
@@ -55,7 +58,8 @@ class AffiliatePayoutsControllerTest {
         }
     }
 
-    @Nested @DisplayName("GET /{id}") class GetByIdTests {
+    @Nested @DisplayName("GET /{id}") @SuppressWarnings("all")
+class GetByIdTests {
         @Test void found() throws Exception {
             when(service.getById(id)).thenReturn(sample());
             mvc.perform(get(BASE + "/" + id)).andExpect(status().isOk())
@@ -68,19 +72,21 @@ class AffiliatePayoutsControllerTest {
         }
     }
 
-    @Nested @DisplayName("POST /") class CreateTests {
+    @Nested @DisplayName("POST /") @SuppressWarnings("all")
+class CreateTests {
         @Test void create_201() throws Exception {
-            AffiliatePayoutsRequest req = AffiliatePayoutsRequest.builder().affiliateId(7).amount(new BigDecimal("15.00")).build();
+            AffiliatePayoutsRequest req = AffiliatePayoutsRequest.builder().affiliateId(affiliateUuid).amount(new BigDecimal("15.00")).build();
             when(service.create(any())).thenReturn(sample());
             mvc.perform(post(BASE).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(req)))
                .andExpect(status().isCreated()).andExpect(jsonPath("$.amount").value(15.00));
         }
     }
 
-    @Nested @DisplayName("PUT /{id}") class UpdateTests {
+    @Nested @DisplayName("PUT /{id}") @SuppressWarnings("all")
+class UpdateTests {
         @Test void update_200() throws Exception {
-            AffiliatePayoutsRequest req = AffiliatePayoutsRequest.builder().affiliateId(7).amount(new BigDecimal("30.00")).build();
-            when(service.update(eq(id), any())).thenReturn(AffiliatePayoutsResponse.builder().id(id).affiliateId(7).amount(new BigDecimal("30.00")).build());
+            AffiliatePayoutsRequest req = AffiliatePayoutsRequest.builder().affiliateId(affiliateUuid).amount(new BigDecimal("30.00")).build();
+            when(service.update(eq(id), any())).thenReturn(AffiliatePayoutsResponse.builder().id(id).affiliateId(affiliateUuid).amount(new BigDecimal("30.00")).build());
             mvc.perform(put(BASE + "/" + id).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(req)))
                .andExpect(status().isOk()).andExpect(jsonPath("$.amount").value(30.00));
         }
@@ -88,12 +94,13 @@ class AffiliatePayoutsControllerTest {
             UUID u = UUID.randomUUID();
             when(service.update(eq(u), any())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
             mvc.perform(put(BASE + "/" + u).contentType(MediaType.APPLICATION_JSON)
-               .content(json.writeValueAsString(AffiliatePayoutsRequest.builder().affiliateId(7).amount(BigDecimal.TEN).build())))
+               .content(json.writeValueAsString(AffiliatePayoutsRequest.builder().affiliateId(affiliateUuid).amount(BigDecimal.TEN).build())))
                .andExpect(status().isNotFound());
         }
     }
 
-    @Nested @DisplayName("DELETE /{id}") class DeleteTests {
+    @Nested @DisplayName("DELETE /{id}") @SuppressWarnings("all")
+class DeleteTests {
         @Test void delete_204() throws Exception {
             doNothing().when(service).delete(id);
             mvc.perform(delete(BASE + "/" + id)).andExpect(status().isNoContent());

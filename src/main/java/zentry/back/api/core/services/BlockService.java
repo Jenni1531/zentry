@@ -14,6 +14,7 @@ import zentry.back.api.core.repositories.BlockRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class BlockService {
 
     private final BlockRepository repo;

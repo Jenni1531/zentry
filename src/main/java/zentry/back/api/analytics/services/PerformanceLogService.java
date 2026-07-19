@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.PerformanceLogRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class PerformanceLogService {
 
     private final PerformanceLogRepository repo;

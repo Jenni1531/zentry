@@ -13,7 +13,7 @@ public class InvoicesItems {
     private UUID id;
 
     @Column(name = "invoice_id", nullable = false)
-    private Integer invoiceId;
+    private UUID invoiceId;
 
     @Column(name = "descripcion", length = 255, nullable = false)
     private String descripcion;

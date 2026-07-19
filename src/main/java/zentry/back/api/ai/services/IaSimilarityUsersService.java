@@ -14,6 +14,7 @@ import zentry.back.api.ai.repositories.IaSimilarityUsersRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class IaSimilarityUsersService {
 
     private final IaSimilarityUsersRepository repo;

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,20 +34,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(securityConfig.class)
 @WebMvcTest(InvoicesItemsController.class)
 @DisplayName("InvoicesItemsController")
+@SuppressWarnings("all")
 class InvoicesItemsControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  InvoicesItemsService service;
+    @MockitoBean  InvoicesItemsService service;
 
     private static final String BASE = "/api/business/invoice-items";
     private final UUID id = UUID.randomUUID();
+    private static final UUID invoiceUuid = UUID.randomUUID();
 
     private InvoicesItemsResponse sample() {
-        return InvoicesItemsResponse.builder().id(id).invoiceId(1).descripcion("Service Fee").precio(new BigDecimal("30.00")).build();
+        return InvoicesItemsResponse.builder().id(id).invoiceId(invoiceUuid).descripcion("Service Fee").precio(new BigDecimal("30.00")).build();
     }
 
-    @Nested @DisplayName("GET /") class ListTests {
+    @Nested @DisplayName("GET /") @SuppressWarnings("all")
+class ListTests {
         @Test void list_200() throws Exception {
             when(service.list(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(sample())));
             mvc.perform(get(BASE)).andExpect(status().isOk())
@@ -55,7 +58,8 @@ class InvoicesItemsControllerTest {
         }
     }
 
-    @Nested @DisplayName("GET /{id}") class GetByIdTests {
+    @Nested @DisplayName("GET /{id}") @SuppressWarnings("all")
+class GetByIdTests {
         @Test void found() throws Exception {
             when(service.getById(id)).thenReturn(sample());
             mvc.perform(get(BASE + "/" + id)).andExpect(status().isOk())
@@ -68,19 +72,21 @@ class InvoicesItemsControllerTest {
         }
     }
 
-    @Nested @DisplayName("POST /") class CreateTests {
+    @Nested @DisplayName("POST /") @SuppressWarnings("all")
+class CreateTests {
         @Test void create_201() throws Exception {
-            InvoicesItemsRequest req = InvoicesItemsRequest.builder().invoiceId(1).descripcion("Hosting").precio(new BigDecimal("10.00")).build();
-            when(service.create(any())).thenReturn(InvoicesItemsResponse.builder().id(UUID.randomUUID()).invoiceId(1).descripcion("Hosting").precio(new BigDecimal("10.00")).build());
+            InvoicesItemsRequest req = InvoicesItemsRequest.builder().invoiceId(invoiceUuid).descripcion("Hosting").precio(new BigDecimal("10.00")).build();
+            when(service.create(any())).thenReturn(InvoicesItemsResponse.builder().id(UUID.randomUUID()).invoiceId(invoiceUuid).descripcion("Hosting").precio(new BigDecimal("10.00")).build());
             mvc.perform(post(BASE).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(req)))
                .andExpect(status().isCreated()).andExpect(jsonPath("$.descripcion").value("Hosting"));
         }
     }
 
-    @Nested @DisplayName("PUT /{id}") class UpdateTests {
+    @Nested @DisplayName("PUT /{id}") @SuppressWarnings("all")
+class UpdateTests {
         @Test void update_200() throws Exception {
-            InvoicesItemsRequest req = InvoicesItemsRequest.builder().invoiceId(1).descripcion("Consultoría").precio(new BigDecimal("50.00")).build();
-            when(service.update(eq(id), any())).thenReturn(InvoicesItemsResponse.builder().id(id).invoiceId(1).descripcion("Consultoría").precio(new BigDecimal("50.00")).build());
+            InvoicesItemsRequest req = InvoicesItemsRequest.builder().invoiceId(invoiceUuid).descripcion("Consultoría").precio(new BigDecimal("50.00")).build();
+            when(service.update(eq(id), any())).thenReturn(InvoicesItemsResponse.builder().id(id).invoiceId(invoiceUuid).descripcion("Consultoría").precio(new BigDecimal("50.00")).build());
             mvc.perform(put(BASE + "/" + id).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(req)))
                .andExpect(status().isOk()).andExpect(jsonPath("$.precio").value(50.00));
         }
@@ -88,12 +94,13 @@ class InvoicesItemsControllerTest {
             UUID u = UUID.randomUUID();
             when(service.update(eq(u), any())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
             mvc.perform(put(BASE + "/" + u).contentType(MediaType.APPLICATION_JSON)
-               .content(json.writeValueAsString(InvoicesItemsRequest.builder().invoiceId(1).descripcion("X").precio(BigDecimal.ONE).build())))
+               .content(json.writeValueAsString(InvoicesItemsRequest.builder().invoiceId(invoiceUuid).descripcion("X").precio(BigDecimal.ONE).build())))
                .andExpect(status().isNotFound());
         }
     }
 
-    @Nested @DisplayName("DELETE /{id}") class DeleteTests {
+    @Nested @DisplayName("DELETE /{id}") @SuppressWarnings("all")
+class DeleteTests {
         @Test void delete_204() throws Exception {
             doNothing().when(service).delete(id);
             mvc.perform(delete(BASE + "/" + id)).andExpect(status().isNoContent());

@@ -14,6 +14,7 @@ import zentry.back.api.core.repositories.FollowRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class FollowService {
 
     private final FollowRepository repo;

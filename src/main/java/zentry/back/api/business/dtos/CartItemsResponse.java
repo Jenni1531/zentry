@@ -1,11 +1,12 @@
 package zentry.back.api.business.dtos;
 
 import lombok.*;
+import java.util.UUID;
 
 @Getter @Setter @Builder
 @AllArgsConstructor @NoArgsConstructor
 public class CartItemsResponse {
-    private Integer cartId;
-    private Integer productId;
+    private UUID cartId;
+    private UUID productId;
     private Integer cantidad;
 }

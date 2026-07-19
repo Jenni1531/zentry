@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.OnlineUserRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class OnlineUserService {
 
     private final OnlineUserRepository repo;

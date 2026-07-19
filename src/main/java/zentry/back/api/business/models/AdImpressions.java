@@ -13,7 +13,7 @@ public class AdImpressions {
     private UUID id;
 
     @Column(name = "campaign_id", nullable = false)
-    private Integer campaignId;
+    private UUID campaignId;
 
     @Column(name = "vistas", nullable = false)
     private Integer vistas;   

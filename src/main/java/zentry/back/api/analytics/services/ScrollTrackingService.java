@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.ScrollTrackingRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ScrollTrackingService {
 
     private final ScrollTrackingRepository repo;

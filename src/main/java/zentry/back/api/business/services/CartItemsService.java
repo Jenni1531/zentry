@@ -13,7 +13,10 @@ import zentry.back.api.business.models.CartItems.CartItemsId;
 import zentry.back.api.business.repositories.CartItemsRepository;
 import zentry.back.api.global.mappers;
 
+import java.util.UUID;
+
 @Service
+@SuppressWarnings("null")
 public class CartItemsService {
 
     private final CartItemsRepository repo;
@@ -26,7 +29,7 @@ public class CartItemsService {
         return repo.findAll(pageable).map(mappers::toResponse);
     }
 
-    public CartItemsResponse getById(Integer cartId, Integer productId) {
+    public CartItemsResponse getById(UUID cartId, UUID productId) {
         CartItemsId id = new CartItemsId(cartId, productId);
         CartItems entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CartItem not found"));
@@ -45,7 +48,7 @@ public class CartItemsService {
         return mappers.toResponse(repo.save(entity));
     }
 
-    public CartItemsResponse update(Integer cartId, Integer productId, CartItemsRequest request) {
+    public CartItemsResponse update(UUID cartId, UUID productId, CartItemsRequest request) {
         CartItemsId id = new CartItemsId(cartId, productId);
         CartItems entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CartItem not found"));
@@ -53,7 +56,7 @@ public class CartItemsService {
         return mappers.toResponse(repo.save(entity));
     }
 
-    public void delete(Integer cartId, Integer productId) {
+    public void delete(UUID cartId, UUID productId) {
         CartItemsId id = new CartItemsId(cartId, productId);
         CartItems entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CartItem not found"));

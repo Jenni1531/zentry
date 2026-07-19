@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.ForumThreadRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ForumThreadService {
 
     private final ForumThreadRepository repo;

@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.SearchLogRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class SearchLogService {
 
     private final SearchLogRepository repo;

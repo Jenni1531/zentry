@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.UserDeviceRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class UserDeviceService {
 
     private final UserDeviceRepository repo;

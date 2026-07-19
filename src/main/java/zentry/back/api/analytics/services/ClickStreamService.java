@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.ClickStreamRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ClickStreamService {
 
     private final ClickStreamRepository repo;

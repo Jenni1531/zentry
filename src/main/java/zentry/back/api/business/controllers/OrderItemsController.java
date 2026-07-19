@@ -18,6 +18,8 @@ import zentry.back.api.business.dtos.OrderItemsRequest;
 import zentry.back.api.business.dtos.OrderItemsResponse;
 import zentry.back.api.business.services.OrderItemsService;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/business/order-items")
 @Tag(name = "Order Items", description = "Ítems dentro de una orden — clave compuesta (orderId + productId)")
@@ -51,8 +53,8 @@ public class OrderItemsController {
     })
     @GetMapping("/{orderId}/{productId}")
     public ResponseEntity<OrderItemsResponse> getById(
-            @Parameter(description = "ID de la orden") @PathVariable Integer orderId,
-            @Parameter(description = "ID del producto") @PathVariable Integer productId) {
+            @Parameter(description = "ID de la orden") @PathVariable UUID orderId,
+            @Parameter(description = "ID del producto") @PathVariable UUID productId) {
         return ResponseEntity.ok(service.getById(orderId, productId));
     }
 
@@ -78,8 +80,8 @@ public class OrderItemsController {
     })
     @PutMapping("/{orderId}/{productId}")
     public ResponseEntity<OrderItemsResponse> update(
-            @Parameter(description = "ID de la orden") @PathVariable Integer orderId,
-            @Parameter(description = "ID del producto") @PathVariable Integer productId,
+            @Parameter(description = "ID de la orden") @PathVariable UUID orderId,
+            @Parameter(description = "ID del producto") @PathVariable UUID productId,
             @Valid @RequestBody OrderItemsRequest request) {
         return ResponseEntity.ok(service.update(orderId, productId, request));
     }
@@ -92,8 +94,8 @@ public class OrderItemsController {
     })
     @DeleteMapping("/{orderId}/{productId}")
     public ResponseEntity<Void> delete(
-            @Parameter(description = "ID de la orden") @PathVariable Integer orderId,
-            @Parameter(description = "ID del producto") @PathVariable Integer productId) {
+            @Parameter(description = "ID de la orden") @PathVariable UUID orderId,
+            @Parameter(description = "ID del producto") @PathVariable UUID productId) {
         service.delete(orderId, productId);
         return ResponseEntity.noContent().build();
     }

@@ -31,6 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("iaModelsService")
+@SuppressWarnings("all")
 class iaModelsServiceTest {
 
     @Mock

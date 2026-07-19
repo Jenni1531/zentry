@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.LiveCommentRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class LiveCommentService {
 
     private final LiveCommentRepository repo;

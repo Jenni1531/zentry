@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.ReportRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ReportService {
 
     private final ReportRepository repo;

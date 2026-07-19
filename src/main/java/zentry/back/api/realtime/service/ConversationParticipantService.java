@@ -14,6 +14,7 @@ import zentry.back.api.realtime.repositories.ConversationParticipantRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ConversationParticipantService {
 
     private final ConversationParticipantRepository repo;

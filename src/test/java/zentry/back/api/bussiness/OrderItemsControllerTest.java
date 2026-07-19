@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,6 +22,7 @@ import zentry.back.api.business.dtos.OrderItemsResponse;
 import zentry.back.api.business.services.OrderItemsService;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,77 +33,85 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(securityConfig.class)
 @WebMvcTest(OrderItemsController.class)
 @DisplayName("OrderItemsController")
+@SuppressWarnings("all")
 class OrderItemsControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  OrderItemsService service;
+    @MockitoBean  OrderItemsService service;
 
     private static final String BASE = "/api/business/order-items";
+    private static final UUID orderUuid = UUID.randomUUID();
+    private static final UUID productUuid = UUID.randomUUID();
 
     private OrderItemsResponse sample() {
-        return OrderItemsResponse.builder().orderId(10).productId(20).cantidad(5).build();
+        return OrderItemsResponse.builder().orderId(orderUuid).productId(productUuid).cantidad(5).build();
     }
 
-    @Nested @DisplayName("GET /") class ListTests {
+    @Nested @DisplayName("GET /") @SuppressWarnings("all")
+class ListTests {
         @Test void list_200() throws Exception {
             when(service.list(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(sample())));
             mvc.perform(get(BASE)).andExpect(status().isOk())
-               .andExpect(jsonPath("$.content[0].orderId").value(10));
+               .andExpect(jsonPath("$.content[0].orderId").value(orderUuid.toString()));
         }
     }
 
-    @Nested @DisplayName("GET /{orderId}/{productId}") class GetByIdTests {
+    @Nested @DisplayName("GET /{orderId}/{productId}") @SuppressWarnings("all")
+class GetByIdTests {
         @Test void getById_200() throws Exception {
-            when(service.getById(10, 20)).thenReturn(sample());
-            mvc.perform(get(BASE + "/10/20")).andExpect(status().isOk())
+            when(service.getById(orderUuid, productUuid)).thenReturn(sample());
+            mvc.perform(get(BASE + "/" + orderUuid + "/" + productUuid)).andExpect(status().isOk())
                .andExpect(jsonPath("$.cantidad").value(5));
         }
         @Test void getById_404() throws Exception {
-            when(service.getById(9, 9)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
-            mvc.perform(get(BASE + "/9/9")).andExpect(status().isNotFound());
+            when(service.getById(any(), any())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+            mvc.perform(get(BASE + "/" + UUID.randomUUID() + "/" + UUID.randomUUID())).andExpect(status().isNotFound());
         }
     }
 
-    @Nested @DisplayName("POST /") class CreateTests {
+    @Nested @DisplayName("POST /") @SuppressWarnings("all")
+class CreateTests {
         @Test void create_201() throws Exception {
-            OrderItemsRequest req = OrderItemsRequest.builder().orderId(10).productId(20).cantidad(5).build();
+            OrderItemsRequest req = OrderItemsRequest.builder().orderId(orderUuid).productId(productUuid).cantidad(5).build();
             when(service.create(any())).thenReturn(sample());
             mvc.perform(post(BASE).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(req)))
-               .andExpect(status().isCreated()).andExpect(jsonPath("$.orderId").value(10));
+               .andExpect(status().isCreated()).andExpect(jsonPath("$.orderId").value(orderUuid.toString()));
         }
         @Test void create_400_duplicate() throws Exception {
             when(service.create(any())).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
             mvc.perform(post(BASE).contentType(MediaType.APPLICATION_JSON)
-               .content(json.writeValueAsString(OrderItemsRequest.builder().orderId(10).productId(20).cantidad(1).build())))
+               .content(json.writeValueAsString(OrderItemsRequest.builder().orderId(orderUuid).productId(productUuid).cantidad(1).build())))
                .andExpect(status().isBadRequest());
         }
     }
 
-    @Nested @DisplayName("PUT /{orderId}/{productId}") class UpdateTests {
+    @Nested @DisplayName("PUT /{orderId}/{productId}") @SuppressWarnings("all")
+class UpdateTests {
         @Test void update_200() throws Exception {
-            OrderItemsRequest req = OrderItemsRequest.builder().orderId(10).productId(20).cantidad(99).build();
-            when(service.update(eq(10), eq(20), any()))
-                .thenReturn(OrderItemsResponse.builder().orderId(10).productId(20).cantidad(99).build());
-            mvc.perform(put(BASE + "/10/20").contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(req)))
+            OrderItemsRequest req = OrderItemsRequest.builder().orderId(orderUuid).productId(productUuid).cantidad(99).build();
+            when(service.update(eq(orderUuid), eq(productUuid), any()))
+                .thenReturn(OrderItemsResponse.builder().orderId(orderUuid).productId(productUuid).cantidad(99).build());
+            mvc.perform(put(BASE + "/" + orderUuid + "/" + productUuid).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(req)))
                .andExpect(status().isOk()).andExpect(jsonPath("$.cantidad").value(99));
         }
         @Test void update_404() throws Exception {
-            when(service.update(eq(9), eq(9), any())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
-            mvc.perform(put(BASE + "/9/9").contentType(MediaType.APPLICATION_JSON)
-               .content(json.writeValueAsString(OrderItemsRequest.builder().orderId(9).productId(9).cantidad(1).build())))
+            when(service.update(any(), any(), any())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+            mvc.perform(put(BASE + "/" + UUID.randomUUID() + "/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON)
+               .content(json.writeValueAsString(OrderItemsRequest.builder().orderId(UUID.randomUUID()).productId(UUID.randomUUID()).cantidad(1).build())))
                .andExpect(status().isNotFound());
         }
     }
 
-    @Nested @DisplayName("DELETE /{orderId}/{productId}") class DeleteTests {
+    @Nested @DisplayName("DELETE /{orderId}/{productId}") @SuppressWarnings("all")
+class DeleteTests {
         @Test void delete_204() throws Exception {
-            doNothing().when(service).delete(10, 20);
-            mvc.perform(delete(BASE + "/10/20")).andExpect(status().isNoContent());
+            doNothing().when(service).delete(orderUuid, productUuid);
+            mvc.perform(delete(BASE + "/" + orderUuid + "/" + productUuid)).andExpect(status().isNoContent());
         }
         @Test void delete_404() throws Exception {
-            doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(service).delete(9, 9);
-            mvc.perform(delete(BASE + "/9/9")).andExpect(status().isNotFound());
+            doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(service).delete(any(), any());
+            mvc.perform(delete(BASE + "/" + UUID.randomUUID() + "/" + UUID.randomUUID())).andExpect(status().isNotFound());
         }
     }
 }

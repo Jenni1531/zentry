@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.HeatmapRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class HeatmapService {
 
     private final HeatmapRepository repo;

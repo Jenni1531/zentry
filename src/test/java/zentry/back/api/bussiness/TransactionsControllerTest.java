@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,11 +34,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(securityConfig.class)
 @WebMvcTest(TransactionsController.class)
 @DisplayName("TransactionsController")
+@SuppressWarnings("all")
 class TransactionsControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  TransactionsService service;
+    @MockitoBean  TransactionsService service;
 
     private static final String BASE = "/api/business/transactions";
     private final UUID id = UUID.randomUUID();
@@ -47,7 +48,8 @@ class TransactionsControllerTest {
         return TransactionsResponse.builder().id(id).userId(1).amount(new BigDecimal("75.00")).build();
     }
 
-    @Nested @DisplayName("GET /") class ListTests {
+    @Nested @DisplayName("GET /") @SuppressWarnings("all")
+class ListTests {
         @Test void list_200() throws Exception {
             when(service.list(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(sample())));
             mvc.perform(get(BASE)).andExpect(status().isOk())
@@ -55,7 +57,8 @@ class TransactionsControllerTest {
         }
     }
 
-    @Nested @DisplayName("GET /{id}") class GetByIdTests {
+    @Nested @DisplayName("GET /{id}") @SuppressWarnings("all")
+class GetByIdTests {
         @Test void getById_200() throws Exception {
             when(service.getById(id)).thenReturn(sample());
             mvc.perform(get(BASE + "/" + id)).andExpect(status().isOk())
@@ -68,7 +71,8 @@ class TransactionsControllerTest {
         }
     }
 
-    @Nested @DisplayName("POST /") class CreateTests {
+    @Nested @DisplayName("POST /") @SuppressWarnings("all")
+class CreateTests {
         @Test void create_201() throws Exception {
             TransactionsRequest req = TransactionsRequest.builder().userId(1).amount(new BigDecimal("75.00")).build();
             when(service.create(any())).thenReturn(sample());
@@ -77,7 +81,8 @@ class TransactionsControllerTest {
         }
     }
 
-    @Nested @DisplayName("PUT /{id}") class UpdateTests {
+    @Nested @DisplayName("PUT /{id}") @SuppressWarnings("all")
+class UpdateTests {
         @Test void update_200() throws Exception {
             TransactionsRequest req = TransactionsRequest.builder().userId(1).amount(new BigDecimal("200.00")).build();
             when(service.update(eq(id), any())).thenReturn(TransactionsResponse.builder().id(id).userId(1).amount(new BigDecimal("200.00")).build());
@@ -93,7 +98,8 @@ class TransactionsControllerTest {
         }
     }
 
-    @Nested @DisplayName("DELETE /{id}") class DeleteTests {
+    @Nested @DisplayName("DELETE /{id}") @SuppressWarnings("all")
+class DeleteTests {
         @Test void delete_204() throws Exception {
             doNothing().when(service).delete(id);
             mvc.perform(delete(BASE + "/" + id)).andExpect(status().isNoContent());

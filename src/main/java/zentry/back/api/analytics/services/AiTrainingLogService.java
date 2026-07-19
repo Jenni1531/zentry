@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.AiTrainingLogRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class AiTrainingLogService {
 
     private final AiTrainingLogRepository repo;

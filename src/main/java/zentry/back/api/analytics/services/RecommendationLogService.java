@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.RecommendationLogRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class RecommendationLogService {
 
     private final RecommendationLogRepository repo;

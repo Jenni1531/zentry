@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.MentionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class MentionService {
 
     private final MentionRepository repo;

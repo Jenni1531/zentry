@@ -14,6 +14,7 @@ import zentry.back.api.realtime.repositories.VideoSessionParticipantRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class VideoSessionParticipantService {
 
     private final VideoSessionParticipantRepository repo;

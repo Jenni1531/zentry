@@ -17,7 +17,7 @@ public interface PaymentsRepository extends JpaRepository<Payments, UUID> {
 
     Page<Payments> findByUserId(Integer userId, Pageable pageable);
 
-    List<Payments> findByPaymentMethodId(Integer paymentMethodId);
+    List<Payments> findByPaymentMethodId(UUID paymentMethodId);
 
     List<Payments> findByAmountGreaterThanEqual(BigDecimal amount);
 }

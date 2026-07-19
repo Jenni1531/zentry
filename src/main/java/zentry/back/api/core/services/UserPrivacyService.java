@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.UserPrivacyRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class UserPrivacyService {
 
     private final UserPrivacyRepository repo;

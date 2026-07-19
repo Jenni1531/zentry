@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.CommunityRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class CommunityService {
 
     private final CommunityRepository repo;

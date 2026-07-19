@@ -14,6 +14,7 @@ import zentry.back.api.realtime.repositories.EditingSessionUserRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class EditingSessionUserService {
 
     private final EditingSessionUserRepository repo;

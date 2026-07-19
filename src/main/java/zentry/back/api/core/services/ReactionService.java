@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.ReactionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ReactionService {
 
     private final ReactionRepository repo;

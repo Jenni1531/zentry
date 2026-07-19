@@ -1,6 +1,6 @@
 package zentry.back.api.bussiness;
 
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+
 import org.springframework.context.annotation.Import;
 import zentry.back.api.config.securityConfig;
 

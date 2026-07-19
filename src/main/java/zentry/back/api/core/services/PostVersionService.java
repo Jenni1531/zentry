@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.PostVersionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class PostVersionService {
 
     private final PostVersionRepository repo;

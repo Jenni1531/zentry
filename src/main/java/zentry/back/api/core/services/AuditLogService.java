@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.AuditLogRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class AuditLogService {
 
     private final AuditLogRepository repo;

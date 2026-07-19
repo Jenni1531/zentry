@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +48,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * Grouped test for remaining UUID-based controllers that follow an identical
- * CRUD pattern. Each inner class targets a different controller.
+ * CRUD pattern. Each inner @SuppressWarnings("all")
+class targets a different controller.
  *
  * Note: @Import(securityConfig.class)
 @WebMvcTest only loads the specified controller per class, so we have
@@ -61,11 +62,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(securityConfig.class)
 @WebMvcTest(MarketplaceOrdersController.class)
 @DisplayName("MarketplaceOrdersController")
+@SuppressWarnings("all")
 class MarketplaceOrdersControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  MarketplaceOrdersService service;
+    @MockitoBean  MarketplaceOrdersService service;
 
     private static final String BASE = "/api/business/marketplace-orders";
     private final UUID id = UUID.randomUUID();
@@ -74,7 +76,8 @@ class MarketplaceOrdersControllerTest {
         return MarketplaceOrdersResponse.builder().id(id).buyerId(1).total(new BigDecimal("120.00")).build();
     }
 
-    @Nested @DisplayName("GET /") class List200 {
+    @Nested @DisplayName("GET /") @SuppressWarnings("all")
+class List200 {
         @Test void ok() throws Exception {
             when(service.list(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(sample())));
             mvc.perform(get(BASE)).andExpect(status().isOk())
@@ -82,7 +85,8 @@ class MarketplaceOrdersControllerTest {
         }
     }
 
-    @Nested @DisplayName("GET /{id}") class GetById {
+    @Nested @DisplayName("GET /{id}") @SuppressWarnings("all")
+class GetById {
         @Test void found() throws Exception {
             when(service.getById(id)).thenReturn(sample());
             mvc.perform(get(BASE + "/" + id)).andExpect(status().isOk())
@@ -95,7 +99,8 @@ class MarketplaceOrdersControllerTest {
         }
     }
 
-    @Nested @DisplayName("POST /") class Create {
+    @Nested @DisplayName("POST /") @SuppressWarnings("all")
+class Create {
         @Test void created() throws Exception {
             MarketplaceOrdersRequest req = MarketplaceOrdersRequest.builder().buyerId(1).total(new BigDecimal("120.00")).build();
             when(service.create(any())).thenReturn(sample());
@@ -104,7 +109,8 @@ class MarketplaceOrdersControllerTest {
         }
     }
 
-    @Nested @DisplayName("PUT /{id}") class Update {
+    @Nested @DisplayName("PUT /{id}") @SuppressWarnings("all")
+class Update {
         @Test void updated() throws Exception {
             MarketplaceOrdersRequest req = MarketplaceOrdersRequest.builder().buyerId(2).total(new BigDecimal("200.00")).build();
             when(service.update(eq(id), any())).thenReturn(MarketplaceOrdersResponse.builder().id(id).buyerId(2).total(new BigDecimal("200.00")).build());
@@ -120,7 +126,8 @@ class MarketplaceOrdersControllerTest {
         }
     }
 
-    @Nested @DisplayName("DELETE /{id}") class Delete {
+    @Nested @DisplayName("DELETE /{id}") @SuppressWarnings("all")
+class Delete {
         @Test void deleted() throws Exception {
             doNothing().when(service).delete(id);
             mvc.perform(delete(BASE + "/" + id)).andExpect(status().isNoContent());

@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.ConversationRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ConversationService {
 
     private final ConversationRepository repo;

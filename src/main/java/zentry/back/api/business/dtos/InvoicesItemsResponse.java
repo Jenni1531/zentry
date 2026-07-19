@@ -8,7 +8,7 @@ import java.util.UUID;
 @AllArgsConstructor @NoArgsConstructor
 public class InvoicesItemsResponse {
     private UUID id;
-    private Integer invoiceId;
+    private UUID invoiceId;
     private String descripcion;
     private BigDecimal precio;
 }

@@ -1,6 +1,7 @@
 package zentry.back.api.business.models;
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.UUID;
 
 @Entity
 @Table(name = "cart_items", schema = "zentry_business")
@@ -10,11 +11,11 @@ public class CartItems {
 
     @Id
     @Column(name = "cart_id")
-    private Integer cartId;
+    private UUID cartId;
 
     @Id
     @Column(name = "product_id")
-    private Integer productId;
+    private UUID productId;
 
     @Column(name = "cantidad")
     private Integer cantidad;
@@ -24,7 +25,7 @@ public class CartItems {
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
     public static class CartItemsId implements java.io.Serializable {
-        private Integer cartId;
-        private Integer productId;
+        private UUID cartId;
+        private UUID productId;
     }
 }
