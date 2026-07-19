@@ -14,6 +14,7 @@ import zentry.back.api.core.repositories.CommunityMemberRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class CommunityMemberService {
 
     private final CommunityMemberRepository repo;

@@ -14,6 +14,7 @@ import zentry.back.api.realtime.repositories.VoiceSessionParticipantRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class VoiceSessionParticipantService {
 
     private final VoiceSessionParticipantRepository repo;

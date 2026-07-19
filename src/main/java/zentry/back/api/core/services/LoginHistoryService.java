@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.LoginHistoryRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class LoginHistoryService {
 
     private final LoginHistoryRepository repo;

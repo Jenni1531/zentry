@@ -14,6 +14,7 @@ import zentry.back.api.realtime.repositories.TypingStatusRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class TypingStatusService {
 
     private final TypingStatusRepository repo;

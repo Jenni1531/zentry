@@ -14,7 +14,7 @@ public class AffiliatePayouts {
     private UUID id;
 
     @Column(name = "affiliate_id", nullable = false)
-    private Integer affiliateId;
+    private UUID affiliateId;
 
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;

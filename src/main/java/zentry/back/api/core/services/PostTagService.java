@@ -14,6 +14,7 @@ import zentry.back.api.core.repositories.PostTagRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class PostTagService {
 
     private final PostTagRepository repo;

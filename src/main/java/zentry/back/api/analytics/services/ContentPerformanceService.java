@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.ContentPerformanceRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ContentPerformanceService {
 
     private final ContentPerformanceRepository repo;

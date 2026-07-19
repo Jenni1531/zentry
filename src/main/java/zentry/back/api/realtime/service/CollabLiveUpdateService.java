@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.CollabLiveUpdateRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class CollabLiveUpdateService {
 
     private final CollabLiveUpdateRepository repo;

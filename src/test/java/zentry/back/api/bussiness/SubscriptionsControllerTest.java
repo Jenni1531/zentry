@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -33,21 +33,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(securityConfig.class)
 @WebMvcTest(SubscriptionsController.class)
 @DisplayName("SubscriptionsController")
+@SuppressWarnings("all")
 class SubscriptionsControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  SubscriptionsService service;
+    @MockitoBean  SubscriptionsService service;
 
     private static final String BASE = "/api/business/subscriptions";
     private final UUID id = UUID.randomUUID();
-    private final Integer planId = 42;
+    private final UUID planId = UUID.randomUUID();
 
     private SubscriptionsResponse sample() {
         return SubscriptionsResponse.builder().id(id).userId(1).planId(planId).build();
     }
 
-    @Nested @DisplayName("GET /") class ListTests {
+    @Nested @DisplayName("GET /") @SuppressWarnings("all")
+class ListTests {
         @Test void list_200() throws Exception {
             when(service.list(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(sample())));
             mvc.perform(get(BASE)).andExpect(status().isOk())
@@ -55,7 +57,8 @@ class SubscriptionsControllerTest {
         }
     }
 
-    @Nested @DisplayName("GET /{id}") class GetByIdTests {
+    @Nested @DisplayName("GET /{id}") @SuppressWarnings("all")
+class GetByIdTests {
         @Test void getById_200() throws Exception {
             when(service.getById(id)).thenReturn(sample());
             mvc.perform(get(BASE + "/" + id)).andExpect(status().isOk())
@@ -68,7 +71,8 @@ class SubscriptionsControllerTest {
         }
     }
 
-    @Nested @DisplayName("POST /") class CreateTests {
+    @Nested @DisplayName("POST /") @SuppressWarnings("all")
+class CreateTests {
         @Test void create_201() throws Exception {
             SubscriptionsRequest req = SubscriptionsRequest.builder().userId(1).planId(planId).build();
             when(service.create(any())).thenReturn(sample());
@@ -78,15 +82,16 @@ class SubscriptionsControllerTest {
         @Test void create_400_duplicate() throws Exception {
             when(service.create(any())).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST));
             mvc.perform(post(BASE).contentType(MediaType.APPLICATION_JSON)
-               .content(json.writeValueAsString(SubscriptionsRequest.builder().userId(1).planId(99).build())))
+               .content(json.writeValueAsString(SubscriptionsRequest.builder().userId(1).planId(UUID.randomUUID()).build())))
                .andExpect(status().isBadRequest());
         }
     }
 
-    @Nested @DisplayName("PUT /{id}") class UpdateTests {
+    @Nested @DisplayName("PUT /{id}") @SuppressWarnings("all")
+class UpdateTests {
         @Test void update_200() throws Exception {
-            SubscriptionsRequest req = SubscriptionsRequest.builder().userId(1).planId(99).build();
-            when(service.update(eq(id), any())).thenReturn(SubscriptionsResponse.builder().id(id).userId(1).planId(99).build());
+            SubscriptionsRequest req = SubscriptionsRequest.builder().userId(1).planId(UUID.randomUUID()).build();
+            when(service.update(eq(id), any())).thenReturn(SubscriptionsResponse.builder().id(id).userId(1).planId(UUID.randomUUID()).build());
             mvc.perform(put(BASE + "/" + id).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(req)))
                .andExpect(status().isOk());
         }
@@ -99,7 +104,8 @@ class SubscriptionsControllerTest {
         }
     }
 
-    @Nested @DisplayName("DELETE /{id}") class DeleteTests {
+    @Nested @DisplayName("DELETE /{id}") @SuppressWarnings("all")
+class DeleteTests {
         @Test void delete_204() throws Exception {
             doNothing().when(service).delete(id);
             mvc.perform(delete(BASE + "/" + id)).andExpect(status().isNoContent());

@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.ConversionFunnelRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ConversionFunnelService {
 
     private final ConversionFunnelRepository repo;

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,13 +31,15 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Import(securityConfig.class)
 @WebMvcTest(WalletsController.class)
 @DisplayName("WalletsController")
+@SuppressWarnings("all")
 class WalletsControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  WalletsService service;
+    @MockitoBean  WalletsService service;
 
     private static final String BASE = "/api/business/wallets";
 
@@ -47,7 +49,8 @@ class WalletsControllerTest {
 
     // ── GET / ────────────────────────────────────────────────────────────────
     @Nested @DisplayName("GET /")
-    class ListTests {
+    @SuppressWarnings("all")
+class ListTests {
 
         @Test @DisplayName("200 with page of wallets")
         void list_200() throws Exception {
@@ -70,7 +73,8 @@ class WalletsControllerTest {
 
     // ── GET /{userId} ────────────────────────────────────────────────────────
     @Nested @DisplayName("GET /{userId}")
-    class GetByIdTests {
+    @SuppressWarnings("all")
+class GetByIdTests {
 
         @Test @DisplayName("200 when wallet exists")
         void getById_200() throws Exception {
@@ -89,7 +93,8 @@ class WalletsControllerTest {
 
     // ── POST / ───────────────────────────────────────────────────────────────
     @Nested @DisplayName("POST /")
-    class CreateTests {
+    @SuppressWarnings("all")
+class CreateTests {
 
         @Test @DisplayName("201 on successful creation")
         void create_201() throws Exception {
@@ -113,7 +118,8 @@ class WalletsControllerTest {
 
     // ── PUT /{userId} ────────────────────────────────────────────────────────
     @Nested @DisplayName("PUT /{userId}")
-    class UpdateTests {
+    @SuppressWarnings("all")
+class UpdateTests {
 
         @Test @DisplayName("200 on successful update")
         void update_200() throws Exception {
@@ -137,7 +143,8 @@ class WalletsControllerTest {
 
     // ── DELETE /{userId} ─────────────────────────────────────────────────────
     @Nested @DisplayName("DELETE /{userId}")
-    class DeleteTests {
+    @SuppressWarnings("all")
+class DeleteTests {
 
         @Test @DisplayName("204 on successful delete")
         void delete_204() throws Exception {

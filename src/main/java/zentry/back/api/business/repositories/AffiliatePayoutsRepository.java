@@ -13,9 +13,9 @@ import java.util.UUID;
 @Repository
 public interface AffiliatePayoutsRepository extends JpaRepository<AffiliatePayouts, UUID> {
 
-    List<AffiliatePayouts> findByAffiliateId(Integer affiliateId);
+    List<AffiliatePayouts> findByAffiliateId(UUID affiliateId);
 
-    Page<AffiliatePayouts> findByAffiliateId(Integer affiliateId, Pageable pageable);
+    Page<AffiliatePayouts> findByAffiliateId(UUID affiliateId, Pageable pageable);
 
     List<AffiliatePayouts> findByAmountGreaterThanEqual(BigDecimal amount);
 }

@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.UserBehaviorRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class UserBehaviorService {
 
     private final UserBehaviorRepository repo;

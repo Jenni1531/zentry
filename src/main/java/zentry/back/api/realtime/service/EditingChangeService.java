@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.EditingChangeRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class EditingChangeService {
 
     private final EditingChangeRepository repo;

@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.ProfileRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ProfileService {
 
     private final ProfileRepository repo;

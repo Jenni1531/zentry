@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -34,11 +34,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(securityConfig.class)
 @WebMvcTest(SubscriptionPlansController.class)
 @DisplayName("SubscriptionPlansController")
+@SuppressWarnings("all")
 class SubscriptionPlansControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  SubscriptionPlansService service;
+    @MockitoBean  SubscriptionPlansService service;
 
     private static final String BASE = "/api/business/subscription-plans";
     private final UUID id = UUID.randomUUID();
@@ -47,7 +48,8 @@ class SubscriptionPlansControllerTest {
         return SubscriptionPlansResponse.builder().id(id).name("Pro").precio(new BigDecimal("9.99")).build();
     }
 
-    @Nested @DisplayName("GET /") class ListTests {
+    @Nested @DisplayName("GET /") @SuppressWarnings("all")
+class ListTests {
         @Test @DisplayName("200 page") void list_200() throws Exception {
             when(service.list(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(sample())));
             mvc.perform(get(BASE)).andExpect(status().isOk())
@@ -55,7 +57,8 @@ class SubscriptionPlansControllerTest {
         }
     }
 
-    @Nested @DisplayName("GET /{id}") class GetByIdTests {
+    @Nested @DisplayName("GET /{id}") @SuppressWarnings("all")
+class GetByIdTests {
         @Test @DisplayName("200 when found") void getById_200() throws Exception {
             when(service.getById(id)).thenReturn(sample());
             mvc.perform(get(BASE + "/" + id)).andExpect(status().isOk())
@@ -68,7 +71,8 @@ class SubscriptionPlansControllerTest {
         }
     }
 
-    @Nested @DisplayName("POST /") class CreateTests {
+    @Nested @DisplayName("POST /") @SuppressWarnings("all")
+class CreateTests {
         @Test @DisplayName("201 on success") void create_201() throws Exception {
             SubscriptionPlansRequest req = SubscriptionPlansRequest.builder().name("Pro").precio(new BigDecimal("9.99")).build();
             when(service.create(any())).thenReturn(sample());
@@ -83,7 +87,8 @@ class SubscriptionPlansControllerTest {
         }
     }
 
-    @Nested @DisplayName("PUT /{id}") class UpdateTests {
+    @Nested @DisplayName("PUT /{id}") @SuppressWarnings("all")
+class UpdateTests {
         @Test @DisplayName("200 on success") void update_200() throws Exception {
             SubscriptionPlansRequest req = SubscriptionPlansRequest.builder().name("Pro+").precio(new BigDecimal("19.99")).build();
             when(service.update(eq(id), any())).thenReturn(SubscriptionPlansResponse.builder().id(id).name("Pro+").precio(new BigDecimal("19.99")).build());
@@ -99,7 +104,8 @@ class SubscriptionPlansControllerTest {
         }
     }
 
-    @Nested @DisplayName("DELETE /{id}") class DeleteTests {
+    @Nested @DisplayName("DELETE /{id}") @SuppressWarnings("all")
+class DeleteTests {
         @Test @DisplayName("204 on success") void delete_204() throws Exception {
             doNothing().when(service).delete(id);
             mvc.perform(delete(BASE + "/" + id)).andExpect(status().isNoContent());

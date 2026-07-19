@@ -10,9 +10,9 @@ import java.util.UUID;
 @Repository
 public interface AdImpressionsRepository extends JpaRepository<AdImpressions, UUID> {
 
-    List<AdImpressions> findByCampaignId(Integer campaignId);
+    List<AdImpressions> findByCampaignId(UUID campaignId);
 
     List<AdImpressions> findByVistasGreaterThanEqual(Integer vistas);
 
-    boolean existsByCampaignId(Integer campaignId);
+    boolean existsByCampaignId(UUID campaignId);
 }

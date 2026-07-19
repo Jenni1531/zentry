@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.EditingSessionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class EditingSessionService {
 
     private final EditingSessionRepository repo;

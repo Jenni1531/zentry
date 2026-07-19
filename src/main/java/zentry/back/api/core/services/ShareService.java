@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.ShareRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ShareService {
 
     private final ShareRepository repo;

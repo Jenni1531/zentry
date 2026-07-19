@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.MediaRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class MediaService {
 
     private final MediaRepository repo;

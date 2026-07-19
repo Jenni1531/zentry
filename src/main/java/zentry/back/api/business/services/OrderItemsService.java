@@ -13,7 +13,10 @@ import zentry.back.api.business.models.OrderItems.OrderItemsId;
 import zentry.back.api.business.repositories.OrderItemsRepository;
 import zentry.back.api.global.mappers;
 
+import java.util.UUID;
+
 @Service
+@SuppressWarnings("null")
 public class OrderItemsService {
 
     private final OrderItemsRepository repo;
@@ -26,7 +29,7 @@ public class OrderItemsService {
         return repo.findAll(pageable).map(mappers::toResponse);
     }
 
-    public OrderItemsResponse getById(Integer orderId, Integer productId) {
+    public OrderItemsResponse getById(UUID orderId, UUID productId) {
         OrderItemsId id = new OrderItemsId(orderId, productId);
         OrderItems entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "OrderItem not found"));
@@ -45,7 +48,7 @@ public class OrderItemsService {
         return mappers.toResponse(repo.save(entity));
     }
 
-    public OrderItemsResponse update(Integer orderId, Integer productId, OrderItemsRequest request) {
+    public OrderItemsResponse update(UUID orderId, UUID productId, OrderItemsRequest request) {
         OrderItemsId id = new OrderItemsId(orderId, productId);
         OrderItems entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "OrderItem not found"));
@@ -53,7 +56,7 @@ public class OrderItemsService {
         return mappers.toResponse(repo.save(entity));
     }
 
-    public void delete(Integer orderId, Integer productId) {
+    public void delete(UUID orderId, UUID productId) {
         OrderItemsId id = new OrderItemsId(orderId, productId);
         OrderItems entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "OrderItem not found"));

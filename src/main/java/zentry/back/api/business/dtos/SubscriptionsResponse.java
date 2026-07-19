@@ -8,5 +8,5 @@ import java.util.UUID;
 public class SubscriptionsResponse {
     private UUID id;
     private Integer userId;
-    private Integer planId;
+    private UUID planId;
 }

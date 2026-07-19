@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.PresenceLogRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class PresenceLogService {
 
     private final PresenceLogRepository repo;

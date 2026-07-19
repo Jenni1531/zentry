@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.EngagementMetricRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class EngagementMetricService {
 
     private final EngagementMetricRepository repo;

@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.RetentionDataRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class RetentionDataService {
 
     private final RetentionDataRepository repo;

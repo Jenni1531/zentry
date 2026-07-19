@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.UserSessionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class UserSessionService {
 
     private final UserSessionRepository repo;

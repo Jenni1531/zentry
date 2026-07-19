@@ -14,11 +14,11 @@ public interface SubscriptionsRepository extends JpaRepository<Subscriptions, UU
 
     List<Subscriptions> findByUserId(Integer userId);
 
-    List<Subscriptions> findByPlanId(Integer planId);
+    List<Subscriptions> findByPlanId(UUID planId);
 
     Page<Subscriptions> findByUserId(Integer userId, Pageable pageable);
 
     boolean existsByUserId(Integer userId);
 
-    boolean existsByUserIdAndPlanId(Integer userId, Integer planId);
+    boolean existsByUserIdAndPlanId(Integer userId, UUID planId);
 }

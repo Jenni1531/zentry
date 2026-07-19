@@ -7,6 +7,6 @@ import java.util.UUID;
 @AllArgsConstructor @NoArgsConstructor
 public class AdImpressionsResponse {
     private UUID id;
-    private Integer campaignId;
+    private UUID campaignId;
     private Integer vistas;
 }

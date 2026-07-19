@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.SystemConfigRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class SystemConfigService {
 
     private final SystemConfigRepository repo;

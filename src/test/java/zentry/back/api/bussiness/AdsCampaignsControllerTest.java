@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -33,11 +33,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(securityConfig.class)
 @WebMvcTest(AdsCampaignsController.class)
 @DisplayName("AdsCampaignsController")
+@SuppressWarnings("all")
 class AdsCampaignsControllerTest {
 
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
-    @MockBean  AdsCampaignsService service;
+    @MockitoBean  AdsCampaignsService service;
 
     private static final String BASE = "/api/business/ads-campaigns";
     private final UUID id = UUID.randomUUID();
@@ -46,7 +47,8 @@ class AdsCampaignsControllerTest {
         return AdsCampaignsResponse.builder().id(id).userId(1).nombre("Summer Sale").build();
     }
 
-    @Nested @DisplayName("GET /") class ListTests {
+    @Nested @DisplayName("GET /") @SuppressWarnings("all")
+class ListTests {
         @Test void list_200() throws Exception {
             when(service.list(any(Pageable.class))).thenReturn(new PageImpl<>(List.of(sample())));
             mvc.perform(get(BASE)).andExpect(status().isOk())
@@ -54,7 +56,8 @@ class AdsCampaignsControllerTest {
         }
     }
 
-    @Nested @DisplayName("GET /{id}") class GetByIdTests {
+    @Nested @DisplayName("GET /{id}") @SuppressWarnings("all")
+class GetByIdTests {
         @Test void found() throws Exception {
             when(service.getById(id)).thenReturn(sample());
             mvc.perform(get(BASE + "/" + id)).andExpect(status().isOk())
@@ -67,7 +70,8 @@ class AdsCampaignsControllerTest {
         }
     }
 
-    @Nested @DisplayName("POST /") class CreateTests {
+    @Nested @DisplayName("POST /") @SuppressWarnings("all")
+class CreateTests {
         @Test void create_201() throws Exception {
             AdsCampaignsRequest req = AdsCampaignsRequest.builder().userId(1).nombre("Winter Sale").build();
             when(service.create(any())).thenReturn(AdsCampaignsResponse.builder().id(UUID.randomUUID()).userId(1).nombre("Winter Sale").build());
@@ -82,7 +86,8 @@ class AdsCampaignsControllerTest {
         }
     }
 
-    @Nested @DisplayName("PUT /{id}") class UpdateTests {
+    @Nested @DisplayName("PUT /{id}") @SuppressWarnings("all")
+class UpdateTests {
         @Test void update_200() throws Exception {
             AdsCampaignsRequest req = AdsCampaignsRequest.builder().userId(1).nombre("Black Friday").build();
             when(service.update(eq(id), any())).thenReturn(AdsCampaignsResponse.builder().id(id).userId(1).nombre("Black Friday").build());
@@ -98,7 +103,8 @@ class AdsCampaignsControllerTest {
         }
     }
 
-    @Nested @DisplayName("DELETE /{id}") class DeleteTests {
+    @Nested @DisplayName("DELETE /{id}") @SuppressWarnings("all")
+class DeleteTests {
         @Test void delete_204() throws Exception {
             doNothing().when(service).delete(id);
             mvc.perform(delete(BASE + "/" + id)).andExpect(status().isNoContent());

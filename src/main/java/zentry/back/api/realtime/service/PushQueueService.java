@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.PushQueueRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class PushQueueService {
 
     private final PushQueueRepository repo;

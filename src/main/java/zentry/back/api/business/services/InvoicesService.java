@@ -15,6 +15,7 @@ import zentry.back.api.global.mappers;
 import java.util.UUID;
 
 @Service
+@SuppressWarnings("null")
 public class InvoicesService {
 
     private final InvoicesRepository repo;

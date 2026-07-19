@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.SocketConnectionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class SocketConnectionService {
 
     private final SocketConnectionRepository repo;

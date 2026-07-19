@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.NotificationRepository;
 import zentry.back.api.global.mappers;
 
 @Service("realtimeNotificationService")
+@SuppressWarnings("null")
 public class NotificationService {
 
     private final NotificationRepository repo;

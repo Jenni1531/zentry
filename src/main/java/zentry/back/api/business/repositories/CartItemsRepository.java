@@ -6,15 +6,16 @@ import zentry.back.api.business.models.CartItems;
 import zentry.back.api.business.models.CartItems.CartItemsId;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface CartItemsRepository extends JpaRepository<CartItems, CartItemsId> {
 
-    List<CartItems> findByCartId(Integer cartId);
+    List<CartItems> findByCartId(UUID cartId);
 
-    List<CartItems> findByProductId(Integer productId);
+    List<CartItems> findByProductId(UUID productId);
 
-    boolean existsByCartIdAndProductId(Integer cartId, Integer productId);
+    boolean existsByCartIdAndProductId(UUID cartId, UUID productId);
 
-    void deleteByCartId(Integer cartId);
+    void deleteByCartId(UUID cartId);
 }

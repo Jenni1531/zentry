@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.BookmarkRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class BookmarkService {
 
     private final BookmarkRepository repo;

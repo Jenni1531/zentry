@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.FeatureFlagRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class FeatureFlagService {
 
     private final FeatureFlagRepository repo;

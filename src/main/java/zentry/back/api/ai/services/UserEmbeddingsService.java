@@ -13,6 +13,7 @@ import zentry.back.api.ai.repositories.UserEmbeddingsRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class UserEmbeddingsService {
 
     private final UserEmbeddingsRepository repo;

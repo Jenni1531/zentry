@@ -13,6 +13,7 @@ import zentry.back.api.business.repositories.WalletsRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class WalletsService {
 
     private final WalletsRepository repo;

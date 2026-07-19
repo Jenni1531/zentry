@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * All endpoints are publicly accessible (no authentication required).
  */
 @Configuration
+@SuppressWarnings("null")
 public class securityConfig {
 
     @Bean

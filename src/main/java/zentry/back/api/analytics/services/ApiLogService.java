@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.ApiLogRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class ApiLogService {
 
     private final ApiLogRepository repo;

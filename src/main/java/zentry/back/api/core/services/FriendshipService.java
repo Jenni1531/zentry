@@ -14,6 +14,7 @@ import zentry.back.api.core.repositories.FriendshipRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class FriendshipService {
 
     private final FriendshipRepository repo;

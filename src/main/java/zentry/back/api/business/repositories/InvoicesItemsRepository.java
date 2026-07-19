@@ -10,9 +10,9 @@ import java.util.UUID;
 @Repository
 public interface InvoicesItemsRepository extends JpaRepository<InvoicesItems, UUID> {
 
-    List<InvoicesItems> findByInvoiceId(Integer invoiceId);
+    List<InvoicesItems> findByInvoiceId(UUID invoiceId);
 
     List<InvoicesItems> findByDescripcionContainingIgnoreCase(String descripcion);
 
-    void deleteByInvoiceId(Integer invoiceId);
+    void deleteByInvoiceId(UUID invoiceId);
 }

@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.TagRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class TagService {
 
     private final TagRepository repo;

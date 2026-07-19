@@ -8,6 +8,6 @@ import java.util.UUID;
 @AllArgsConstructor @NoArgsConstructor
 public class AffiliatePayoutsResponse {
     private UUID id;
-    private Integer affiliateId;
+    private UUID affiliateId;
     private BigDecimal amount;
 }

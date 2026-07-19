@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.AbTestRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class AbTestService {
 
     private final AbTestRepository repo;

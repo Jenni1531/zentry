@@ -13,6 +13,7 @@ import zentry.back.api.analytics.repositories.FeatureUsageRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class FeatureUsageService {
 
     private final FeatureUsageRepository repo;

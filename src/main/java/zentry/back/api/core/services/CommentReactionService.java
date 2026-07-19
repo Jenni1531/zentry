@@ -13,6 +13,7 @@ import zentry.back.api.core.repositories.CommentReactionRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class CommentReactionService {
 
     private final CommentReactionRepository repo;

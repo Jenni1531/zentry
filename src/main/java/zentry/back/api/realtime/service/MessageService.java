@@ -13,6 +13,7 @@ import zentry.back.api.realtime.repositories.MessageRepository;
 import zentry.back.api.global.mappers;
 
 @Service
+@SuppressWarnings("null")
 public class MessageService {
 
     private final MessageRepository repo;

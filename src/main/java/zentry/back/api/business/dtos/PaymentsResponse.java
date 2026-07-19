@@ -9,6 +9,6 @@ import java.util.UUID;
 public class PaymentsResponse {
     private UUID id;
     private Integer userId;
-    private Integer paymentMethodId;
+    private UUID paymentMethodId;
     private BigDecimal amount;
 }
