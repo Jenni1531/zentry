@@ -33,7 +33,7 @@
 
 	<!-- ===== PROPIEDADES GLOBALES ===== -->
 	<properties>
-		<java.version>17</java.version>
+		<java.version>25</java.version>
 	</properties>
 
 	<dependencies>
@@ -102,6 +102,29 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		
+		<!-- ===== JWT (JSON Web Token) ===== -->
+        <!-- API principal para interactuar con JWT -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.5</version>
+        </dependency>
+        <!-- Implementación interna (solo necesaria en tiempo de ejecución) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.5</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Integración con Jackson para serializar/deserializar JSON -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.5</version>
+            <scope>runtime</scope>
+        </dependency>
 
 
 	</dependencies>

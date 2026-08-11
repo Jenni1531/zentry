@@ -19,7 +19,7 @@ import zentry.back.api.business.controllers.AffiliatePayoutsController;
 import zentry.back.api.business.dtos.AffiliatePayoutsRequest;
 import zentry.back.api.business.dtos.AffiliatePayoutsResponse;
 import zentry.back.api.business.services.AffiliatePayoutsService;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(securityConfig.class)
+@Import(SecurityConfig.class)
 @WebMvcTest(AffiliatePayoutsController.class)
 @DisplayName("AffiliatePayoutsController")
 @SuppressWarnings("all")

@@ -1,14 +1,17 @@
 package zentry.back.api.core.dtos;
 
-import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 import lombok.*;
 
 @Getter @Setter @Builder
 @AllArgsConstructor @NoArgsConstructor
 public class ProfileRequest {
 
-    @NotNull
-    private Integer userId;
-
+    private String name;
+    private String discipline;
+    private String location;
     private String bio;
+    private MultipartFile avatar;
+    private MultipartFile banner;
+    
 }

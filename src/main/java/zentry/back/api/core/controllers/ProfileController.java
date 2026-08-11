@@ -1,19 +1,14 @@
 package zentry.back.api.core.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
+
+import java.security.Principal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.MediaType;
+import java.util.List;
 import zentry.back.api.core.dtos.ProfileRequest;
 import zentry.back.api.core.dtos.ProfileResponse;
 import zentry.back.api.core.services.ProfileService;
@@ -28,60 +23,28 @@ public class ProfileController {
     public ProfileController(ProfileService service) {
         this.service = service;
     }
-
-    @GetMapping
-    @Operation(summary = "Listar perfiles")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente"),
-        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content)
-    })
-    public ResponseEntity<Page<ProfileResponse>> list(@PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(service.list(pageable));
+    
+    @GetMapping("/search")
+    @Operation(summary = "Buscar perfiles por nombre")
+    public ResponseEntity<List<ProfileResponse>> searchProfiles(@RequestParam("q") String query) {
+        return ResponseEntity.ok(service.searchProfiles(query));
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Obtener perfil por ID")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Perfil encontrado"),
-        @ApiResponse(responseCode = "404", description = "No encontrado", content = @Content)
-    })
-    public ResponseEntity<ProfileResponse> getById(
-            @Parameter(description = "ID del perfil") @PathVariable Integer id) {
-        return ResponseEntity.ok(service.getById(id));
+    @GetMapping("/{username}")
+    @Operation(summary = "Obtener perfil por nombre de usuario público")
+    public ResponseEntity<ProfileResponse> getByUsername(@PathVariable String username) {
+        return ResponseEntity.ok(service.getProfileByUsername(username));
     }
 
-    @PostMapping
-    @Operation(summary = "Crear perfil")
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content)
-    })
-    public ResponseEntity<ProfileResponse> create(@Valid @RequestBody ProfileRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
+    @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Actualizar mi perfil (con imágenes)")
+    public ResponseEntity<ProfileResponse> updateMyProfile(
+            @ModelAttribute ProfileRequest request,
+            Principal principal) {
+        
+        return ResponseEntity.ok(service.updateMyProfile(principal.getName(), request));
     }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Actualizar perfil")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
-        @ApiResponse(responseCode = "404", description = "No encontrado", content = @Content)
-    })
-    public ResponseEntity<ProfileResponse> update(
-            @Parameter(description = "ID del perfil") @PathVariable Integer id,
-            @Valid @RequestBody ProfileRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar perfil")
-    @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Eliminado exitosamente"),
-        @ApiResponse(responseCode = "404", description = "No encontrado", content = @Content)
-    })
-    public ResponseEntity<Void> delete(
-            @Parameter(description = "ID del perfil") @PathVariable Integer id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
-    }
+    
+    
+    
 }

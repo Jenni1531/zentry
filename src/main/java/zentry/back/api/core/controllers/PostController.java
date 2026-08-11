@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import zentry.back.api.core.dtos.PostRequest;
 import zentry.back.api.core.dtos.PostResponse;
 import zentry.back.api.core.services.PostService;
+import org.springframework.http.MediaType;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/core/posts")
@@ -50,14 +52,15 @@ public class PostController {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    @PostMapping
     @Operation(summary = "Crear publicación")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Creada exitosamente"),
         @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content)
     })
-    public ResponseEntity<PostResponse> create(@Valid @RequestBody PostRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
+    
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)    
+    public ResponseEntity<PostResponse> create(@ModelAttribute PostRequest request, Principal principal) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(principal.getName(), request));
     }
 
     @PutMapping("/{id}")
@@ -69,8 +72,8 @@ public class PostController {
     })
     public ResponseEntity<PostResponse> update(
             @Parameter(description = "ID de la publicación") @PathVariable Integer id,
-            @Valid @RequestBody PostRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
+            @Valid @RequestBody PostRequest request, Principal principal) {
+        return ResponseEntity.ok(service.update(id, principal.getName(),request));
     }
 
     @DeleteMapping("/{id}")
@@ -80,8 +83,10 @@ public class PostController {
         @ApiResponse(responseCode = "404", description = "No encontrada", content = @Content)
     })
     public ResponseEntity<Void> delete(
-            @Parameter(description = "ID de la publicación") @PathVariable Integer id) {
-        service.delete(id);
+            @Parameter(description = "ID de la publicación") @PathVariable Integer id, Principal principal) {
+        service.delete(id, principal.getName());
         return ResponseEntity.noContent().build();
     }
+
+    
 }

@@ -15,16 +15,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.PayoutsController;
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.PayoutRequestsController;
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.CommissionsController;
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.CommissionJobsController;
 import zentry.back.api.business.dtos.*;
 import zentry.back.api.business.services.*;
@@ -40,7 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 // ─── Payouts ─────────────────────────────────────────────────────────────────
-@Import(securityConfig.class)
+@Import(SecurityConfig.class)
 @WebMvcTest(PayoutsController.class)
 @DisplayName("PayoutsController")
 @SuppressWarnings("all")
