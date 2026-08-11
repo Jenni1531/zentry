@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import zentry.back.api.core.dtos.UserRequest;
 import zentry.back.api.core.dtos.UserResponse;
 import zentry.back.api.core.services.UserService;
+import zentry.back.api.core.dtos.LoginRequest;
 
 @RestController
 @RequestMapping("/api/core/users")
@@ -85,5 +86,10 @@ public class UserController {
             @Parameter(description = "ID del usuario") @PathVariable Integer id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/login")
+    public UserResponse login(@RequestBody LoginRequest request) {
+        return service.login(request);
     }
 }

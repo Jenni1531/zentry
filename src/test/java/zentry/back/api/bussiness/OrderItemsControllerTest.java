@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.OrderItemsController;
 import zentry.back.api.business.dtos.OrderItemsRequest;
 import zentry.back.api.business.dtos.OrderItemsResponse;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(securityConfig.class)
+@Import(SecurityConfig.class)
 @WebMvcTest(OrderItemsController.class)
 @DisplayName("OrderItemsController")
 @SuppressWarnings("all")

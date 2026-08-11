@@ -14,6 +14,7 @@ public class corsConfig {
                 registry.addMapping("/**")
                         .allowedOriginPatterns(
                                 "http://localhost:5173",
+                                "http://localhost:3000",
                                 "https://*.devtunnels.ms",
                                 "https://zentrycommunity.tail314909.ts.net:*",
                                 "http://192.168.*.*:*"

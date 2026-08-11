@@ -7,6 +7,7 @@ import lombok.*;
 public class UserResponse {
 
     private Integer id;
+    private String token;
     private String username;
     private String email;
 }

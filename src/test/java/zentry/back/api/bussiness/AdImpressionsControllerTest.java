@@ -19,7 +19,7 @@ import zentry.back.api.business.controllers.AdImpressionsController;
 import zentry.back.api.business.dtos.AdImpressionsRequest;
 import zentry.back.api.business.dtos.AdImpressionsResponse;
 import zentry.back.api.business.services.AdImpressionsService;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(securityConfig.class)
+@Import(SecurityConfig.class)
 @WebMvcTest(AdImpressionsController.class)
 @DisplayName("AdImpressionsController")
 @SuppressWarnings("all")

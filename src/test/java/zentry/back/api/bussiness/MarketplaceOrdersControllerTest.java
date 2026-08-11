@@ -16,22 +16,22 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.MarketplaceOrdersController;
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.MarketplaceProductsController;
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.InvoicesController;
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.InvoicesItemsController;
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.PayoutsController;
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.WalletTransactionsController;
 import zentry.back.api.business.dtos.*;
 import zentry.back.api.business.services.*;
@@ -51,15 +51,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * CRUD pattern. Each inner @SuppressWarnings("all")
 class targets a different controller.
  *
- * Note: @Import(securityConfig.class)
+ * Note: @Import(SecurityConfig.class)
 @WebMvcTest only loads the specified controller per class, so we have
  * one nested @SpringBootTest-free test per controller here as separate inner
- * test classes with shared assertions pattern but individual @Import(securityConfig.class)
+ * test classes with shared assertions pattern but individual @Import(SecurityConfig.class)
 @WebMvcTest slices
  * are declared as separate top-level test classes below.
  */
 // ─── MarketplaceOrders ───────────────────────────────────────────────────────
-@Import(securityConfig.class)
+@Import(SecurityConfig.class)
 @WebMvcTest(MarketplaceOrdersController.class)
 @DisplayName("MarketplaceOrdersController")
 @SuppressWarnings("all")

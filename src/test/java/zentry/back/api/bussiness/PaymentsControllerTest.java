@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.PaymentsController;
 import zentry.back.api.business.dtos.PaymentsRequest;
 import zentry.back.api.business.dtos.PaymentsResponse;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(securityConfig.class)
+@Import(SecurityConfig.class)
 @WebMvcTest(PaymentsController.class)
 @DisplayName("PaymentsController")
 @SuppressWarnings("all")

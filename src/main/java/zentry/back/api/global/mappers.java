@@ -501,6 +501,7 @@ public final class mappers {
                 .build();
     }
 
+    /*
     public static ProfileResponse toResponse(Profile entity) {
         if (entity == null) return null;
         return ProfileResponse.builder()
@@ -518,7 +519,8 @@ public final class mappers {
                 .contenido(entity.getContenido())
                 .build();
     }
-
+    */
+   
     public static CommentResponse toResponse(Comment entity) {
         if (entity == null) return null;
         return CommentResponse.builder()

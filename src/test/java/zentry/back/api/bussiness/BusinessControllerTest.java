@@ -2,7 +2,7 @@ package zentry.back.api.bussiness;
 
 
 import org.springframework.context.annotation.Import;
-import zentry.back.api.config.securityConfig;
+import zentry.back.api.config.SecurityConfig;
 
 import java.lang.annotation.*;
 
@@ -14,6 +14,6 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(securityConfig.class)
+@Import(SecurityConfig.class)
 public @interface BusinessControllerTest {
 }
