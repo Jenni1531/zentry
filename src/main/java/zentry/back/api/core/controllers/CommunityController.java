@@ -13,7 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.security.Principal;
 import zentry.back.api.core.dtos.CommunityRequest;
 import zentry.back.api.core.dtos.CommunityResponse;
 import zentry.back.api.core.services.CommunityService;
@@ -58,8 +58,8 @@ public class CommunityController {
     })
     @PostMapping
     public ResponseEntity<CommunityResponse> create(
-            @Valid @RequestBody CommunityRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
+            @Valid @RequestBody CommunityRequest request, Principal principal) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(principal.getName(), request));
     }
 
     @Operation(summary = "Actualizar comunidad")
@@ -71,8 +71,8 @@ public class CommunityController {
     @PutMapping("/{id}")
     public ResponseEntity<CommunityResponse> update(
             @Parameter(description = "ID de la comunidad") @PathVariable Integer id,
-            @Valid @RequestBody CommunityRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
+            @Valid @RequestBody CommunityRequest request, Principal principal) {
+        return ResponseEntity.ok(service.update(id,principal.getName(),  request));
     }
 
     @Operation(summary = "Eliminar comunidad")

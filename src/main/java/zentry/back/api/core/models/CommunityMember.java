@@ -1,4 +1,6 @@
 package zentry.back.api.core.models;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,6 +14,12 @@ public class CommunityMember {
     @Column(name = "community_id")
     private Integer communityId;
 
+    @Column(name = "role", length = 20)
+    private String role;
+
+    @Column(name = "joined_at", updatable = false)
+    private LocalDateTime joinedAt;
+    
     @Id
     @Column(name = "user_id")
     private Integer userId;
