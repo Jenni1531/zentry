@@ -33,10 +33,6 @@ build/
 .vscode/
 
 ### Claude AI Agent ###
-.agent/
-.claude/
-CLAUDE.md
-INFORME_SEGURIDAD.md
 
 .properties
 zentryweb.session.sql
