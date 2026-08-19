@@ -13,6 +13,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 import zentry.back.api.core.dtos.PostRequest;
 import zentry.back.api.core.dtos.PostResponse;
@@ -31,6 +35,7 @@ public class PostController {
         this.service = service;
     }
 
+    /*
     @GetMapping
     @Operation(summary = "Listar publicaciones")
     @ApiResponses({
@@ -40,6 +45,7 @@ public class PostController {
     public ResponseEntity<Page<PostResponse>> list(@PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(service.list(pageable));
     }
+    */
 
     @GetMapping("/{id}")
     @Operation(summary = "Obtener publicación por ID")
@@ -50,6 +56,14 @@ public class PostController {
     public ResponseEntity<PostResponse> getById(
             @Parameter(description = "ID de la publicación") @PathVariable Integer id) {
         return ResponseEntity.ok(service.getById(id));
+    }
+
+    @GetMapping
+    @Operation(summary = "Obtener todas las publicaciones del Feed")
+    public ResponseEntity<Page<PostResponse>> getAllPosts(
+            @PageableDefault(size = 10) Pageable pageable) {
+        
+        return ResponseEntity.ok(service.getAllPosts(pageable));
     }
 
     @Operation(summary = "Crear publicación")

@@ -13,6 +13,8 @@ import zentry.back.api.core.dtos.PostRequest;
 import zentry.back.api.core.dtos.PostResponse;
 import zentry.back.api.core.models.User;
 import zentry.back.api.core.models.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import zentry.back.api.core.repositories.PostRepository;
 import zentry.back.api.core.repositories.UserRepository;
 import zentry.back.api.global.mappers;
@@ -45,6 +47,15 @@ public class PostService {
         User user = userRepo.findById(post.getUserId()).orElse(new User());
         
         return mapToResponse(user, post);
+    }
+
+    public Page<PostResponse> getAllPosts(Pageable pageable) {
+        return postRepo.findAllByOrderByCreatedAtDesc(pageable)
+            .map(post -> {
+                // Buscamos al dueño de la obra para enviar sus datos (nombre, avatar)
+                User author = userRepo.findById(post.getUserId()).orElse(new User());
+                return mapToResponse(author, post);
+            });
     }
 
 

@@ -11,4 +11,8 @@ public class CommunityRequest {
     @NotBlank
     @Size(max = 100)
     private String nombre;
+
+    private String categoria;
+
+    private String descripcion;
 }
