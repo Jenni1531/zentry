@@ -40,17 +40,18 @@ public class ProfileService {
     }
 
     public ProfileResponse getProfileByUsername(String identifier, String currentUsername) {
-        User user = userRepo.findByUsername(identifier)
+        User user = userRepo.findByUsernameOrEmail(identifier, identifier)
                 .orElseGet(() -> userRepo.findByEmail(identifier)
-                .orElseGet(() -> userRepo.findByEmail(identifier + "@gmail.com")
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado en la BD"))));
+                .orElseGet(() -> userRepo.findByEmailStartingWith(identifier + "@")
+                .orElseGet(() -> userRepo.findByEmailStartingWith(identifier)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Perfil no encontrado")))));
 
         Profile profile = profileRepo.findByUserId(user.getId())
                 .orElse(new Profile());
 
         boolean isFollowing = false;
         if (currentUsername != null && !currentUsername.isBlank()) {
-            User currentUser = userRepo.findByUsername(currentUsername)
+            User currentUser = userRepo.findByUsernameOrEmail(currentUsername, currentUsername)
                     .orElseGet(() -> userRepo.findByEmail(currentUsername).orElse(null));
             if (currentUser != null) {
                 isFollowing = followRepo.existsByFollowerAndFollowing(currentUser.getId(), user.getId());
@@ -70,12 +71,11 @@ public class ProfileService {
 
     @Transactional
     public boolean toggleFollow(String followerIdentifier, String targetIdentifier) {
-        User followerUser = userRepo.findByUsername(followerIdentifier)
-                .orElseGet(() -> userRepo.findByEmail(followerIdentifier)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario seguidor no encontrado")));
+        User followerUser = userRepo.findByUsernameOrEmail(followerIdentifier, followerIdentifier)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario seguidor no encontrado"));
 
-        User targetUser = userRepo.findByUsername(targetIdentifier)
-                .orElseGet(() -> userRepo.findByEmail(targetIdentifier)
+        User targetUser = userRepo.findByUsernameOrEmail(targetIdentifier, targetIdentifier)
+                .orElseGet(() -> userRepo.findByEmailStartingWith(targetIdentifier + "@")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario a seguir no encontrado")));
 
         if (followerUser.getId().equals(targetUser.getId())) {
@@ -95,31 +95,38 @@ public class ProfileService {
         }
     }
 
+    @Transactional
     public ProfileResponse updateMyProfile(String emailOrUsername, ProfileRequest request) {
         User user = userRepo.findByEmail(emailOrUsername)
                 .orElseGet(() -> userRepo.findByUsername(emailOrUsername)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado")));
+                .orElseGet(() -> userRepo.findByUsernameOrEmail(emailOrUsername, emailOrUsername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"))));
 
         Profile profile = profileRepo.findByUserId(user.getId())
-                .orElse(Profile.builder().userId(user.getId()).build());
+                .orElseGet(() -> {
+                    Profile newP = Profile.builder().userId(user.getId()).build();
+                    return profileRepo.save(newP);
+                });
 
-        profile.setName(request.getName());
-        profile.setDiscipline(request.getDiscipline());
-        profile.setLocation(request.getLocation());
-        profile.setBio(request.getBio());
+        if (request.getName() != null) profile.setName(request.getName());
+        if (request.getDiscipline() != null) profile.setDiscipline(request.getDiscipline());
+        if (request.getLocation() != null) profile.setLocation(request.getLocation());
+        if (request.getBio() != null) profile.setBio(request.getBio());
+
+        String safeUsername = user.getUsername() != null ? user.getUsername() : user.getEmail().split("@")[0];
 
         if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
-            String avatarName = saveImage(request.getAvatar(), user.getUsername(), "avatar");
+            String avatarName = saveImage(request.getAvatar(), safeUsername, "avatar");
             profile.setAvatarUrl("/uploads/profiles/" + avatarName);
         }
 
         if (request.getBanner() != null && !request.getBanner().isEmpty()) {
-            String bannerName = saveImage(request.getBanner(), user.getUsername(), "banner");
+            String bannerName = saveImage(request.getBanner(), safeUsername, "banner");
             profile.setBannerUrl("/uploads/profiles/" + bannerName);
         }
 
         Profile savedProfile = profileRepo.save(profile);
-        return getProfileByUsername(user.getUsername(), emailOrUsername);
+        return getProfileByUsername(safeUsername, emailOrUsername);
     }
 
     // MÉTODO INTERNO PARA GUARDAR EN DISCO
