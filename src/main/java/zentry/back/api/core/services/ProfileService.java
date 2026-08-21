@@ -9,6 +9,8 @@ import zentry.back.api.core.dtos.ProfileRequest;
 import zentry.back.api.core.dtos.ProfileResponse;
 import zentry.back.api.core.models.Profile;
 import zentry.back.api.core.models.User;
+import zentry.back.api.core.models.Follow;
+import zentry.back.api.core.repositories.FollowRepository;
 import zentry.back.api.core.repositories.ProfileRepository;
 import zentry.back.api.core.repositories.UserRepository;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @SuppressWarnings("null")
@@ -24,14 +27,20 @@ public class ProfileService {
 
     private final ProfileRepository profileRepo;
     private final UserRepository userRepo;
+    private final FollowRepository followRepo;
 
-    public ProfileService(ProfileRepository profileRepo, UserRepository userRepo) {
+    public ProfileService(ProfileRepository profileRepo, UserRepository userRepo, FollowRepository followRepo) {
         this.profileRepo = profileRepo;
         this.userRepo = userRepo;
+        this.followRepo = followRepo;
     }
 
     public ProfileResponse getProfileByUsername(String identifier) {
-       User user = userRepo.findByUsername(identifier)
+        return getProfileByUsername(identifier, null);
+    }
+
+    public ProfileResponse getProfileByUsername(String identifier, String currentUsername) {
+        User user = userRepo.findByUsername(identifier)
                 .orElseGet(() -> userRepo.findByEmail(identifier)
                 .orElseGet(() -> userRepo.findByEmail(identifier + "@gmail.com")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado en la BD"))));
@@ -39,12 +48,57 @@ public class ProfileService {
         Profile profile = profileRepo.findByUserId(user.getId())
                 .orElse(new Profile());
 
-        return mapToResponse(user, profile);
+        boolean isFollowing = false;
+        if (currentUsername != null && !currentUsername.isBlank()) {
+            User currentUser = userRepo.findByUsername(currentUsername)
+                    .orElseGet(() -> userRepo.findByEmail(currentUsername).orElse(null));
+            if (currentUser != null) {
+                isFollowing = followRepo.existsByFollowerAndFollowing(currentUser.getId(), user.getId());
+            }
+        }
+
+        long followersCount = followRepo.countByFollowing(user.getId());
+        long followingCount = followRepo.countByFollower(user.getId());
+
+        ProfileResponse response = mapToResponse(user, profile);
+        response.setFollowersCount((int) followersCount);
+        response.setFollowingCount((int) followingCount);
+        response.setIsFollowing(isFollowing);
+
+        return response;
     }
 
-    public ProfileResponse updateMyProfile(String email, ProfileRequest request) {
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+    @Transactional
+    public boolean toggleFollow(String followerIdentifier, String targetIdentifier) {
+        User followerUser = userRepo.findByUsername(followerIdentifier)
+                .orElseGet(() -> userRepo.findByEmail(followerIdentifier)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario seguidor no encontrado")));
+
+        User targetUser = userRepo.findByUsername(targetIdentifier)
+                .orElseGet(() -> userRepo.findByEmail(targetIdentifier)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario a seguir no encontrado")));
+
+        if (followerUser.getId().equals(targetUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puedes seguirte a ti mismo");
+        }
+
+        boolean alreadyFollowing = followRepo.existsByFollowerAndFollowing(followerUser.getId(), targetUser.getId());
+        if (alreadyFollowing) {
+            followRepo.deleteByFollowerAndFollowing(followerUser.getId(), targetUser.getId());
+            return false;
+        } else {
+            followRepo.save(Follow.builder()
+                    .follower(followerUser.getId())
+                    .following(targetUser.getId())
+                    .build());
+            return true;
+        }
+    }
+
+    public ProfileResponse updateMyProfile(String emailOrUsername, ProfileRequest request) {
+        User user = userRepo.findByEmail(emailOrUsername)
+                .orElseGet(() -> userRepo.findByUsername(emailOrUsername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado")));
 
         Profile profile = profileRepo.findByUserId(user.getId())
                 .orElse(Profile.builder().userId(user.getId()).build());
@@ -65,13 +119,12 @@ public class ProfileService {
         }
 
         Profile savedProfile = profileRepo.save(profile);
-        return mapToResponse(user, savedProfile);
+        return getProfileByUsername(user.getUsername(), emailOrUsername);
     }
 
     // MÉTODO INTERNO PARA GUARDAR EN DISCO
     private String saveImage(MultipartFile file, String username, String type) {
         try {
-            // Se creará una carpeta 'uploads/profiles' en la raíz de tu proyecto Spring Boot
             Path uploadPath = Paths.get("uploads/profiles");
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
@@ -91,10 +144,7 @@ public class ProfileService {
     }
 
     public List<ProfileResponse> searchProfiles(String query) {
-        // Buscamos perfiles que coincidan con la búsqueda
         List<Profile> profiles = profileRepo.findByNameContainingIgnoreCase(query);
-        
-        // Los transformamos en la respuesta que espera el frontend
         return profiles.stream().map(profile -> {
             User user = userRepo.findById(profile.getUserId()).orElse(new User());
             return mapToResponse(user, profile);
@@ -112,7 +162,8 @@ public class ProfileService {
                 .avatarUrl(profile.getAvatarUrl())
                 .bannerUrl(profile.getBannerUrl())
                 .followersCount(0)
-                .followingCount(0)  
+                .followingCount(0)
+                .isFollowing(false)
                 .createdAt(profile.getCreatedAt())
                 .build();
     }

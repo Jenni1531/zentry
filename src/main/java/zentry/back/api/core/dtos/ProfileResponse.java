@@ -17,5 +17,7 @@ public class ProfileResponse {
     private String bannerUrl;
     private Integer followersCount;
     private Integer followingCount;
+    @Builder.Default
+    private Boolean isFollowing = false;
     private LocalDateTime createdAt;
 }
