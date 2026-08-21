@@ -69,10 +69,26 @@ public class ProfileService {
         return response;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class FollowResult {
+        private final boolean following;
+        private final int followersCount;
+
+        public boolean isFollowing() {
+            return following;
+        }
+
+        public int getNewFollowersCount() {
+            return followersCount;
+        }
+    }
+
     @Transactional
-    public boolean toggleFollow(String followerIdentifier, String targetIdentifier) {
+    public FollowResult toggleFollowUser(String followerIdentifier, String targetIdentifier) {
         User followerUser = userRepo.findByUsernameOrEmail(followerIdentifier, followerIdentifier)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario seguidor no encontrado"));
+                .orElseGet(() -> userRepo.findByEmailStartingWith(followerIdentifier + "@")
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario seguidor no encontrado")));
 
         User targetUser = userRepo.findByUsernameOrEmail(targetIdentifier, targetIdentifier)
                 .orElseGet(() -> userRepo.findByEmailStartingWith(targetIdentifier + "@")
@@ -83,16 +99,25 @@ public class ProfileService {
         }
 
         boolean alreadyFollowing = followRepo.existsByFollowerAndFollowing(followerUser.getId(), targetUser.getId());
+        boolean isFollowing;
         if (alreadyFollowing) {
             followRepo.deleteByFollowerAndFollowing(followerUser.getId(), targetUser.getId());
-            return false;
+            isFollowing = false;
         } else {
             followRepo.save(Follow.builder()
                     .follower(followerUser.getId())
                     .following(targetUser.getId())
                     .build());
-            return true;
+            isFollowing = true;
         }
+
+        long followersCount = followRepo.countByFollowing(targetUser.getId());
+        return new FollowResult(isFollowing, (int) followersCount);
+    }
+
+    @Transactional
+    public boolean toggleFollow(String followerIdentifier, String targetIdentifier) {
+        return toggleFollowUser(followerIdentifier, targetIdentifier).isFollowing();
     }
 
     public Profile findOrCreateByUsername(String usernameOrEmail) {
