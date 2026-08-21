@@ -136,6 +136,13 @@ public class PostService {
         postRepo.delete(post);
     }
 
+    public PostResponse likePost(Integer id) {
+        Post post = postRepo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Obra no encontrada"));
+        User user = userRepo.findById(post.getUserId()).orElse(new User());
+        return mapToResponse(user, post);
+    }
+
     private PostResponse mapToResponse(User user, Post post) {
         return PostResponse.builder()
                 .id(post.getId())
