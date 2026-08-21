@@ -24,7 +24,7 @@ import zentry.back.api.core.dtos.PostResponse;
 import zentry.back.api.core.services.CommunityService;
 
 @RestController
-@RequestMapping("/api/core/communities")
+@RequestMapping({"/api/core/communities", "/api/v1/communities"})
 @Tag(name = "Communities", description = "Gestión de comunidades de usuarios")
 public class CommunityController {
 

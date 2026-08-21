@@ -12,7 +12,7 @@ import zentry.back.api.core.services.WalletService;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/core/wallet")
+@RequestMapping({"/api/core/wallet", "/api/v1/wallet"})
 @Tag(name = "Billetera y Suscripciones", description = "CRUD de Zentry Coins, suscripciones a planes (Pro, VIP) y transferencias entre creadores")
 public class WalletController {
 

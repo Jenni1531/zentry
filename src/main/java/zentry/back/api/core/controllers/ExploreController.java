@@ -12,7 +12,7 @@ import zentry.back.api.core.services.ExploreService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/core")
+@RequestMapping({"/api/core", "/api/v1"})
 @Tag(name = "Explorar y Búsqueda", description = "Endpoints de tendencias estilo X y búsqueda unificada multimodal")
 public class ExploreController {
 

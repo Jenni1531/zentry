@@ -21,7 +21,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/core/studio")
+@RequestMapping({"/api/core/studio", "/api/v1/studio"})
 @Tag(name = "Studio", description = "Gestión de proyectos del Estudio Creativo")
 public class StudioController {
 

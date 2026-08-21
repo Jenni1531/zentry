@@ -25,7 +25,7 @@ import org.springframework.http.MediaType;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/core/posts")
+@RequestMapping({"/api/core/posts", "/api/v1/posts"})
 @Tag(name = "Posts", description = "Gestión de publicaciones")
 public class PostController {
 
@@ -77,6 +77,13 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(principal.getName(), request));
     }
 
+    @PostMapping("/{id}/like")
+    @Operation(summary = "Dar me gusta o reaccionar a una publicación")
+    public ResponseEntity<PostResponse> likePost(
+            @Parameter(description = "ID de la publicación") @PathVariable Integer id) {
+        return ResponseEntity.ok(service.likePost(id));
+    }
+
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar publicación")
     @ApiResponses({
@@ -102,5 +109,4 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    
 }

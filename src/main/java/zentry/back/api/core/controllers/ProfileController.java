@@ -14,7 +14,7 @@ import zentry.back.api.core.dtos.ProfileResponse;
 import zentry.back.api.core.services.ProfileService;
 
 @RestController
-@RequestMapping("/api/core/profiles")
+@RequestMapping({"/api/core/profiles", "/api/v1/profiles"})
 @Tag(name = "Profiles", description = "Gestión de perfiles de usuario")
 public class ProfileController {
 
@@ -30,10 +30,14 @@ public class ProfileController {
         return ResponseEntity.ok(service.searchProfiles(query));
     }
 
-    @GetMapping("/{username}")
-    @Operation(summary = "Obtener perfil por nombre de usuario público")
-    public ResponseEntity<ProfileResponse> getByUsername(@PathVariable String username) {
-        return ResponseEntity.ok(service.getProfileByUsername(username));
+    @GetMapping("/{identifier}")
+    @Operation(summary = "Obtener perfil por identificador (username o email)")
+    public ResponseEntity<ProfileResponse> getProfile(@PathVariable String identifier) {
+        ProfileResponse profile = service.getProfileByUsername(identifier);
+        if (profile == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(profile);
     }
 
     @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
