@@ -111,6 +111,16 @@ public class ProfileService {
     }
 
     @Transactional
+    public ProfileResponse updateProfile(String emailOrUsername, ProfileRequest request) {
+        return updateMyProfile(emailOrUsername, request);
+    }
+
+    @Transactional
+    public ProfileResponse updateProfileWithFiles(String emailOrUsername, ProfileRequest request) {
+        return updateMyProfile(emailOrUsername, request);
+    }
+
+    @Transactional
     public ProfileResponse updateMyProfile(String emailOrUsername, ProfileRequest request) {
         User user = userRepo.findByEmail(emailOrUsername)
                 .orElseGet(() -> userRepo.findByUsername(emailOrUsername)
@@ -133,16 +143,18 @@ public class ProfileService {
             profile.setBannerUrl(request.getBannerUrl());
         }
 
-        String safeUsername = user.getUsername() != null ? user.getUsername() : user.getEmail().split("@")[0];
-
         if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
-            String avatarName = saveImage(request.getAvatar(), safeUsername, "avatar");
-            profile.setAvatarUrl("/uploads/profiles/" + avatarName);
+            String avatarUrl = saveImage(request.getAvatar(), "profiles");
+            if (avatarUrl != null) {
+                profile.setAvatarUrl(avatarUrl);
+            }
         }
 
         if (request.getBanner() != null && !request.getBanner().isEmpty()) {
-            String bannerName = saveImage(request.getBanner(), safeUsername, "banner");
-            profile.setBannerUrl("/uploads/profiles/" + bannerName);
+            String bannerUrl = saveImage(request.getBanner(), "profiles");
+            if (bannerUrl != null) {
+                profile.setBannerUrl(bannerUrl);
+            }
         }
 
         Profile savedProfile = profileRepo.save(profile);
@@ -157,29 +169,30 @@ public class ProfileService {
         return response;
     }
 
-    // MÉTODO INTERNO PARA GUARDAR EN DISCO
-    private String saveImage(MultipartFile file, String username, String type) {
+    // MÉTODO SEGURO PARA GUARDAR EN DISCO
+    public String saveImage(MultipartFile file, String subfolder) {
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
         try {
-            Path uploadPath = Paths.get("uploads", "profiles");
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
+            Path uploadDir = Paths.get("uploads", subfolder);
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
             }
 
+            String extension = ".png";
             String originalFilename = file.getOriginalFilename();
-            String extension = ".jpg";
             if (originalFilename != null && originalFilename.contains(".")) {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
 
-            String safeUser = (username != null ? username : "user").replaceAll("[^a-zA-Z0-9_.-]", "_");
-            String newFilename = safeUser + "_" + type + "_" + UUID.randomUUID().toString().substring(0, 8) + extension;
+            String fileName = UUID.randomUUID().toString() + extension;
+            Path targetPath = uploadDir.resolve(fileName);
 
-            Path filePath = uploadPath.resolve(newFilename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            return newFilename;
+            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+            return "/uploads/" + subfolder + "/" + fileName;
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar la imagen: " + e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo guardar la imagen: " + e.getMessage(), e);
         }
     }
 

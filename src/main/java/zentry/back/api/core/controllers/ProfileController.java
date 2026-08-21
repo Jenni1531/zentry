@@ -45,26 +45,30 @@ public class ProfileController {
         return ResponseEntity.ok(profile);
     }
 
-    // 1. Actualizar SOLO texto (JSON)
+    // 1. JSON
     @PutMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Actualizar mi propio perfil vía JSON (Solo el usuario autenticado)")
-    public ResponseEntity<?> updateProfileJson(
+    public ResponseEntity<ProfileResponse> updateJson(
             @RequestBody ProfileRequest request,
             Principal principal) {
         if (principal == null) {
-            return ResponseEntity.status(401).body(Map.of("error", "No autorizado"));
+            return ResponseEntity.status(401).build();
         }
         return ResponseEntity.ok(service.updateMyProfile(principal.getName(), request));
     }
 
-    // 2. Actualizar texto + imágenes (Multipart o Form Data)
-    @PutMapping(value = "/me", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE })
+    // 2. MULTIPART (Archivos + Formulario) permitiendo tanto PUT como POST
+    @RequestMapping(
+        value = "/me", 
+        method = { RequestMethod.PUT, RequestMethod.POST }, 
+        consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE }
+    )
     @Operation(summary = "Actualizar mi propio perfil vía Multipart/FormData (Solo el usuario autenticado)")
-    public ResponseEntity<?> updateProfileMultipart(
+    public ResponseEntity<ProfileResponse> updateMultipart(
             @ModelAttribute ProfileRequest request,
             Principal principal) {
         if (principal == null) {
-            return ResponseEntity.status(401).body(Map.of("error", "No autorizado"));
+            return ResponseEntity.status(401).build();
         }
         return ResponseEntity.ok(service.updateMyProfile(principal.getName(), request));
     }
