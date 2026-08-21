@@ -34,13 +34,19 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/uploads/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/core/communities", "/api/core/communities/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/core/explore/**", "/api/core/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/core/posts", "/api/core/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/core/categories", "/api/core/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/core/tags", "/api/core/tags/**").permitAll()
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
@@ -49,22 +55,21 @@ public class SecurityConfig {
                 "/api-docs/**",
                 "/swagger-resources/**",
                 "/swagger-ui.html",
-                "/webjars/**"
-        );
+                "/webjars/**");
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        
+
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
+
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        
+
         configuration.setAllowCredentials(true);
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

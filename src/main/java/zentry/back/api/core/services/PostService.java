@@ -24,6 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 
 @Service
+@SuppressWarnings("null")
 public class PostService {
 
     private final PostRepository postRepo;

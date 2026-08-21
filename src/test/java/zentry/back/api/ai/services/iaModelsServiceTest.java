@@ -15,10 +15,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import zentry.back.api.ai.dtos.iaModelsRequest;
-import zentry.back.api.ai.dtos.iaModelsResponse;
+import zentry.back.api.ai.dtos.IaModelsRequest;
+import zentry.back.api.ai.dtos.IaModelsResponse;
 import zentry.back.api.ai.models.IaModels;
-import zentry.back.api.ai.repositories.iaModelsRepository;
+import zentry.back.api.ai.repositories.IaModelsRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,15 +30,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("iaModelsService")
+@DisplayName("IaModelsService")
 @SuppressWarnings("all")
-class iaModelsServiceTest {
+class IaModelsServiceTest {
 
     @Mock
-    private iaModelsRepository repo;
+    private IaModelsRepository repo;
 
     @InjectMocks
-    private iaModelsService service;
+    private IaModelsService service;
 
     private UUID existingId;
     private IaModels sampleModel;
@@ -67,7 +67,7 @@ class iaModelsServiceTest {
             Page<IaModels> page = new PageImpl<>(List.of(sampleModel));
             when(repo.findAll(pageable)).thenReturn(page);
 
-            Page<iaModelsResponse> result = service.list(pageable);
+            Page<IaModelsResponse> result = service.list(pageable);
 
             assertThat(result).isNotEmpty();
             assertThat(result.getContent().get(0).getNombre()).isEqualTo("GPT-4");
@@ -80,7 +80,7 @@ class iaModelsServiceTest {
             Pageable pageable = PageRequest.of(0, 10);
             when(repo.findAll(pageable)).thenReturn(Page.empty());
 
-            Page<iaModelsResponse> result = service.list(pageable);
+            Page<IaModelsResponse> result = service.list(pageable);
 
             assertThat(result).isEmpty();
         }
@@ -99,7 +99,7 @@ class iaModelsServiceTest {
         void returnsResponseWhenFound() {
             when(repo.findById(existingId)).thenReturn(Optional.of(sampleModel));
 
-            iaModelsResponse result = service.getById(existingId);
+            IaModelsResponse result = service.getById(existingId);
 
             assertThat(result.getId()).isEqualTo(existingId);
             assertThat(result.getNombre()).isEqualTo("GPT-4");
@@ -129,7 +129,7 @@ class iaModelsServiceTest {
         @Test
         @DisplayName("persists and returns response when name is unique")
         void createsSuccessfully() {
-            iaModelsRequest request = new iaModelsRequest();
+            IaModelsRequest request = new IaModelsRequest();
             request.setNombre("Claude-3");
 
             IaModels saved = IaModels.builder().id(UUID.randomUUID()).nombre("Claude-3").build();
@@ -137,7 +137,7 @@ class iaModelsServiceTest {
             when(repo.existsByNombre("Claude-3")).thenReturn(false);
             when(repo.save(any(IaModels.class))).thenReturn(saved);
 
-            iaModelsResponse result = service.create(request);
+            IaModelsResponse result = service.create(request);
 
             assertThat(result.getNombre()).isEqualTo("Claude-3");
             verify(repo).save(any(IaModels.class));
@@ -146,7 +146,7 @@ class iaModelsServiceTest {
         @Test
         @DisplayName("throws 400 when model name already exists")
         void throws400WhenDuplicate() {
-            iaModelsRequest request = new iaModelsRequest();
+            IaModelsRequest request = new IaModelsRequest();
             request.setNombre("GPT-4");
 
             when(repo.existsByNombre("GPT-4")).thenReturn(true);
@@ -171,7 +171,7 @@ class iaModelsServiceTest {
         @Test
         @DisplayName("updates nombre and returns updated response")
         void updatesSuccessfully() {
-            iaModelsRequest request = new iaModelsRequest();
+            IaModelsRequest request = new IaModelsRequest();
             request.setNombre("GPT-4-turbo");
 
             IaModels updated = IaModels.builder().id(existingId).nombre("GPT-4-turbo").build();
@@ -179,7 +179,7 @@ class iaModelsServiceTest {
             when(repo.findById(existingId)).thenReturn(Optional.of(sampleModel));
             when(repo.save(sampleModel)).thenReturn(updated);
 
-            iaModelsResponse result = service.update(existingId, request);
+            IaModelsResponse result = service.update(existingId, request);
 
             assertThat(result.getNombre()).isEqualTo("GPT-4-turbo");
         }
@@ -190,7 +190,7 @@ class iaModelsServiceTest {
             UUID unknown = UUID.randomUUID();
             when(repo.findById(unknown)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.update(unknown, new iaModelsRequest()))
+            assertThatThrownBy(() -> service.update(unknown, new IaModelsRequest()))
                     .isInstanceOf(ResponseStatusException.class)
                     .satisfies(ex -> assertThat(((ResponseStatusException) ex).getStatusCode())
                             .isEqualTo(HttpStatus.NOT_FOUND));

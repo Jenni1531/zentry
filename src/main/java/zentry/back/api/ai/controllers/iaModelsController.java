@@ -15,20 +15,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import zentry.back.api.ai.dtos.iaModelsRequest;
-import zentry.back.api.ai.dtos.iaModelsResponse;
-import zentry.back.api.ai.services.iaModelsService;
+import zentry.back.api.ai.dtos.IaModelsRequest;
+import zentry.back.api.ai.dtos.IaModelsResponse;
+import zentry.back.api.ai.services.IaModelsService;
 
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/ai/models")
 @Tag(name = "IA Models", description = "CRUD de modelos de inteligencia artificial registrados en el sistema")
-public class iaModelsController {
+public class IaModelsController {
 
-    private final iaModelsService service;
+    private final IaModelsService service;
 
-    public iaModelsController(iaModelsService service) {
+    public IaModelsController(IaModelsService service) {
         this.service = service;
     }
 
@@ -41,7 +41,7 @@ public class iaModelsController {
         @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
     })
     @GetMapping
-    public ResponseEntity<Page<iaModelsResponse>> list(
+    public ResponseEntity<Page<IaModelsResponse>> list(
             @PageableDefault(size = 20, sort = "nombre") Pageable pageable) {
         return ResponseEntity.ok(service.list(pageable));
     }
@@ -56,7 +56,7 @@ public class iaModelsController {
         @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<iaModelsResponse> getById(
+    public ResponseEntity<IaModelsResponse> getById(
             @Parameter(description = "UUID del modelo de IA") @PathVariable UUID id) {
         return ResponseEntity.ok(service.getById(id));
     }
@@ -70,7 +70,7 @@ public class iaModelsController {
         @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<iaModelsResponse> create(@Valid @RequestBody iaModelsRequest request) {
+    public ResponseEntity<IaModelsResponse> create(@Valid @RequestBody IaModelsRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
     }
 
@@ -84,9 +84,9 @@ public class iaModelsController {
         @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
     })
     @PutMapping("/{id}")
-    public ResponseEntity<iaModelsResponse> update(
+    public ResponseEntity<IaModelsResponse> update(
             @Parameter(description = "UUID del modelo a actualizar") @PathVariable UUID id,
-            @Valid @RequestBody iaModelsRequest request) {
+            @Valid @RequestBody IaModelsRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 

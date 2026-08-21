@@ -6,7 +6,7 @@ import lombok.*;
 
 @Getter @Setter @Builder
 @AllArgsConstructor @NoArgsConstructor
-public class iaModelsRequest {
+public class IaModelsRequest {
 
     @NotBlank(message = "El nombre no puede estar vacío")
     @Size(max = 100, message = "El nombre no puede superar 100 caracteres")

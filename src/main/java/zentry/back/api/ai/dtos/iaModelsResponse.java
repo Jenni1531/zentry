@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
 @Builder
-public class iaModelsResponse {
+public class IaModelsResponse {
     private UUID id;
     private String nombre;
 }
