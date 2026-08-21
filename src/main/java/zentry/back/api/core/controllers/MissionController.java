@@ -38,7 +38,7 @@ public class MissionController {
             "success", true,
             "missionId", id,
             "rewardCoins", 15,
-            "newBalance", wallet.getZentryCoins()
+            "newBalance", wallet.getBalance()
         ));
     }
 }
