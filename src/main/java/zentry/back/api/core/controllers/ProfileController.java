@@ -80,7 +80,7 @@ public class ProfileController {
             @PathVariable String identifier,
             Principal principal) {
         if (principal == null) {
-            return ResponseEntity.status(401).body(Map.of("error", "No autorizado"));
+            return ResponseEntity.status(401).body(Map.of("error", "Debes iniciar sesión"));
         }
 
         String currentUsername = principal.getName();
@@ -88,10 +88,12 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(Map.of("error", "No puedes seguirte a ti mismo"));
         }
 
-        boolean isFollowing = service.toggleFollow(currentUsername, identifier);
+        ProfileService.FollowResult result = service.toggleFollowUser(currentUsername, identifier);
         return ResponseEntity.ok(Map.of(
-            "isFollowing", isFollowing,
-            "message", isFollowing ? "Siguiendo exitosamente" : "Has dejado de seguir"
+            "following", result.isFollowing(),
+            "isFollowing", result.isFollowing(),
+            "followersCount", result.getFollowersCount(),
+            "message", result.isFollowing() ? "Siguiendo exitosamente" : "Has dejado de seguir"
         ));
     }
 }
