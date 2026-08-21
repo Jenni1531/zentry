@@ -65,8 +65,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneral(Exception ex) {
         ex.printStackTrace(); // Agregado para ver la causa real en los logs
-        Map<String, Object> body = buildBody(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Error interno del servidor. Contacte al administrador.", null);
+        String msg = (ex.getMessage() != null && !ex.getMessage().isBlank())
+                ? ex.getMessage()
+                : "Error interno del servidor. Contacte al administrador.";
+        Map<String, Object> body = buildBody(HttpStatus.INTERNAL_SERVER_ERROR, msg, null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
