@@ -115,14 +115,23 @@ public class ProfileService {
         User user = userRepo.findByEmail(emailOrUsername)
                 .orElseGet(() -> userRepo.findByUsername(emailOrUsername)
                 .orElseGet(() -> userRepo.findByUsernameOrEmail(emailOrUsername, emailOrUsername)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"))));
+                .orElseGet(() -> userRepo.findByEmailStartingWith(emailOrUsername + "@")
+                .orElseGet(() -> userRepo.findByEmailStartingWith(emailOrUsername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"))))));
 
         Profile profile = findOrCreateByUsername(emailOrUsername);
 
-        if (request.getName() != null) profile.setName(request.getName());
+        if (request.getName() != null && !request.getName().isBlank()) profile.setName(request.getName());
         if (request.getDiscipline() != null) profile.setDiscipline(request.getDiscipline());
         if (request.getLocation() != null) profile.setLocation(request.getLocation());
         if (request.getBio() != null) profile.setBio(request.getBio());
+
+        if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
+            profile.setAvatarUrl(request.getAvatarUrl());
+        }
+        if (request.getBannerUrl() != null && !request.getBannerUrl().isBlank()) {
+            profile.setBannerUrl(request.getBannerUrl());
+        }
 
         String safeUsername = user.getUsername() != null ? user.getUsername() : user.getEmail().split("@")[0];
 
@@ -137,27 +146,40 @@ public class ProfileService {
         }
 
         Profile savedProfile = profileRepo.save(profile);
-        return getProfileByUsername(safeUsername, emailOrUsername);
+        
+        long followersCount = followRepo.countByFollowing(user.getId());
+        long followingCount = followRepo.countByFollower(user.getId());
+
+        ProfileResponse response = mapToResponse(user, savedProfile);
+        response.setFollowersCount((int) followersCount);
+        response.setFollowingCount((int) followingCount);
+        response.setIsFollowing(false);
+        return response;
     }
 
     // MÉTODO INTERNO PARA GUARDAR EN DISCO
     private String saveImage(MultipartFile file, String username, String type) {
         try {
-            Path uploadPath = Paths.get("uploads/profiles");
+            Path uploadPath = Paths.get("uploads", "profiles");
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
             String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
-            String newFilename = username + "_" + type + "_" + UUID.randomUUID().toString().substring(0, 5) + extension;
+            String extension = ".jpg";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+
+            String safeUser = (username != null ? username : "user").replaceAll("[^a-zA-Z0-9_.-]", "_");
+            String newFilename = safeUser + "_" + type + "_" + UUID.randomUUID().toString().substring(0, 8) + extension;
 
             Path filePath = uploadPath.resolve(newFilename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             return newFilename;
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar la imagen", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar la imagen: " + e.getMessage(), e);
         }
     }
 
