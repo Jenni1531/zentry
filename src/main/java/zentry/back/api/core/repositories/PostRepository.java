@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
     Page<Post> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    java.util.List<Post> findByTitleContainingIgnoreCaseOrContenidoContainingIgnoreCaseOrderByCreatedAtDesc(String title, String contenido);
 }

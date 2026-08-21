@@ -62,9 +62,9 @@ public final class mappers {
 
     //#region IA
 
-    public static iaModelsResponse toResponse(IaModels entity) {
+    public static IaModelsResponse toResponse(IaModels entity) {
         if (entity == null) return null;
-        return iaModelsResponse.builder()
+        return IaModelsResponse.builder()
                 .id(entity.getId())
                 .nombre(entity.getNombre())
                 .build();
@@ -231,6 +231,46 @@ public final class mappers {
                 .id(entity.getId())
                 .modelId(entity.getModelId())
                 .version(entity.getVersion())
+                .build();
+    }
+
+    public static TrendingTopicResponse toResponse(TrendingTopic entity) {
+        if (entity == null) return null;
+        return TrendingTopicResponse.builder()
+                .id(entity.getId())
+                .hashtag(entity.getHashtag())
+                .category(entity.getCategory())
+                .postsCount(entity.getPostsCount())
+                .isHot(entity.getIsHot())
+                .year(entity.getYear())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
+    public static WalletTransactionResponse toResponse(WalletTransaction entity) {
+        if (entity == null) return null;
+        return WalletTransactionResponse.builder()
+                .id(entity.getId())
+                .username(entity.getUsername())
+                .type(entity.getType())
+                .amount(entity.getAmount())
+                .description(entity.getDescription())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+    public static WalletResponse toResponse(Wallet entity, java.util.List<WalletTransaction> transactions) {
+        if (entity == null) return null;
+        java.util.List<WalletTransactionResponse> txList = (transactions == null) ? java.util.Collections.emptyList() :
+                transactions.stream().map(mappers::toResponse).collect(java.util.stream.Collectors.toList());
+
+        return WalletResponse.builder()
+                .id(entity.getId())
+                .username(entity.getUsername())
+                .balance(entity.getBalance())
+                .activePlanId(entity.getActivePlanId())
+                .nextBillingDate(entity.getNextBillingDate())
+                .transactions(txList)
                 .build();
     }
 
@@ -547,11 +587,38 @@ public final class mappers {
                 .build();
     }
 
+    public static StudioProjectResponse toResponse(StudioProject entity) {
+        if (entity == null) return null;
+        return StudioProjectResponse.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .description(entity.getDescription())
+                .type(entity.getType())
+                .contentData(entity.getContentData())
+                .mediaUrl(entity.getMediaUrl())
+                .tools(entity.getTools())
+                .rewardCoins(entity.getRewardCoins())
+                .ownerUsername(entity.getOwnerUsername())
+                .createdAt(entity.getCreatedAt())
+                .lastEditedAt(entity.getLastEditedAt())
+                .build();
+    }
+
     public static CommunityResponse toResponse(Community entity) {
         if (entity == null) return null;
         return CommunityResponse.builder()
                 .id(entity.getId())
+                .slug(entity.getSlug())
                 .nombre(entity.getNombre())
+                .descripcion(entity.getDescripcion())
+                .imageUrl(entity.getImageUrl())
+                .avatarUrl(entity.getAvatarUrl())
+                .bannerUrl(entity.getBannerUrl())
+                .categoria(entity.getCategoria())
+                .creatorId(entity.getCreatorId())
+                .ownerUsername(entity.getOwnerUsername())
+                .rules(entity.getRules())
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 

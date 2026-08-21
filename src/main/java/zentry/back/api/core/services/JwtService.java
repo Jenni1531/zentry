@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@SuppressWarnings("null")
 public class JwtService {
 
     // Inyectamos los valores de tu application.properties
