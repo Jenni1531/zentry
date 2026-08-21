@@ -95,6 +95,21 @@ public class ProfileService {
         }
     }
 
+    public Profile findOrCreateByUsername(String usernameOrEmail) {
+        User user = userRepo.findByEmail(usernameOrEmail)
+                .orElseGet(() -> userRepo.findByUsername(usernameOrEmail)
+                .orElseGet(() -> userRepo.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+                .orElseGet(() -> userRepo.findByEmailStartingWith(usernameOrEmail + "@")
+                .orElseGet(() -> userRepo.findByEmailStartingWith(usernameOrEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"))))));
+
+        return profileRepo.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    Profile newP = Profile.builder().userId(user.getId()).build();
+                    return profileRepo.save(newP);
+                });
+    }
+
     @Transactional
     public ProfileResponse updateMyProfile(String emailOrUsername, ProfileRequest request) {
         User user = userRepo.findByEmail(emailOrUsername)
@@ -102,11 +117,7 @@ public class ProfileService {
                 .orElseGet(() -> userRepo.findByUsernameOrEmail(emailOrUsername, emailOrUsername)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"))));
 
-        Profile profile = profileRepo.findByUserId(user.getId())
-                .orElseGet(() -> {
-                    Profile newP = Profile.builder().userId(user.getId()).build();
-                    return profileRepo.save(newP);
-                });
+        Profile profile = findOrCreateByUsername(emailOrUsername);
 
         if (request.getName() != null) profile.setName(request.getName());
         if (request.getDiscipline() != null) profile.setDiscipline(request.getDiscipline());
