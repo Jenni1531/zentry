@@ -57,22 +57,10 @@ public class ProfileController {
         return ResponseEntity.ok(service.updateMyProfile(principal.getName(), request));
     }
 
-    // 2. Actualizar texto + imágenes (Multipart)
-    @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    // 2. Actualizar texto + imágenes (Multipart o Form Data)
+    @PutMapping(value = "/me", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE })
     @Operation(summary = "Actualizar mi propio perfil vía Multipart/FormData (Solo el usuario autenticado)")
     public ResponseEntity<?> updateProfileMultipart(
-            @ModelAttribute ProfileRequest request,
-            Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(401).body(Map.of("error", "No autorizado"));
-        }
-        return ResponseEntity.ok(service.updateMyProfile(principal.getName(), request));
-    }
-
-    // 3. Fallback genérico para /me sin header consumes explícito
-    @PutMapping("/me")
-    @Operation(summary = "Actualizar mi propio perfil (Fallback)")
-    public ResponseEntity<?> updateProfileFallback(
             @ModelAttribute ProfileRequest request,
             Principal principal) {
         if (principal == null) {
