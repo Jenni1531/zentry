@@ -18,6 +18,7 @@ public class Notification {
     @Column(name = "type", nullable = false, length = 50)
     private String type;
 
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
     @Column(name = "data", columnDefinition = "jsonb")
     private String data;
 

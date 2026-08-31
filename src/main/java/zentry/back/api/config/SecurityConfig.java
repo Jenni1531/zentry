@@ -48,10 +48,12 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/core/profiles/**", "/api/v1/profiles/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/core/communities", "/api/core/communities/**", "/api/v1/communities", "/api/v1/communities/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/core/explore/**", "/api/v1/explore/**", "/api/core/search", "/api/v1/search").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/core/posts", "/api/core/posts/**", "/api/v1/posts", "/api/v1/posts/**").permitAll()
+                        .requestMatchers("/api/core/posts", "/api/core/posts/**", "/api/v1/posts", "/api/v1/posts/**").permitAll()
+                        .requestMatchers("/api/core/friends", "/api/core/friends/**", "/api/v1/friends", "/api/v1/friends/**").permitAll()
+                        .requestMatchers("/api/core/notifications", "/api/core/notifications/**", "/api/v1/notifications", "/api/v1/notifications/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/core/categories", "/api/core/categories/**", "/api/v1/categories", "/api/v1/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/core/tags", "/api/core/tags/**", "/api/v1/tags", "/api/v1/tags/**").permitAll()
+                        .requestMatchers("/api/core/projects", "/api/core/projects/**", "/api/v1/projects", "/api/v1/projects/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
@@ -78,9 +80,9 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
 
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
 
         configuration.setAllowCredentials(true);
 

@@ -36,3 +36,10 @@ build/
 
 .properties
 zentryweb.session.sql
+
+### Uploads (user-generated content, may contain PII in filenames) ###
+uploads/
+
+### Environment Variables ###
+.env
+.env.*
