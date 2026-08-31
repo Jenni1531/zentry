@@ -1,4 +1,4 @@
-# �? Informe de Seguridad — Proyecto Zentry
+# 🔐 Informe de Seguridad — Proyecto Zentry
 
 > **Fecha:** 9 de junio de 2026  
 > **Proyecto:** Zentry Backend API  
@@ -50,39 +50,39 @@ representa un riesgo crítico si se despliega en un ambiente público.
 ```
 zentry/
 ├── src/main/java/zentry/back/api/
-│   ├── ApiApplication.java              �? Entry point
+│   ├── ApiApplication.java              ← Entry point
 │   ├── config/
-│   │   ├── securityConfig.java          �? Spring Security (TODO: permitAll)
-│   │   └── corsConfig.java              �? CORS (solo localhost:5173)
-│   ├── core/                            �? 🟢 MÓDULO PRINCIPAL - Red Social
+│   │   ├── securityConfig.java          ← Spring Security (TODO: permitAll)
+│   │   └── corsConfig.java              ← CORS (solo localhost:5173)
+│   ├── core/                            ← 🟢 MÓDULO PRINCIPAL - Red Social
 │   │   ├── models/      (38 entidades)
 │   │   ├── repositories/ (38 repos)
 │   │   ├── services/     (38 servicios)
 │   │   ├── controllers/  (38 endpoints)
 │   │   └── dtos/         (76 DTOs)
-│   ├── business/                        �? 🟢 Marketplace & Finanzas
+│   ├── business/                        ← 🟢 Marketplace & Finanzas
 │   │   ├── models/      (24 entidades)
 │   │   ├── repositories/ (24 repos)
 │   │   ├── services/     (24 servicios)
 │   │   ├── controllers/  (24 endpoints)
 │   │   └── dtos/         (48 DTOs)
-│   ├── ai/                              �? 🟢 Motor de IA
+│   ├── ai/                              ← 🟢 Motor de IA
 │   │   ├── models/      (24 entidades)
 │   │   ├── repositories/ (24 repos)
 │   │   ├── services/     (24 servicios)
 │   │   ├── controllers/  (24 endpoints)
 │   │   └── dtos/         (48 DTOs)
-│   ├── analytics/                       �? 🟡 Vacío (placeholders)
-│   ├── realtime/                        �? 🟡 Vacío (WebSocket preparado)
+│   ├── analytics/                       ← 🟡 Vacío (placeholders)
+│   ├── realtime/                        ← 🟡 Vacío (WebSocket preparado)
 │   ├── common/
 │   │   ├── security/    (placeholder)
 │   │   ├── exceptions/  (placeholder)
 │   │   └── utils/       (placeholder)
 │   └── global/
-│       ├── mappers.java                 �? 772 líneas de mapeo Entity→DTO
-│       └── GlobalExceptionHandler.java  �? Manejo centralizado de errores
+│       ├── mappers.java                 ← 772 líneas de mapeo Entity→DTO
+│       └── GlobalExceptionHandler.java  ← Manejo centralizado de errores
 └── src/main/resources/
-    └── application.properties           �? ⚠�? Credenciales en texto plano
+    └── application.properties           ← ⚠️ Credenciales en texto plano
 ```
 
 ### Flujo Actual de una Petición HTTP
@@ -103,7 +103,7 @@ Cliente → HTTP Request → Controller → Service → Repository → PostgreSQ
 
 Funcionalidades sociales completas:
 
-| �?rea               | Entidades                                              |
+| Área               | Entidades                                              |
 |--------------------|--------------------------------------------------------|
 | Usuarios           | User, Profile, UserPreferences, UserPrivacy, UserSettings |
 | Sesiones           | UserSession, LoginHistory, UserDevice                  |
@@ -118,7 +118,7 @@ Funcionalidades sociales completas:
 
 ### 3.2 Módulo Business — Marketplace y Finanzas
 
-| �?rea               | Entidades                                              |
+| Área               | Entidades                                              |
 |--------------------|--------------------------------------------------------|
 | Billetera          | Wallets, WalletTransactions                            |
 | Carrito            | Cart, CartItems                                        |
@@ -133,7 +133,7 @@ Funcionalidades sociales completas:
 
 ### 3.3 Módulo AI — Inteligencia Artificial
 
-| �?rea               | Entidades                                              |
+| Área               | Entidades                                              |
 |--------------------|--------------------------------------------------------|
 | Modelos            | IaModels, IaVersions, IaConfigs                        |
 | Recomendaciones    | IaRecommendations, RecommendationLogs                  |
@@ -150,7 +150,7 @@ Funcionalidades sociales completas:
 
 ## 4. Análisis de Vulnerabilidades
 
-### 🔴 CR�?TICO — Nivel 1
+### 🔴 CRÍTICO — Nivel 1
 
 #### V-001: Credenciales en Texto Plano
 - **Ubicación:** `src/main/resources/application.properties`
@@ -159,7 +159,7 @@ Funcionalidades sociales completas:
 - **Riesgo:** Acceso total a la base de datos por cualquier persona con acceso al código fuente.
 - **Datos expuestos:**
   - PostgreSQL: `__REDACTED__` (usuario: `neondb_owner`)
-  - MongoDB: `***REMOVED***`
+  - MongoDB: `__REDACTED__`
 
 #### V-002: Sin Autenticación
 - **Ubicación:** `config/securityConfig.java`
@@ -220,7 +220,7 @@ Funcionalidades sociales completas:
 
 ---
 
-### OPCIÓN 1 �? — JWT con Spring Security (RECOMENDADA)
+### OPCIÓN 1 ⭐ — JWT con Spring Security (RECOMENDADA)
 
 **Descripción:** Autenticación stateless usando JSON Web Tokens. El usuario se registra con email/password, 
 hace login y recibe un token JWT que envía en cada petición subsecuente.
@@ -284,7 +284,7 @@ hace login y recibe un token JWT que envía en cada petición subsecuente.
 - Necesitas implementar refresh tokens manualmente
 - El token viaja en cada petición (overhead de tamaño)
 
-**Complejidad:** �?�?�? Media  
+**Complejidad:** ⭐⭐⭐ Media  
 **Tiempo estimado:** 3-5 horas  
 **Ideal para:** APIs REST consumidas por SPA o apps móviles
 
@@ -337,7 +337,7 @@ spring.security.oauth2.client.registration.google.scope=email,profile
 - Requiere registrar la app en cada proveedor
 - Si el proveedor cae, tus usuarios no pueden entrar
 
-**Complejidad:** �?�?�?�? Alta  
+**Complejidad:** ⭐⭐⭐⭐ Alta  
 **Tiempo estimado:** 6-10 horas  
 **Ideal para:** Plataformas sociales que priorizan UX de registro
 
@@ -383,7 +383,7 @@ de forma distribuida.
 - Más complejo para clientes móviles nativos
 - Requiere configurar Redis
 
-**Complejidad:** �?�?�? Media  
+**Complejidad:** ⭐⭐⭐ Media  
 **Tiempo estimado:** 4-6 horas  
 **Ideal para:** Aplicaciones web server-rendered (MVC), admin panels
 
@@ -425,7 +425,7 @@ de clientes, no de usuarios individuales.
 - No es un mecanismo de autenticación de usuario
 - Se debe combinar con otro método para auth de usuarios
 
-**Complejidad:** �?�? Baja  
+**Complejidad:** ⭐⭐ Baja  
 **Tiempo estimado:** 2-3 horas  
 **Ideal para:** Control de acceso por aplicación/cliente, APIs públicas
 
@@ -475,7 +475,7 @@ http
 - Pésima UX para usuarios (popup del navegador)
 - No recomendado para producción
 
-**Complejidad:** �? Muy Baja  
+**Complejidad:** ⭐ Muy Baja  
 **Tiempo estimado:** 1-2 horas  
 **Ideal para:** Prototipos, APIs internas, testing rápido
 
@@ -515,7 +515,7 @@ blacklist de tokens revocados, y detección de reutilización de refresh tokens.
 - Necesita almacenamiento para blacklist (BD o Redis)
 - Ya no es puramente stateless
 
-**Complejidad:** �?�?�?�? Alta  
+**Complejidad:** ⭐⭐⭐⭐ Alta  
 **Tiempo estimado:** 6-8 horas  
 **Ideal para:** Aplicaciones en producción con requisitos de seguridad estrictos
 
@@ -566,7 +566,7 @@ con contraseña, el usuario debe verificar su identidad con un segundo factor: c
 - Backup codes necesarios
 - Solo como complemento, no reemplaza auth principal
 
-**Complejidad:** �?�?�?�? Alta  
+**Complejidad:** ⭐⭐⭐⭐ Alta  
 **Tiempo estimado:** 5-7 horas (sobre una auth existente)  
 **Ideal para:** Plataformas con datos financieros (como tu módulo business)
 
@@ -620,14 +620,14 @@ public ResponseEntity<UserSettingsResponse> updateSettings(...) { ... }
 | Leer posts | ✅ | ✅ | ✅ | ✅ |
 | Crear post propio | ✅ | ✅ | ✅ | ✅ |
 | Editar post propio | ✅ | ✅ | ✅ | ✅ |
-| Borrar post de otro | �?� | �?� | ✅ | ✅ |
-| Ver wallets propias | ✅ | ✅ | �?� | ✅ |
-| Crear producto marketplace | �?� | ✅ | �?� | ✅ |
-| Moderar reportes | �?� | �?� | ✅ | ✅ |
-| Gestionar feature flags | �?� | �?� | �?� | ✅ |
-| Configurar sistema | �?� | �?� | �?� | ✅ |
-| Ver analytics | �?� | ✅ (propios) | ✅ | ✅ |
-| Gestionar modelos IA | �?� | �?� | �?� | ✅ |
+| Borrar post de otro | ❌ | ❌ | ✅ | ✅ |
+| Ver wallets propias | ✅ | ✅ | ❌ | ✅ |
+| Crear producto marketplace | ❌ | ✅ | ❌ | ✅ |
+| Moderar reportes | ❌ | ❌ | ✅ | ✅ |
+| Gestionar feature flags | ❌ | ❌ | ❌ | ✅ |
+| Configurar sistema | ❌ | ❌ | ❌ | ✅ |
+| Ver analytics | ❌ | ✅ (propios) | ✅ | ✅ |
+| Gestionar modelos IA | ❌ | ❌ | ❌ | ✅ |
 
 **Ventajas:**
 - Control granular de acceso
@@ -641,7 +641,7 @@ public ResponseEntity<UserSettingsResponse> updateSettings(...) { ... }
 - Complejidad en la gestión de roles y permisos
 - Las anotaciones se distribuyen por muchos controladores
 
-**Complejidad:** �?�?�? Media  
+**Complejidad:** ⭐⭐⭐ Media  
 **Tiempo estimado:** 3-4 horas (sobre una auth existente)  
 **Ideal para:** Cualquier aplicación con múltiples tipos de usuario
 
@@ -651,14 +651,14 @@ public ResponseEntity<UserSettingsResponse> updateSettings(...) { ... }
 
 | # | Opción | Complejidad | Tiempo | Seguridad | Tipo de App | Stateless | Producción |
 |---|--------|:-----------:|:------:|:---------:|-------------|:---------:|:----------:|
-| 1 | **JWT Básico** �? | �?�?�? | 3-5h | �?�?�?�? | API REST / SPA / Mobile | ✅ | ✅ |
-| 2 | OAuth2 Externo | �?�?�?�? | 6-10h | �?�?�?�? | Plataformas sociales | ✅ | ✅ |
-| 3 | Sesiones + Redis | �?�?�? | 4-6h | �?�?�? | Web tradicional | �?� | ✅ |
-| 4 | API Key | �?�? | 2-3h | �?�? | APIs públicas/B2B | ✅ | ⚠�? |
-| 5 | Basic Auth | �? | 1-2h | �? | Prototipos/testing | ✅ | �?� |
-| 6 | JWT Avanzado | �?�?�?�? | 6-8h | �?�?�?�?�? | Producción exigente | ⚠�? | ✅✅ |
-| 7 | MFA/2FA | �?�?�?�? | 5-7h | �?�?�?�?�? | Finanzas / datos sensibles | — | ✅✅ |
-| 8 | RBAC | �?�?�? | 3-4h | �?�?�?�? | Multi-rol | — | ✅ |
+| 1 | **JWT Básico** ⭐ | ⭐⭐⭐ | 3-5h | ⭐⭐⭐⭐ | API REST / SPA / Mobile | ✅ | ✅ |
+| 2 | OAuth2 Externo | ⭐⭐⭐⭐ | 6-10h | ⭐⭐⭐⭐ | Plataformas sociales | ✅ | ✅ |
+| 3 | Sesiones + Redis | ⭐⭐⭐ | 4-6h | ⭐⭐⭐ | Web tradicional | ❌ | ✅ |
+| 4 | API Key | ⭐⭐ | 2-3h | ⭐⭐ | APIs públicas/B2B | ✅ | ⚠️ |
+| 5 | Basic Auth | ⭐ | 1-2h | ⭐ | Prototipos/testing | ✅ | ❌ |
+| 6 | JWT Avanzado | ⭐⭐⭐⭐ | 6-8h | ⭐⭐⭐⭐⭐ | Producción exigente | ⚠️ | ✅✅ |
+| 7 | MFA/2FA | ⭐⭐⭐⭐ | 5-7h | ⭐⭐⭐⭐⭐ | Finanzas / datos sensibles | — | ✅✅ |
+| 8 | RBAC | ⭐⭐⭐ | 3-4h | ⭐⭐⭐⭐ | Multi-rol | — | ✅ |
 
 ### Combinaciones Recomendadas
 
