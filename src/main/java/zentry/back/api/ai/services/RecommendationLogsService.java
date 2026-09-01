@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.RecommendationLogsRequest;
 import zentry.back.api.ai.dtos.RecommendationLogsResponse;
 import zentry.back.api.ai.models.RecommendationLogs;
 import zentry.back.api.ai.repositories.RecommendationLogsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class RecommendationLogsService {
     }
 
     public Page<RecommendationLogsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public RecommendationLogsResponse getById(UUID id) {
         RecommendationLogs entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "RecommendationLog not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public RecommendationLogsResponse create(RecommendationLogsRequest request) {
@@ -39,7 +39,7 @@ public class RecommendationLogsService {
                 .recommendationId(request.getRecommendationId())
                 .timestamp(request.getTimestamp())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public RecommendationLogsResponse update(UUID id, RecommendationLogsRequest request) {
@@ -47,7 +47,7 @@ public class RecommendationLogsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "RecommendationLog not found"));
         entity.setRecommendationId(request.getRecommendationId());
         entity.setTimestamp(request.getTimestamp());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

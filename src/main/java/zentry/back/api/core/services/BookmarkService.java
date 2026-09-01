@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.BookmarkRequest;
 import zentry.back.api.core.dtos.BookmarkResponse;
 import zentry.back.api.core.models.Bookmark;
 import zentry.back.api.core.repositories.BookmarkRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class BookmarkService {
     }
 
     public Page<BookmarkResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public BookmarkResponse getById(Integer id) {
         Bookmark entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bookmark not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public BookmarkResponse create(BookmarkRequest request) {
@@ -37,7 +37,7 @@ public class BookmarkService {
                 .userId(request.getUserId())
                 .postId(request.getPostId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public BookmarkResponse update(Integer id, BookmarkRequest request) {
@@ -45,7 +45,7 @@ public class BookmarkService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Bookmark not found"));
         entity.setUserId(request.getUserId());
         entity.setPostId(request.getPostId());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

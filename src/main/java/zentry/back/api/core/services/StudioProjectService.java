@@ -11,7 +11,7 @@ import zentry.back.api.core.models.StudioProject;
 import zentry.back.api.core.models.User;
 import zentry.back.api.core.repositories.StudioProjectRepository;
 import zentry.back.api.core.repositories.UserRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,7 +46,7 @@ public class StudioProjectService {
         }
 
         return projects.stream()
-                .map(mappers::toResponse)
+                .map(CoreMappers::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -73,14 +73,14 @@ public class StudioProjectService {
                 .build();
 
         StudioProject saved = repo.save(project);
-        return mappers.toResponse(saved);
+        return CoreMappers.toResponse(saved);
     }
 
     public StudioProjectResponse getProjectDetail(Integer id, String userEmail) {
         StudioProject project = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proyecto no encontrado"));
 
-        return mappers.toResponse(project);
+        return CoreMappers.toResponse(project);
     }
 
     public StudioProjectResponse updateProject(Integer id, String userEmail, StudioProjectRequest request) {
@@ -114,7 +114,7 @@ public class StudioProjectService {
         }
 
         StudioProject updated = repo.save(project);
-        return mappers.toResponse(updated);
+        return CoreMappers.toResponse(updated);
     }
 
     public void deleteProject(Integer id, String userEmail) {

@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.LoginHistoryRequest;
 import zentry.back.api.core.dtos.LoginHistoryResponse;
 import zentry.back.api.core.models.LoginHistory;
 import zentry.back.api.core.repositories.LoginHistoryRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class LoginHistoryService {
     }
 
     public Page<LoginHistoryResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public LoginHistoryResponse getById(Integer id) {
         LoginHistory entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "LoginHistory not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public LoginHistoryResponse create(LoginHistoryRequest request) {
@@ -37,7 +37,7 @@ public class LoginHistoryService {
                 .userId(request.getUserId())
                 .ip(request.getIp())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public LoginHistoryResponse update(Integer id, LoginHistoryRequest request) {
@@ -45,7 +45,7 @@ public class LoginHistoryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "LoginHistory not found"));
         entity.setUserId(request.getUserId());
         entity.setIp(request.getIp());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

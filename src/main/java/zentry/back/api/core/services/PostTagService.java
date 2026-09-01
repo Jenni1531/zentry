@@ -11,7 +11,7 @@ import zentry.back.api.core.dtos.PostTagResponse;
 import zentry.back.api.core.models.PostTag;
 import zentry.back.api.core.models.PostTag.PostTagId;
 import zentry.back.api.core.repositories.PostTagRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -24,14 +24,14 @@ public class PostTagService {
     }
 
     public Page<PostTagResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public PostTagResponse getById(Integer postId, Integer tagId) {
         PostTagId id = new PostTagId(postId, tagId);
         PostTag entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PostTag not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public PostTagResponse create(PostTagRequest request) {
@@ -43,7 +43,7 @@ public class PostTagService {
                 .postId(request.getPostId())
                 .tagId(request.getTagId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer postId, Integer tagId) {

@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.UserSessionRequest;
 import zentry.back.api.core.dtos.UserSessionResponse;
 import zentry.back.api.core.models.UserSession;
 import zentry.back.api.core.repositories.UserSessionRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class UserSessionService {
     }
 
     public Page<UserSessionResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public UserSessionResponse getById(Integer id) {
         UserSession entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserSession not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public UserSessionResponse create(UserSessionRequest request) {
@@ -37,7 +37,7 @@ public class UserSessionService {
                 .userId(request.getUserId())
                 .token(request.getToken())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public UserSessionResponse update(Integer id, UserSessionRequest request) {
@@ -45,7 +45,7 @@ public class UserSessionService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserSession not found"));
         entity.setUserId(request.getUserId());
         entity.setToken(request.getToken());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

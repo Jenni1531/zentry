@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.ContractsRequest;
 import zentry.back.api.business.dtos.ContractsResponse;
 import zentry.back.api.business.models.Contracts;
 import zentry.back.api.business.repositories.ContractsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class ContractsService {
     }
 
     public Page<ContractsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public ContractsResponse getById(UUID id) {
         Contracts entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public ContractsResponse create(ContractsRequest request) {
@@ -39,7 +39,7 @@ public class ContractsService {
                 .userId(request.getUserId())
                 .detalles(request.getDetalles())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public ContractsResponse update(UUID id, ContractsRequest request) {
@@ -47,7 +47,7 @@ public class ContractsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found"));
         entity.setUserId(request.getUserId());
         entity.setDetalles(request.getDetalles());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

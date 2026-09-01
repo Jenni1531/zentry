@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.CategoryRequest;
 import zentry.back.api.core.dtos.CategoryResponse;
 import zentry.back.api.core.models.Category;
 import zentry.back.api.core.repositories.CategoryRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class CategoryService {
     }
 
     public Page<CategoryResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public CategoryResponse getById(Integer id) {
         Category entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public CategoryResponse create(CategoryRequest request) {
         Category entity = Category.builder()
                 .nombre(request.getNombre())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public CategoryResponse update(Integer id, CategoryRequest request) {
         Category entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
         entity.setNombre(request.getNombre());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

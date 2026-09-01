@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.RetentionDataRequest;
 import zentry.back.api.analytics.dtos.RetentionDataResponse;
 import zentry.back.api.analytics.models.RetentionData;
 import zentry.back.api.analytics.repositories.RetentionDataRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class RetentionDataService {
     }
 
     public Page<RetentionDataResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public RetentionDataResponse getById(Integer id) {
         RetentionData entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "RetentionData not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public RetentionDataResponse create(RetentionDataRequest request) {
@@ -37,7 +37,7 @@ public class RetentionDataService {
                 .cohort(request.getCohort())
                 .retentionRate(request.getRetentionRate())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public RetentionDataResponse update(Integer id, RetentionDataRequest request) {
@@ -45,7 +45,7 @@ public class RetentionDataService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "RetentionData not found"));
         entity.setCohort(request.getCohort());
         entity.setRetentionRate(request.getRetentionRate());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

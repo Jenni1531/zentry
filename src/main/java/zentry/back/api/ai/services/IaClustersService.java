@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaClustersRequest;
 import zentry.back.api.ai.dtos.IaClustersResponse;
 import zentry.back.api.ai.models.IaClusters;
 import zentry.back.api.ai.repositories.IaClustersRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaClustersService {
     }
 
     public Page<IaClustersResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaClustersResponse getById(UUID id) {
         IaClusters entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cluster not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaClustersResponse create(IaClustersRequest request) {
@@ -41,14 +41,14 @@ public class IaClustersService {
         IaClusters entity = IaClusters.builder()
                 .descripcion(request.getDescripcion())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaClustersResponse update(UUID id, IaClustersRequest request) {
         IaClusters entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cluster not found"));
         entity.setDescripcion(request.getDescripcion());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

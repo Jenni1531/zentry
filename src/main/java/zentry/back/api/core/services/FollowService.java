@@ -11,7 +11,7 @@ import zentry.back.api.core.dtos.FollowResponse;
 import zentry.back.api.core.models.Follow;
 import zentry.back.api.core.models.Follow.FollowId;
 import zentry.back.api.core.repositories.FollowRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -24,14 +24,14 @@ public class FollowService {
     }
 
     public Page<FollowResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public FollowResponse getById(Integer follower, Integer following) {
         FollowId id = new FollowId(follower, following);
         Follow entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Follow not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public FollowResponse create(FollowRequest request) {
@@ -43,7 +43,7 @@ public class FollowService {
                 .follower(request.getFollower())
                 .following(request.getFollowing())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer follower, Integer following) {

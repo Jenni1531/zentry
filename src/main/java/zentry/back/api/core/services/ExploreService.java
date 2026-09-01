@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import zentry.back.api.core.dtos.*;
 import zentry.back.api.core.models.*;
 import zentry.back.api.core.repositories.*;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class ExploreService {
             list = seedInitialTrendingTopics();
         }
         return list.stream()
-                .map(mappers::toResponse)
+                .map(CoreMappers::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -59,7 +59,7 @@ public class ExploreService {
                     .collect(Collectors.toList());
         }
         return list.stream()
-                .map(mappers::toResponse)
+                .map(CoreMappers::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -120,7 +120,7 @@ public class ExploreService {
         }
 
         List<TrendingTopicResponse> trending = matchingTrends.stream()
-                .map(mappers::toResponse)
+                .map(CoreMappers::toResponse)
                 .collect(Collectors.toList());
 
         return UnifiedSearchResponse.builder()

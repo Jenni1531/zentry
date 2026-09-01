@@ -11,7 +11,7 @@ import zentry.back.api.core.dtos.BlockResponse;
 import zentry.back.api.core.models.Block;
 import zentry.back.api.core.models.Block.BlockId;
 import zentry.back.api.core.repositories.BlockRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -24,14 +24,14 @@ public class BlockService {
     }
 
     public Page<BlockResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public BlockResponse getById(Integer userId, Integer blockedId) {
         BlockId id = new BlockId(userId, blockedId);
         Block entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Block not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public BlockResponse create(BlockRequest request) {
@@ -43,7 +43,7 @@ public class BlockService {
                 .userId(request.getUserId())
                 .blockedId(request.getBlockedId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer userId, Integer blockedId) {

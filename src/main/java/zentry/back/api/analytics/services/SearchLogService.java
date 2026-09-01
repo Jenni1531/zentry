@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.SearchLogRequest;
 import zentry.back.api.analytics.dtos.SearchLogResponse;
 import zentry.back.api.analytics.models.SearchLog;
 import zentry.back.api.analytics.repositories.SearchLogRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class SearchLogService {
     }
 
     public Page<SearchLogResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public SearchLogResponse getById(Integer id) {
         SearchLog entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SearchLog not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public SearchLogResponse create(SearchLogRequest request) {
@@ -37,7 +37,7 @@ public class SearchLogService {
                 .userId(request.getUserId())
                 .query(request.getQuery())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public SearchLogResponse update(Integer id, SearchLogRequest request) {
@@ -45,7 +45,7 @@ public class SearchLogService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SearchLog not found"));
         entity.setUserId(request.getUserId());
         entity.setQuery(request.getQuery());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

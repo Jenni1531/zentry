@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.DonationsRequest;
 import zentry.back.api.business.dtos.DonationsResponse;
 import zentry.back.api.business.models.Donations;
 import zentry.back.api.business.repositories.DonationsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class DonationsService {
     }
 
     public Page<DonationsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public DonationsResponse getById(UUID id) {
         Donations entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Donation not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public DonationsResponse create(DonationsRequest request) {
@@ -39,7 +39,7 @@ public class DonationsService {
                 .userId(request.getUserId())
                 .amount(request.getAmount())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public DonationsResponse update(UUID id, DonationsRequest request) {
@@ -47,7 +47,7 @@ public class DonationsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Donation not found"));
         entity.setUserId(request.getUserId());
         entity.setAmount(request.getAmount());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

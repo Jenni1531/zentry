@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.ClickStreamRequest;
 import zentry.back.api.analytics.dtos.ClickStreamResponse;
 import zentry.back.api.analytics.models.ClickStream;
 import zentry.back.api.analytics.repositories.ClickStreamRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class ClickStreamService {
     }
 
     public Page<ClickStreamResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public ClickStreamResponse getById(Integer id) {
         ClickStream entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ClickStream not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public ClickStreamResponse create(ClickStreamRequest request) {
@@ -38,7 +38,7 @@ public class ClickStreamService {
                 .element(request.getElement())
                 .page(request.getPage())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public ClickStreamResponse update(Integer id, ClickStreamRequest request) {
@@ -47,7 +47,7 @@ public class ClickStreamService {
         entity.setUserId(request.getUserId());
         entity.setElement(request.getElement());
         entity.setPage(request.getPage());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

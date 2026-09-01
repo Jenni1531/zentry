@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.FriendRequestRequest;
 import zentry.back.api.core.dtos.FriendRequestResponse;
 import zentry.back.api.core.models.FriendRequest;
 import zentry.back.api.core.repositories.FriendRequestRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class FriendRequestService {
     }
 
     public Page<FriendRequestResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public FriendRequestResponse getById(Integer id) {
         FriendRequest entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FriendRequest not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public FriendRequestResponse create(FriendRequestRequest request) {
@@ -37,7 +37,7 @@ public class FriendRequestService {
                 .user1(request.getUser1())
                 .user2(request.getUser2())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public FriendRequestResponse update(Integer id, FriendRequestRequest request) {
@@ -45,7 +45,7 @@ public class FriendRequestService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FriendRequest not found"));
         entity.setUser1(request.getUser1());
         entity.setUser2(request.getUser2());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

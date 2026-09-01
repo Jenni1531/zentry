@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.AuditLogRequest;
 import zentry.back.api.core.dtos.AuditLogResponse;
 import zentry.back.api.core.models.AuditLog;
 import zentry.back.api.core.repositories.AuditLogRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class AuditLogService {
     }
 
     public Page<AuditLogResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public AuditLogResponse getById(Integer id) {
         AuditLog entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AuditLog not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public AuditLogResponse create(AuditLogRequest request) {
         AuditLog entity = AuditLog.builder()
                 .accion(request.getAccion())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public AuditLogResponse update(Integer id, AuditLogRequest request) {
         AuditLog entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AuditLog not found"));
         entity.setAccion(request.getAccion());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.PerformanceLogRequest;
 import zentry.back.api.analytics.dtos.PerformanceLogResponse;
 import zentry.back.api.analytics.models.PerformanceLog;
 import zentry.back.api.analytics.repositories.PerformanceLogRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class PerformanceLogService {
     }
 
     public Page<PerformanceLogResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public PerformanceLogResponse getById(Integer id) {
         PerformanceLog entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PerformanceLog not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public PerformanceLogResponse create(PerformanceLogRequest request) {
@@ -37,7 +37,7 @@ public class PerformanceLogService {
                 .metric(request.getMetric())
                 .value(request.getValue())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public PerformanceLogResponse update(Integer id, PerformanceLogRequest request) {
@@ -45,7 +45,7 @@ public class PerformanceLogService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PerformanceLog not found"));
         entity.setMetric(request.getMetric());
         entity.setValue(request.getValue());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

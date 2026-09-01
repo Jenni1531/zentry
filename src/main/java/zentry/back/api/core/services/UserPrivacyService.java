@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.UserPrivacyRequest;
 import zentry.back.api.core.dtos.UserPrivacyResponse;
 import zentry.back.api.core.models.UserPrivacy;
 import zentry.back.api.core.repositories.UserPrivacyRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class UserPrivacyService {
     }
 
     public Page<UserPrivacyResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public UserPrivacyResponse getById(Integer userId) {
         UserPrivacy entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserPrivacy not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public UserPrivacyResponse create(UserPrivacyRequest request) {
@@ -40,14 +40,14 @@ public class UserPrivacyService {
                 .userId(request.getUserId())
                 .nivel(request.getNivel())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public UserPrivacyResponse update(Integer userId, UserPrivacyRequest request) {
         UserPrivacy entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserPrivacy not found"));
         entity.setNivel(request.getNivel());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer userId) {

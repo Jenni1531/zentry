@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.FeedbackLabelsRequest;
 import zentry.back.api.ai.dtos.FeedbackLabelsResponse;
 import zentry.back.api.ai.models.FeedbackLabels;
 import zentry.back.api.ai.repositories.FeedbackLabelsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class FeedbackLabelsService {
     }
 
     public Page<FeedbackLabelsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public FeedbackLabelsResponse getById(UUID id) {
         FeedbackLabels entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FeedbackLabel not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public FeedbackLabelsResponse create(FeedbackLabelsRequest request) {
@@ -39,7 +39,7 @@ public class FeedbackLabelsService {
                 .feedbackId(request.getFeedbackId())
                 .etiqueta(request.getEtiqueta())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public FeedbackLabelsResponse update(UUID id, FeedbackLabelsRequest request) {
@@ -47,7 +47,7 @@ public class FeedbackLabelsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FeedbackLabel not found"));
         entity.setFeedbackId(request.getFeedbackId());
         entity.setEtiqueta(request.getEtiqueta());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

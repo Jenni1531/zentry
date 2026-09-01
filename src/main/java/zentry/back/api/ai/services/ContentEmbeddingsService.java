@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.ContentEmbeddingsRequest;
 import zentry.back.api.ai.dtos.ContentEmbeddingsResponse;
 import zentry.back.api.ai.models.ContentEmbeddings;
 import zentry.back.api.ai.repositories.ContentEmbeddingsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class ContentEmbeddingsService {
     }
 
     public Page<ContentEmbeddingsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public ContentEmbeddingsResponse getById(UUID id) {
         ContentEmbeddings entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ContentEmbedding not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public ContentEmbeddingsResponse create(ContentEmbeddingsRequest request) {
@@ -39,7 +39,7 @@ public class ContentEmbeddingsService {
                 .postId(request.getPostId())
                 .vector(request.getVector())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public ContentEmbeddingsResponse update(UUID id, ContentEmbeddingsRequest request) {
@@ -47,7 +47,7 @@ public class ContentEmbeddingsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ContentEmbedding not found"));
         entity.setPostId(request.getPostId());
         entity.setVector(request.getVector());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

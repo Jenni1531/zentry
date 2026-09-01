@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.SearchClickRequest;
 import zentry.back.api.analytics.dtos.SearchClickResponse;
 import zentry.back.api.analytics.models.SearchClick;
 import zentry.back.api.analytics.repositories.SearchClickRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class SearchClickService {
     }
 
     public Page<SearchClickResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public SearchClickResponse getById(Integer id) {
         SearchClick entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SearchClick not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public SearchClickResponse create(SearchClickRequest request) {
@@ -37,7 +37,7 @@ public class SearchClickService {
                 .searchLogId(request.getSearchLogId())
                 .resultClicked(request.getResultClicked())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public SearchClickResponse update(Integer id, SearchClickRequest request) {
@@ -45,7 +45,7 @@ public class SearchClickService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SearchClick not found"));
         entity.setSearchLogId(request.getSearchLogId());
         entity.setResultClicked(request.getResultClicked());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

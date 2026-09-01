@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.ReportRequest;
 import zentry.back.api.core.dtos.ReportResponse;
 import zentry.back.api.core.models.Report;
 import zentry.back.api.core.repositories.ReportRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class ReportService {
     }
 
     public Page<ReportResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public ReportResponse getById(Integer id) {
         Report entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public ReportResponse create(ReportRequest request) {
         Report entity = Report.builder()
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public ReportResponse update(Integer id, ReportRequest request) {
         Report entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found"));
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.ContentPerformanceRequest;
 import zentry.back.api.analytics.dtos.ContentPerformanceResponse;
 import zentry.back.api.analytics.models.ContentPerformance;
 import zentry.back.api.analytics.repositories.ContentPerformanceRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class ContentPerformanceService {
     }
 
     public Page<ContentPerformanceResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public ContentPerformanceResponse getById(Integer id) {
         ContentPerformance entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ContentPerformance not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public ContentPerformanceResponse create(ContentPerformanceRequest request) {
@@ -38,7 +38,7 @@ public class ContentPerformanceService {
                 .views(request.getViews())
                 .likes(request.getLikes())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public ContentPerformanceResponse update(Integer id, ContentPerformanceRequest request) {
@@ -47,7 +47,7 @@ public class ContentPerformanceService {
         entity.setPostId(request.getPostId());
         entity.setViews(request.getViews());
         entity.setLikes(request.getLikes());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

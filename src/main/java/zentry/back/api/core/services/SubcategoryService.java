@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.SubcategoryRequest;
 import zentry.back.api.core.dtos.SubcategoryResponse;
 import zentry.back.api.core.models.Subcategory;
 import zentry.back.api.core.repositories.SubcategoryRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class SubcategoryService {
     }
 
     public Page<SubcategoryResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public SubcategoryResponse getById(Integer id) {
         Subcategory entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subcategory not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public SubcategoryResponse create(SubcategoryRequest request) {
         Subcategory entity = Subcategory.builder()
                 .categoriaId(request.getCategoriaId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public SubcategoryResponse update(Integer id, SubcategoryRequest request) {
         Subcategory entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subcategory not found"));
         entity.setCategoriaId(request.getCategoriaId());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.ShareRequest;
 import zentry.back.api.core.dtos.ShareResponse;
 import zentry.back.api.core.models.Share;
 import zentry.back.api.core.repositories.ShareRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class ShareService {
     }
 
     public Page<ShareResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public ShareResponse getById(Integer id) {
         Share entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Share not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public ShareResponse create(ShareRequest request) {
@@ -37,7 +37,7 @@ public class ShareService {
                 .postId(request.getPostId())
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public ShareResponse update(Integer id, ShareRequest request) {
@@ -45,7 +45,7 @@ public class ShareService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Share not found"));
         entity.setPostId(request.getPostId());
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

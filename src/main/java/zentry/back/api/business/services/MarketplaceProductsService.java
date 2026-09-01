@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.MarketplaceProductsRequest;
 import zentry.back.api.business.dtos.MarketplaceProductsResponse;
 import zentry.back.api.business.models.MarketplaceProducts;
 import zentry.back.api.business.repositories.MarketplaceProductsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class MarketplaceProductsService {
     }
 
     public Page<MarketplaceProductsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public MarketplaceProductsResponse getById(UUID id) {
         MarketplaceProducts entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MarketplaceProduct not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public MarketplaceProductsResponse create(MarketplaceProductsRequest request) {
@@ -43,7 +43,7 @@ public class MarketplaceProductsService {
                 .nombre(request.getNombre())
                 .precio(request.getPrecio())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public MarketplaceProductsResponse update(UUID id, MarketplaceProductsRequest request) {
@@ -52,7 +52,7 @@ public class MarketplaceProductsService {
         entity.setSellerId(request.getSellerId());
         entity.setNombre(request.getNombre());
         entity.setPrecio(request.getPrecio());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

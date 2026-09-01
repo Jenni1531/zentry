@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.UserDeviceRequest;
 import zentry.back.api.core.dtos.UserDeviceResponse;
 import zentry.back.api.core.models.UserDevice;
 import zentry.back.api.core.repositories.UserDeviceRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class UserDeviceService {
     }
 
     public Page<UserDeviceResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public UserDeviceResponse getById(Integer id) {
         UserDevice entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserDevice not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public UserDeviceResponse create(UserDeviceRequest request) {
@@ -37,7 +37,7 @@ public class UserDeviceService {
                 .userId(request.getUserId())
                 .dispositivo(request.getDispositivo())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public UserDeviceResponse update(Integer id, UserDeviceRequest request) {
@@ -45,7 +45,7 @@ public class UserDeviceService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserDevice not found"));
         entity.setUserId(request.getUserId());
         entity.setDispositivo(request.getDispositivo());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

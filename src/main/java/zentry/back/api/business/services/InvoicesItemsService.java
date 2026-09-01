@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.InvoicesItemsRequest;
 import zentry.back.api.business.dtos.InvoicesItemsResponse;
 import zentry.back.api.business.models.InvoicesItems;
 import zentry.back.api.business.repositories.InvoicesItemsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class InvoicesItemsService {
     }
 
     public Page<InvoicesItemsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public InvoicesItemsResponse getById(UUID id) {
         InvoicesItems entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "InvoiceItem not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public InvoicesItemsResponse create(InvoicesItemsRequest request) {
@@ -40,7 +40,7 @@ public class InvoicesItemsService {
                 .descripcion(request.getDescripcion())
                 .precio(request.getPrecio())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public InvoicesItemsResponse update(UUID id, InvoicesItemsRequest request) {
@@ -49,7 +49,7 @@ public class InvoicesItemsService {
         entity.setInvoiceId(request.getInvoiceId());
         entity.setDescripcion(request.getDescripcion());
         entity.setPrecio(request.getPrecio());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

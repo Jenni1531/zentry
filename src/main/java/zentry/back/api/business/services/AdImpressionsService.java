@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.AdImpressionsRequest;
 import zentry.back.api.business.dtos.AdImpressionsResponse;
 import zentry.back.api.business.models.AdImpressions;
 import zentry.back.api.business.repositories.AdImpressionsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class AdImpressionsService {
     }
 
     public Page<AdImpressionsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public AdImpressionsResponse getById(UUID id) {
         AdImpressions entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AdImpression not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public AdImpressionsResponse create(AdImpressionsRequest request) {
@@ -39,7 +39,7 @@ public class AdImpressionsService {
                 .campaignId(request.getCampaignId())
                 .vistas(request.getVistas())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public AdImpressionsResponse update(UUID id, AdImpressionsRequest request) {
@@ -47,7 +47,7 @@ public class AdImpressionsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AdImpression not found"));
         entity.setCampaignId(request.getCampaignId());
         entity.setVistas(request.getVistas());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

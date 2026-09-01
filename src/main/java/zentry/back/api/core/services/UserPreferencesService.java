@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.UserPreferencesRequest;
 import zentry.back.api.core.dtos.UserPreferencesResponse;
 import zentry.back.api.core.models.UserPreferences;
 import zentry.back.api.core.repositories.UserPreferencesRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class UserPreferencesService {
     }
 
     public Page<UserPreferencesResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public UserPreferencesResponse getById(Integer userId) {
         UserPreferences entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserPreferences not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public UserPreferencesResponse create(UserPreferencesRequest request) {
@@ -40,14 +40,14 @@ public class UserPreferencesService {
                 .userId(request.getUserId())
                 .config(request.getConfig())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public UserPreferencesResponse update(Integer userId, UserPreferencesRequest request) {
         UserPreferences entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserPreferences not found"));
         entity.setConfig(request.getConfig());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer userId) {

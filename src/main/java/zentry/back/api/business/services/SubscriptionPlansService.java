@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.SubscriptionPlansRequest;
 import zentry.back.api.business.dtos.SubscriptionPlansResponse;
 import zentry.back.api.business.models.SubscriptionPlans;
 import zentry.back.api.business.repositories.SubscriptionPlansRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class SubscriptionPlansService {
     }
 
     public Page<SubscriptionPlansResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public SubscriptionPlansResponse getById(UUID id) {
         SubscriptionPlans entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SubscriptionPlan not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public SubscriptionPlansResponse create(SubscriptionPlansRequest request) {
@@ -42,7 +42,7 @@ public class SubscriptionPlansService {
                 .name(request.getName())
                 .precio(request.getPrecio())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public SubscriptionPlansResponse update(UUID id, SubscriptionPlansRequest request) {
@@ -50,7 +50,7 @@ public class SubscriptionPlansService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SubscriptionPlan not found"));
         entity.setName(request.getName());
         entity.setPrecio(request.getPrecio());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

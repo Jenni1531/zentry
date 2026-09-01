@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.ForumThreadRequest;
 import zentry.back.api.core.dtos.ForumThreadResponse;
 import zentry.back.api.core.models.ForumThread;
 import zentry.back.api.core.repositories.ForumThreadRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class ForumThreadService {
     }
 
     public Page<ForumThreadResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public ForumThreadResponse getById(Integer id) {
         ForumThread entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ForumThread not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public ForumThreadResponse create(ForumThreadRequest request) {
         ForumThread entity = ForumThread.builder()
                 .communityId(request.getCommunityId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public ForumThreadResponse update(Integer id, ForumThreadRequest request) {
         ForumThread entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ForumThread not found"));
         entity.setCommunityId(request.getCommunityId());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

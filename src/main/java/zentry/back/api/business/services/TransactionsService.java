@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.TransactionsRequest;
 import zentry.back.api.business.dtos.TransactionsResponse;
 import zentry.back.api.business.models.Transactions;
 import zentry.back.api.business.repositories.TransactionsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class TransactionsService {
     }
 
     public Page<TransactionsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public TransactionsResponse getById(UUID id) {
         Transactions entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public TransactionsResponse create(TransactionsRequest request) {
@@ -39,7 +39,7 @@ public class TransactionsService {
                 .userId(request.getUserId())
                 .amount(request.getAmount())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public TransactionsResponse update(UUID id, TransactionsRequest request) {
@@ -47,7 +47,7 @@ public class TransactionsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
         entity.setUserId(request.getUserId());
         entity.setAmount(request.getAmount());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

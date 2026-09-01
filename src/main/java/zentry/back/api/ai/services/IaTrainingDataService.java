@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaTrainingDataRequest;
 import zentry.back.api.ai.dtos.IaTrainingDataResponse;
 import zentry.back.api.ai.models.IaTrainingData;
 import zentry.back.api.ai.repositories.IaTrainingDataRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaTrainingDataService {
     }
 
     public Page<IaTrainingDataResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaTrainingDataResponse getById(UUID id) {
         IaTrainingData entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TrainingData not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaTrainingDataResponse create(IaTrainingDataRequest request) {
@@ -42,7 +42,7 @@ public class IaTrainingDataService {
                 .dataInput(request.getDataInput())
                 .dataOutput(request.getDataOutput())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaTrainingDataResponse update(UUID id, IaTrainingDataRequest request) {
@@ -50,7 +50,7 @@ public class IaTrainingDataService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TrainingData not found"));
         entity.setDataInput(request.getDataInput());
         entity.setDataOutput(request.getDataOutput());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

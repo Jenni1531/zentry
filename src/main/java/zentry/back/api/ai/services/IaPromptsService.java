@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaPromptsRequest;
 import zentry.back.api.ai.dtos.IaPromptsResponse;
 import zentry.back.api.ai.models.IaPrompts;
 import zentry.back.api.ai.repositories.IaPromptsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaPromptsService {
     }
 
     public Page<IaPromptsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaPromptsResponse getById(UUID id) {
         IaPrompts entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Prompt not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaPromptsResponse create(IaPromptsRequest request) {
@@ -39,7 +39,7 @@ public class IaPromptsService {
                 .userId(request.getUserId())
                 .prompt(request.getPrompt())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaPromptsResponse update(UUID id, IaPromptsRequest request) {
@@ -47,7 +47,7 @@ public class IaPromptsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Prompt not found"));
         entity.setUserId(request.getUserId());
         entity.setPrompt(request.getPrompt());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.DataLakeEventRequest;
 import zentry.back.api.analytics.dtos.DataLakeEventResponse;
 import zentry.back.api.analytics.models.DataLakeEvent;
 import zentry.back.api.analytics.repositories.DataLakeEventRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class DataLakeEventService {
     }
 
     public Page<DataLakeEventResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public DataLakeEventResponse getById(Integer id) {
         DataLakeEvent entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "DataLakeEvent not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public DataLakeEventResponse create(DataLakeEventRequest request) {
@@ -37,7 +37,7 @@ public class DataLakeEventService {
                 .rawData(request.getRawData())
                 .source(request.getSource())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public DataLakeEventResponse update(Integer id, DataLakeEventRequest request) {
@@ -45,7 +45,7 @@ public class DataLakeEventService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "DataLakeEvent not found"));
         entity.setRawData(request.getRawData());
         entity.setSource(request.getSource());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

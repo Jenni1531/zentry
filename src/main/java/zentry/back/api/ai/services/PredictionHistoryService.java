@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.PredictionHistoryRequest;
 import zentry.back.api.ai.dtos.PredictionHistoryResponse;
 import zentry.back.api.ai.models.PredictionHistory;
 import zentry.back.api.ai.repositories.PredictionHistoryRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class PredictionHistoryService {
     }
 
     public Page<PredictionHistoryResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public PredictionHistoryResponse getById(UUID id) {
         PredictionHistory entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PredictionHistory not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public PredictionHistoryResponse create(PredictionHistoryRequest request) {
@@ -39,7 +39,7 @@ public class PredictionHistoryService {
                 .predictionId(request.getPredictionId())
                 .fecha(request.getFecha())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public PredictionHistoryResponse update(UUID id, PredictionHistoryRequest request) {
@@ -47,7 +47,7 @@ public class PredictionHistoryService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PredictionHistory not found"));
         entity.setPredictionId(request.getPredictionId());
         entity.setFecha(request.getFecha());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

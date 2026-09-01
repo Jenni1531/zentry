@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.ErrorTrackingRequest;
 import zentry.back.api.analytics.dtos.ErrorTrackingResponse;
 import zentry.back.api.analytics.models.ErrorTracking;
 import zentry.back.api.analytics.repositories.ErrorTrackingRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class ErrorTrackingService {
     }
 
     public Page<ErrorTrackingResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public ErrorTrackingResponse getById(Integer id) {
         ErrorTracking entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ErrorTracking not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public ErrorTrackingResponse create(ErrorTrackingRequest request) {
@@ -38,7 +38,7 @@ public class ErrorTrackingService {
                 .stackTrace(request.getStackTrace())
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public ErrorTrackingResponse update(Integer id, ErrorTrackingRequest request) {
@@ -47,7 +47,7 @@ public class ErrorTrackingService {
         entity.setError(request.getError());
         entity.setStackTrace(request.getStackTrace());
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

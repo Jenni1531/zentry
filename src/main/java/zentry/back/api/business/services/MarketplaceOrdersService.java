@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.MarketplaceOrdersRequest;
 import zentry.back.api.business.dtos.MarketplaceOrdersResponse;
 import zentry.back.api.business.models.MarketplaceOrders;
 import zentry.back.api.business.repositories.MarketplaceOrdersRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class MarketplaceOrdersService {
     }
 
     public Page<MarketplaceOrdersResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public MarketplaceOrdersResponse getById(UUID id) {
         MarketplaceOrders entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MarketplaceOrder not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public MarketplaceOrdersResponse create(MarketplaceOrdersRequest request) {
@@ -39,7 +39,7 @@ public class MarketplaceOrdersService {
                 .buyerId(request.getBuyerId())
                 .total(request.getTotal())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public MarketplaceOrdersResponse update(UUID id, MarketplaceOrdersRequest request) {
@@ -47,7 +47,7 @@ public class MarketplaceOrdersService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MarketplaceOrder not found"));
         entity.setBuyerId(request.getBuyerId());
         entity.setTotal(request.getTotal());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

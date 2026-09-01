@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.CommunityEmbeddingsRequest;
 import zentry.back.api.ai.dtos.CommunityEmbeddingsResponse;
 import zentry.back.api.ai.models.CommunityEmbeddings;
 import zentry.back.api.ai.repositories.CommunityEmbeddingsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class CommunityEmbeddingsService {
     }
 
     public Page<CommunityEmbeddingsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public CommunityEmbeddingsResponse getById(UUID id) {
         CommunityEmbeddings entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CommunityEmbedding not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public CommunityEmbeddingsResponse create(CommunityEmbeddingsRequest request) {
@@ -39,7 +39,7 @@ public class CommunityEmbeddingsService {
                 .communityId(request.getCommunityId())
                 .vector(request.getVector())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public CommunityEmbeddingsResponse update(UUID id, CommunityEmbeddingsRequest request) {
@@ -47,7 +47,7 @@ public class CommunityEmbeddingsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CommunityEmbedding not found"));
         entity.setCommunityId(request.getCommunityId());
         entity.setVector(request.getVector());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

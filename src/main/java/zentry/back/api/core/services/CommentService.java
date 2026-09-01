@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.CommentRequest;
 import zentry.back.api.core.dtos.CommentResponse;
 import zentry.back.api.core.models.Comment;
 import zentry.back.api.core.repositories.CommentRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class CommentService {
     }
 
     public Page<CommentResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public CommentResponse getById(Integer id) {
         Comment entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public CommentResponse create(CommentRequest request) {
@@ -37,7 +37,7 @@ public class CommentService {
                 .postId(request.getPostId())
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public CommentResponse update(Integer id, CommentRequest request) {
@@ -45,7 +45,7 @@ public class CommentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
         entity.setPostId(request.getPostId());
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

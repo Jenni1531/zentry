@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.ConversionFunnelRequest;
 import zentry.back.api.analytics.dtos.ConversionFunnelResponse;
 import zentry.back.api.analytics.models.ConversionFunnel;
 import zentry.back.api.analytics.repositories.ConversionFunnelRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class ConversionFunnelService {
     }
 
     public Page<ConversionFunnelResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public ConversionFunnelResponse getById(Integer id) {
         ConversionFunnel entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ConversionFunnel not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public ConversionFunnelResponse create(ConversionFunnelRequest request) {
@@ -38,7 +38,7 @@ public class ConversionFunnelService {
                 .steps(request.getSteps())
                 .conversions(request.getConversions())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public ConversionFunnelResponse update(Integer id, ConversionFunnelRequest request) {
@@ -47,7 +47,7 @@ public class ConversionFunnelService {
         entity.setFunnelName(request.getFunnelName());
         entity.setSteps(request.getSteps());
         entity.setConversions(request.getConversions());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

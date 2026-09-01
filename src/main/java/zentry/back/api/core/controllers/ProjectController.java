@@ -30,15 +30,16 @@ public class ProjectController {
     @GetMapping
     @Operation(summary = "Obtener proyectos del usuario autenticado")
     public ResponseEntity<List<Project>> getProjects(Principal principal) {
-        String username = principal != null ? principal.getName() : "anonimo";
+        String username = principal != null ? principal.getName() : null;
         return ResponseEntity.ok(projectService.getProjectsByUser(username));
     }
 
-    // GET /api/core/projects/{id} -> Detalle completo del proyecto
+    // GET /api/core/projects/{id} -> Detalle completo del proyecto (solo si es del usuario autenticado)
     @GetMapping("/{id}")
     @Operation(summary = "Detalle completo del proyecto por ID")
-    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
-        return ResponseEntity.ok(projectService.getProjectById(id));
+    public ResponseEntity<Project> getProjectById(@PathVariable Long id, Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(projectService.getProjectById(id, username));
     }
 
     // POST /api/core/projects -> Crear nuevo proyecto
@@ -47,7 +48,7 @@ public class ProjectController {
     public ResponseEntity<Project> createProject(
             @RequestBody ProjectRequestDTO dto,
             Principal principal) {
-        String username = principal != null ? principal.getName() : "creador";
+        String username = principal != null ? principal.getName() : null;
         return ResponseEntity.ok(projectService.createProject(username, dto));
     }
 
@@ -58,7 +59,7 @@ public class ProjectController {
             @PathVariable Long id,
             @RequestBody ProjectRequestDTO dto,
             Principal principal) {
-        String username = principal != null ? principal.getName() : "creador";
+        String username = principal != null ? principal.getName() : null;
         return ResponseEntity.ok(projectService.updateProject(id, username, dto));
     }
 
@@ -68,7 +69,7 @@ public class ProjectController {
     public ResponseEntity<Void> deleteProject(
             @PathVariable Long id,
             Principal principal) {
-        String username = principal != null ? principal.getName() : "creador";
+        String username = principal != null ? principal.getName() : null;
         projectService.deleteProject(id, username);
         return ResponseEntity.noContent().build();
     }
@@ -80,7 +81,7 @@ public class ProjectController {
             @PathVariable Long id,
             @RequestBody TaskRequestDTO dto,
             Principal principal) {
-        String username = principal != null ? principal.getName() : "creador";
+        String username = principal != null ? principal.getName() : null;
         return ResponseEntity.ok(projectService.addTask(id, username, dto));
     }
 
@@ -91,7 +92,7 @@ public class ProjectController {
             @PathVariable Long id,
             @PathVariable Long taskId,
             Principal principal) {
-        String username = principal != null ? principal.getName() : "creador";
+        String username = principal != null ? principal.getName() : null;
         return ResponseEntity.ok(projectService.toggleTask(id, taskId, username));
     }
 
@@ -102,7 +103,7 @@ public class ProjectController {
             @PathVariable Long id,
             @PathVariable Long taskId,
             Principal principal) {
-        String username = principal != null ? principal.getName() : "creador";
+        String username = principal != null ? principal.getName() : null;
         projectService.deleteTask(id, taskId, username);
         return ResponseEntity.noContent().build();
     }
@@ -114,7 +115,7 @@ public class ProjectController {
             @PathVariable Long id,
             @RequestBody ResourceRequestDTO dto,
             Principal principal) {
-        String username = principal != null ? principal.getName() : "creador";
+        String username = principal != null ? principal.getName() : null;
         return ResponseEntity.ok(projectService.addResource(id, username, dto));
     }
 
@@ -125,14 +126,15 @@ public class ProjectController {
             @PathVariable Long id,
             @RequestBody NoteRequestDTO dto,
             Principal principal) {
-        String username = principal != null ? principal.getName() : "creador";
+        String username = principal != null ? principal.getName() : null;
         return ResponseEntity.ok(projectService.addNote(id, username, dto));
     }
 
-    // GET /api/core/projects/search -> Buscar proyectos
+    // GET /api/core/projects/search -> Buscar proyectos (acotado al usuario autenticado)
     @GetMapping("/search")
     @Operation(summary = "Buscar proyectos por término")
-    public ResponseEntity<List<Project>> searchProjects(@RequestParam("q") String query) {
-        return ResponseEntity.ok(projectService.searchProjects(query));
+    public ResponseEntity<List<Project>> searchProjects(@RequestParam("q") String query, Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(projectService.searchProjects(username, query));
     }
 }

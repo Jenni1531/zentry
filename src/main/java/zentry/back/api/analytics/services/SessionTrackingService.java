@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.SessionTrackingRequest;
 import zentry.back.api.analytics.dtos.SessionTrackingResponse;
 import zentry.back.api.analytics.models.SessionTracking;
 import zentry.back.api.analytics.repositories.SessionTrackingRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class SessionTrackingService {
     }
 
     public Page<SessionTrackingResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public SessionTrackingResponse getById(Integer id) {
         SessionTracking entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SessionTracking not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public SessionTrackingResponse create(SessionTrackingRequest request) {
@@ -38,7 +38,7 @@ public class SessionTrackingService {
                 .sessionStart(request.getSessionStart())
                 .sessionEnd(request.getSessionEnd())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public SessionTrackingResponse update(Integer id, SessionTrackingRequest request) {
@@ -47,7 +47,7 @@ public class SessionTrackingService {
         entity.setUserId(request.getUserId());
         entity.setSessionStart(request.getSessionStart());
         entity.setSessionEnd(request.getSessionEnd());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.PaymentMethodsRequest;
 import zentry.back.api.business.dtos.PaymentMethodsResponse;
 import zentry.back.api.business.models.PaymentMethods;
 import zentry.back.api.business.repositories.PaymentMethodsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class PaymentMethodsService {
     }
 
     public Page<PaymentMethodsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public PaymentMethodsResponse getById(UUID id) {
         PaymentMethods entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PaymentMethod not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public PaymentMethodsResponse create(PaymentMethodsRequest request) {
@@ -42,7 +42,7 @@ public class PaymentMethodsService {
                 .userId(request.getUserId())
                 .metodo(request.getMetodo())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public PaymentMethodsResponse update(UUID id, PaymentMethodsRequest request) {
@@ -50,7 +50,7 @@ public class PaymentMethodsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PaymentMethod not found"));
         entity.setUserId(request.getUserId());
         entity.setMetodo(request.getMetodo());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

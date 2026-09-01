@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaConfigsRequest;
 import zentry.back.api.ai.dtos.IaConfigsResponse;
 import zentry.back.api.ai.models.IaConfigs;
 import zentry.back.api.ai.repositories.IaConfigsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaConfigsService {
     }
 
     public Page<IaConfigsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaConfigsResponse getById(UUID id) {
         IaConfigs entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Config not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaConfigsResponse create(IaConfigsRequest request) {
@@ -39,7 +39,7 @@ public class IaConfigsService {
                 .modelId(request.getModelId())
                 .parametros(request.getParametros())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaConfigsResponse update(UUID id, IaConfigsRequest request) {
@@ -47,7 +47,7 @@ public class IaConfigsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Config not found"));
         entity.setModelId(request.getModelId());
         entity.setParametros(request.getParametros());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

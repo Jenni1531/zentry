@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaPredictionsRequest;
 import zentry.back.api.ai.dtos.IaPredictionsResponse;
 import zentry.back.api.ai.models.IaPredictions;
 import zentry.back.api.ai.repositories.IaPredictionsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaPredictionsService {
     }
 
     public Page<IaPredictionsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaPredictionsResponse getById(UUID id) {
         IaPredictions entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Prediction not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaPredictionsResponse create(IaPredictionsRequest request) {
@@ -39,7 +39,7 @@ public class IaPredictionsService {
                 .modelId(request.getModelId())
                 .resultado(request.getResultado())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaPredictionsResponse update(UUID id, IaPredictionsRequest request) {
@@ -47,7 +47,7 @@ public class IaPredictionsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Prediction not found"));
         entity.setModelId(request.getModelId());
         entity.setResultado(request.getResultado());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

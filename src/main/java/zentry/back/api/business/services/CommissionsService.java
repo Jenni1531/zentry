@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.CommissionsRequest;
 import zentry.back.api.business.dtos.CommissionsResponse;
 import zentry.back.api.business.models.Commissions;
 import zentry.back.api.business.repositories.CommissionsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,27 +25,27 @@ public class CommissionsService {
     }
 
     public Page<CommissionsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public CommissionsResponse getById(UUID id) {
         Commissions entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Commission not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public CommissionsResponse create(CommissionsRequest request) {
         Commissions entity = Commissions.builder()
                 .porcentaje(request.getPorcentaje())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public CommissionsResponse update(UUID id, CommissionsRequest request) {
         Commissions entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Commission not found"));
         entity.setPorcentaje(request.getPorcentaje());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

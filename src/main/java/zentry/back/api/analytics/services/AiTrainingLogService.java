@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.AiTrainingLogRequest;
 import zentry.back.api.analytics.dtos.AiTrainingLogResponse;
 import zentry.back.api.analytics.models.AiTrainingLog;
 import zentry.back.api.analytics.repositories.AiTrainingLogRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class AiTrainingLogService {
     }
 
     public Page<AiTrainingLogResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public AiTrainingLogResponse getById(Integer id) {
         AiTrainingLog entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AiTrainingLog not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public AiTrainingLogResponse create(AiTrainingLogRequest request) {
@@ -38,7 +38,7 @@ public class AiTrainingLogService {
                 .inputData(request.getInputData())
                 .outputData(request.getOutputData())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public AiTrainingLogResponse update(Integer id, AiTrainingLogRequest request) {
@@ -47,7 +47,7 @@ public class AiTrainingLogService {
         entity.setModel(request.getModel());
         entity.setInputData(request.getInputData());
         entity.setOutputData(request.getOutputData());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

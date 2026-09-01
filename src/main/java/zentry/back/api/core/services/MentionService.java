@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.MentionRequest;
 import zentry.back.api.core.dtos.MentionResponse;
 import zentry.back.api.core.models.Mention;
 import zentry.back.api.core.repositories.MentionRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class MentionService {
     }
 
     public Page<MentionResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public MentionResponse getById(Integer id) {
         Mention entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mention not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public MentionResponse create(MentionRequest request) {
         Mention entity = Mention.builder()
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public MentionResponse update(Integer id, MentionRequest request) {
         Mention entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mention not found"));
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

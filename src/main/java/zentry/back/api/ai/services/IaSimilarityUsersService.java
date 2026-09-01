@@ -11,7 +11,7 @@ import zentry.back.api.ai.dtos.IaSimilarityUsersResponse;
 import zentry.back.api.ai.models.IaSimilarityUsers;
 import zentry.back.api.ai.models.IaSimilarityUsersId;
 import zentry.back.api.ai.repositories.IaSimilarityUsersRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -24,14 +24,14 @@ public class IaSimilarityUsersService {
     }
 
     public Page<IaSimilarityUsersResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaSimilarityUsersResponse getById(Integer user1, Integer user2) {
         IaSimilarityUsersId id = new IaSimilarityUsersId(user1, user2);
         IaSimilarityUsers entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SimilarityUsers not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaSimilarityUsersResponse create(IaSimilarityUsersRequest request) {
@@ -43,7 +43,7 @@ public class IaSimilarityUsersService {
                 .user2(request.getUser2())
                 .score(request.getScore())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaSimilarityUsersResponse update(Integer user1, Integer user2, IaSimilarityUsersRequest request) {
@@ -51,7 +51,7 @@ public class IaSimilarityUsersService {
         IaSimilarityUsers entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SimilarityUsers not found"));
         entity.setScore(request.getScore());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer user1, Integer user2) {

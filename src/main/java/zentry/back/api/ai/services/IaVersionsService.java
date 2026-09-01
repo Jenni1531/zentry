@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaVersionsRequest;
 import zentry.back.api.ai.dtos.IaVersionsResponse;
 import zentry.back.api.ai.models.IaVersions;
 import zentry.back.api.ai.repositories.IaVersionsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaVersionsService {
     }
 
     public Page<IaVersionsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaVersionsResponse getById(UUID id) {
         IaVersions entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Version not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaVersionsResponse create(IaVersionsRequest request) {
@@ -42,7 +42,7 @@ public class IaVersionsService {
                 .modelId(request.getModelId())
                 .version(request.getVersion())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaVersionsResponse update(UUID id, IaVersionsRequest request) {
@@ -50,7 +50,7 @@ public class IaVersionsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Version not found"));
         entity.setModelId(request.getModelId());
         entity.setVersion(request.getVersion());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

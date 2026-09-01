@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.RecommendationLogRequest;
 import zentry.back.api.analytics.dtos.RecommendationLogResponse;
 import zentry.back.api.analytics.models.RecommendationLog;
 import zentry.back.api.analytics.repositories.RecommendationLogRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class RecommendationLogService {
     }
 
     public Page<RecommendationLogResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public RecommendationLogResponse getById(Integer id) {
         RecommendationLog entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "RecommendationLog not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public RecommendationLogResponse create(RecommendationLogRequest request) {
@@ -37,7 +37,7 @@ public class RecommendationLogService {
                 .userId(request.getUserId())
                 .recommendations(request.getRecommendations())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public RecommendationLogResponse update(Integer id, RecommendationLogRequest request) {
@@ -45,7 +45,7 @@ public class RecommendationLogService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "RecommendationLog not found"));
         entity.setUserId(request.getUserId());
         entity.setRecommendations(request.getRecommendations());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.WalletTransactionsRequest;
 import zentry.back.api.business.dtos.WalletTransactionsResponse;
 import zentry.back.api.business.models.WalletTransactions;
 import zentry.back.api.business.repositories.WalletTransactionsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class WalletTransactionsService {
     }
 
     public Page<WalletTransactionsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public WalletTransactionsResponse getById(UUID id) {
         WalletTransactions entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "WalletTransaction not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public WalletTransactionsResponse create(WalletTransactionsRequest request) {
@@ -39,7 +39,7 @@ public class WalletTransactionsService {
                 .userId(request.getUserId())
                 .amount(request.getAmount())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public WalletTransactionsResponse update(UUID id, WalletTransactionsRequest request) {
@@ -47,7 +47,7 @@ public class WalletTransactionsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "WalletTransaction not found"));
         entity.setUserId(request.getUserId());
         entity.setAmount(request.getAmount());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

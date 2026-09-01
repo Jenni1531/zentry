@@ -23,8 +23,7 @@ public class ProjectService {
 
     // 1. Obtener todos los proyectos del usuario
     public List<Project> getProjectsByUser(String username) {
-        String cleanUser = (username != null && !username.isBlank() && !"anonimo".equalsIgnoreCase(username))
-                ? username : "creador";
+        String cleanUser = requireUsername(username);
         List<Project> list = projectRepository.findByCreatedByOrderByUpdatedAtDesc(cleanUser);
         if (list.isEmpty() && cleanUser.contains("@")) {
             list = projectRepository.findByCreatedByOrderByUpdatedAtDesc(cleanUser.split("@")[0]);
@@ -32,17 +31,18 @@ public class ProjectService {
         return list;
     }
 
-    // 2. Obtener un proyecto por ID
-    public Project getProjectById(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proyecto no encontrado"));
+    // 2. Obtener un proyecto por ID (solo si pertenece al usuario autenticado)
+    public Project getProjectById(Long id, String username) {
+        String cleanUser = requireUsername(username);
+        Project project = findProjectOrThrow(id);
+        assertOwnership(project, cleanUser);
+        return project;
     }
 
     // 3. Crear nuevo proyecto
     @Transactional
     public Project createProject(String username, ProjectRequestDTO dto) {
-        String cleanUser = (username != null && !username.isBlank() && !"anonimo".equalsIgnoreCase(username))
-                ? username : "creador";
+        String cleanUser = requireUsername(username);
 
         Project project = Project.builder()
                 .title(dto.getTitle() != null && !dto.getTitle().isBlank() ? dto.getTitle() : "Nuevo Proyecto")
@@ -77,7 +77,9 @@ public class ProjectService {
     // 4. Actualizar Proyecto
     @Transactional
     public Project updateProject(Long id, String username, ProjectRequestDTO dto) {
-        Project project = getProjectById(id);
+        String cleanUser = requireUsername(username);
+        Project project = findProjectOrThrow(id);
+        assertOwnership(project, cleanUser);
 
         if (dto.getTitle() != null && !dto.getTitle().isBlank()) project.setTitle(dto.getTitle());
         if (dto.getDescription() != null) project.setDescription(dto.getDescription());
@@ -89,7 +91,6 @@ public class ProjectService {
 
         project.setUpdatedAt(LocalDateTime.now());
 
-        String cleanUser = (username != null && !username.isBlank()) ? username : "creador";
         String safeAvatar = cleanUser.length() >= 2 ? cleanUser.substring(0, 2).toUpperCase() : "ZN";
 
         ProjectActivity act = ProjectActivity.builder()
@@ -109,15 +110,18 @@ public class ProjectService {
     // 5. Eliminar Proyecto
     @Transactional
     public void deleteProject(Long id, String username) {
-        Project project = getProjectById(id);
+        String cleanUser = requireUsername(username);
+        Project project = findProjectOrThrow(id);
+        assertOwnership(project, cleanUser);
         projectRepository.delete(project);
     }
 
     // 6. Agregar Tarea
     @Transactional
     public ProjectTask addTask(Long projectId, String username, TaskRequestDTO dto) {
-        Project project = getProjectById(projectId);
-        String cleanUser = (username != null && !username.isBlank()) ? username : "creador";
+        String cleanUser = requireUsername(username);
+        Project project = findProjectOrThrow(projectId);
+        assertOwnership(project, cleanUser);
 
         ProjectTask task = ProjectTask.builder()
                 .title(dto.getTitle() != null ? dto.getTitle() : "Nueva Tarea")
@@ -151,7 +155,10 @@ public class ProjectService {
     // 7. Toggle Tarea
     @Transactional
     public ProjectTask toggleTask(Long projectId, Long taskId, String username) {
-        Project project = getProjectById(projectId);
+        String cleanUser = requireUsername(username);
+        Project project = findProjectOrThrow(projectId);
+        assertOwnership(project, cleanUser);
+
         ProjectTask task = project.getTasks().stream()
                 .filter(t -> t.getId() != null && t.getId().equals(taskId))
                 .findFirst()
@@ -160,7 +167,6 @@ public class ProjectService {
         task.setCompleted(!task.isCompleted());
         project.setUpdatedAt(LocalDateTime.now());
 
-        String cleanUser = (username != null && !username.isBlank()) ? username : "creador";
         String safeAvatar = cleanUser.length() >= 2 ? cleanUser.substring(0, 2).toUpperCase() : "ZN";
 
         ProjectActivity act = ProjectActivity.builder()
@@ -181,7 +187,10 @@ public class ProjectService {
     // 8. Eliminar Tarea
     @Transactional
     public void deleteTask(Long projectId, Long taskId, String username) {
-        Project project = getProjectById(projectId);
+        String cleanUser = requireUsername(username);
+        Project project = findProjectOrThrow(projectId);
+        assertOwnership(project, cleanUser);
+
         project.getTasks().removeIf(t -> t.getId() != null && t.getId().equals(taskId));
         project.setUpdatedAt(LocalDateTime.now());
         projectRepository.save(project);
@@ -190,8 +199,9 @@ public class ProjectService {
     // 9. Agregar Recurso
     @Transactional
     public ProjectResource addResource(Long projectId, String username, ResourceRequestDTO dto) {
-        Project project = getProjectById(projectId);
-        String cleanUser = (username != null && !username.isBlank()) ? username : "creador";
+        String cleanUser = requireUsername(username);
+        Project project = findProjectOrThrow(projectId);
+        assertOwnership(project, cleanUser);
 
         ProjectResource res = ProjectResource.builder()
                 .name(dto.getName() != null ? dto.getName() : "Archivo")
@@ -225,8 +235,9 @@ public class ProjectService {
     // 10. Agregar Nota
     @Transactional
     public ProjectNote addNote(Long projectId, String username, NoteRequestDTO dto) {
-        Project project = getProjectById(projectId);
-        String cleanUser = (username != null && !username.isBlank()) ? username : "creador";
+        String cleanUser = requireUsername(username);
+        Project project = findProjectOrThrow(projectId);
+        assertOwnership(project, cleanUser);
 
         ProjectNote note = ProjectNote.builder()
                 .content(dto.getContent() != null ? dto.getContent() : "")
@@ -241,8 +252,30 @@ public class ProjectService {
         return saved.getNotes().get(saved.getNotes().size() - 1);
     }
 
-    // 11. Búsqueda de proyectos
-    public List<Project> searchProjects(String query) {
-        return projectRepository.searchProjects(query);
+    // 11. Búsqueda de proyectos (acotada a los proyectos del usuario autenticado)
+    public List<Project> searchProjects(String username, String query) {
+        String cleanUser = requireUsername(username);
+        return projectRepository.searchProjectsByUser(query, cleanUser);
+    }
+
+    private Project findProjectOrThrow(Long id) {
+        return projectRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proyecto no encontrado"));
+    }
+
+    private String requireUsername(String username) {
+        if (username == null || username.isBlank() || "anonimo".equalsIgnoreCase(username)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        return username;
+    }
+
+    private void assertOwnership(Project project, String username) {
+        String owner = project.getCreatedBy();
+        boolean isOwner = owner != null && (owner.equals(username)
+                || (username.contains("@") && owner.equals(username.split("@")[0])));
+        if (!isOwner) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso sobre este proyecto");
+        }
     }
 }

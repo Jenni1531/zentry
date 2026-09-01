@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.TagEmbeddingsRequest;
 import zentry.back.api.ai.dtos.TagEmbeddingsResponse;
 import zentry.back.api.ai.models.TagEmbeddings;
 import zentry.back.api.ai.repositories.TagEmbeddingsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class TagEmbeddingsService {
     }
 
     public Page<TagEmbeddingsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public TagEmbeddingsResponse getById(UUID id) {
         TagEmbeddings entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TagEmbedding not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public TagEmbeddingsResponse create(TagEmbeddingsRequest request) {
@@ -39,7 +39,7 @@ public class TagEmbeddingsService {
                 .tagId(request.getTagId())
                 .vector(request.getVector())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public TagEmbeddingsResponse update(UUID id, TagEmbeddingsRequest request) {
@@ -47,7 +47,7 @@ public class TagEmbeddingsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TagEmbedding not found"));
         entity.setTagId(request.getTagId());
         entity.setVector(request.getVector());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

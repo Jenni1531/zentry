@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.PayoutRequestsRequest;
 import zentry.back.api.business.dtos.PayoutRequestsResponse;
 import zentry.back.api.business.models.PayoutRequests;
 import zentry.back.api.business.repositories.PayoutRequestsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class PayoutRequestsService {
     }
 
     public Page<PayoutRequestsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public PayoutRequestsResponse getById(UUID id) {
         PayoutRequests entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PayoutRequest not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public PayoutRequestsResponse create(PayoutRequestsRequest request) {
@@ -39,7 +39,7 @@ public class PayoutRequestsService {
                 .userId(request.getUserId())
                 .amount(request.getAmount())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public PayoutRequestsResponse update(UUID id, PayoutRequestsRequest request) {
@@ -47,7 +47,7 @@ public class PayoutRequestsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PayoutRequest not found"));
         entity.setUserId(request.getUserId());
         entity.setAmount(request.getAmount());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

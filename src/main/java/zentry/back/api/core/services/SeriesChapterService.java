@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.SeriesChapterRequest;
 import zentry.back.api.core.dtos.SeriesChapterResponse;
 import zentry.back.api.core.models.SeriesChapter;
 import zentry.back.api.core.repositories.SeriesChapterRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class SeriesChapterService {
     }
 
     public Page<SeriesChapterResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public SeriesChapterResponse getById(Integer id) {
         SeriesChapter entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SeriesChapter not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public SeriesChapterResponse create(SeriesChapterRequest request) {
         SeriesChapter entity = SeriesChapter.builder()
                 .seriesId(request.getSeriesId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public SeriesChapterResponse update(Integer id, SeriesChapterRequest request) {
         SeriesChapter entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SeriesChapter not found"));
         entity.setSeriesId(request.getSeriesId());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

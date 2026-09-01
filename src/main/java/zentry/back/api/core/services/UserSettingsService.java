@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.UserSettingsRequest;
 import zentry.back.api.core.dtos.UserSettingsResponse;
 import zentry.back.api.core.models.UserSettings;
 import zentry.back.api.core.repositories.UserSettingsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class UserSettingsService {
     }
 
     public Page<UserSettingsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public UserSettingsResponse getById(Integer userId) {
         UserSettings entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserSettings not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public UserSettingsResponse create(UserSettingsRequest request) {
@@ -40,14 +40,14 @@ public class UserSettingsService {
                 .userId(request.getUserId())
                 .privacidad(request.getPrivacidad())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public UserSettingsResponse update(Integer userId, UserSettingsRequest request) {
         UserSettings entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserSettings not found"));
         entity.setPrivacidad(request.getPrivacidad());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer userId) {

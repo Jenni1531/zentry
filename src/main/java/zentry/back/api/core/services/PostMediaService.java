@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.PostMediaRequest;
 import zentry.back.api.core.dtos.PostMediaResponse;
 import zentry.back.api.core.models.PostMedia;
 import zentry.back.api.core.repositories.PostMediaRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class PostMediaService {
     }
 
     public Page<PostMediaResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public PostMediaResponse getById(Integer id) {
         PostMedia entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PostMedia not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public PostMediaResponse create(PostMediaRequest request) {
@@ -37,7 +37,7 @@ public class PostMediaService {
                 .postId(request.getPostId())
                 .url(request.getUrl())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public PostMediaResponse update(Integer id, PostMediaRequest request) {
@@ -45,7 +45,7 @@ public class PostMediaService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PostMedia not found"));
         entity.setPostId(request.getPostId());
         entity.setUrl(request.getUrl());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

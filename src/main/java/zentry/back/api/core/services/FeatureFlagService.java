@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.FeatureFlagRequest;
 import zentry.back.api.core.dtos.FeatureFlagResponse;
 import zentry.back.api.core.models.FeatureFlag;
 import zentry.back.api.core.repositories.FeatureFlagRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class FeatureFlagService {
     }
 
     public Page<FeatureFlagResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public FeatureFlagResponse getById(Integer id) {
         FeatureFlag entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FeatureFlag not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public FeatureFlagResponse create(FeatureFlagRequest request) {
         FeatureFlag entity = FeatureFlag.builder()
                 .nombre(request.getNombre())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public FeatureFlagResponse update(Integer id, FeatureFlagRequest request) {
         FeatureFlag entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FeatureFlag not found"));
         entity.setNombre(request.getNombre());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

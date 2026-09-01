@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.TagRequest;
 import zentry.back.api.core.dtos.TagResponse;
 import zentry.back.api.core.models.Tag;
 import zentry.back.api.core.repositories.TagRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class TagService {
     }
 
     public Page<TagResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public TagResponse getById(Integer id) {
         Tag entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tag not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public TagResponse create(TagRequest request) {
         Tag entity = Tag.builder()
                 .nombre(request.getNombre())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public TagResponse update(Integer id, TagRequest request) {
         Tag entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tag not found"));
         entity.setNombre(request.getNombre());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

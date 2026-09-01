@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaContentGenerationRequest;
 import zentry.back.api.ai.dtos.IaContentGenerationResponse;
 import zentry.back.api.ai.models.IaContentGeneration;
 import zentry.back.api.ai.repositories.IaContentGenerationRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaContentGenerationService {
     }
 
     public Page<IaContentGenerationResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaContentGenerationResponse getById(UUID id) {
         IaContentGeneration entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ContentGeneration not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaContentGenerationResponse create(IaContentGenerationRequest request) {
@@ -39,7 +39,7 @@ public class IaContentGenerationService {
                 .promptId(request.getPromptId())
                 .resultado(request.getResultado())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaContentGenerationResponse update(UUID id, IaContentGenerationRequest request) {
@@ -47,7 +47,7 @@ public class IaContentGenerationService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ContentGeneration not found"));
         entity.setPromptId(request.getPromptId());
         entity.setResultado(request.getResultado());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.ApiLogRequest;
 import zentry.back.api.analytics.dtos.ApiLogResponse;
 import zentry.back.api.analytics.models.ApiLog;
 import zentry.back.api.analytics.repositories.ApiLogRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class ApiLogService {
     }
 
     public Page<ApiLogResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public ApiLogResponse getById(Integer id) {
         ApiLog entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ApiLog not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public ApiLogResponse create(ApiLogRequest request) {
@@ -40,7 +40,7 @@ public class ApiLogService {
                 .statusCode(request.getStatusCode())
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public ApiLogResponse update(Integer id, ApiLogRequest request) {
@@ -51,7 +51,7 @@ public class ApiLogService {
         entity.setResponseTime(request.getResponseTime());
         entity.setStatusCode(request.getStatusCode());
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

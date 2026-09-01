@@ -18,8 +18,6 @@ import zentry.back.api.core.repositories.FriendshipRepository;
 import zentry.back.api.core.repositories.PostRepository;
 import zentry.back.api.core.repositories.ProfileRepository;
 import zentry.back.api.core.repositories.UserRepository;
-import zentry.back.api.realtime.models.OnlineUser;
-import zentry.back.api.realtime.repositories.OnlineUserRepository;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -33,7 +31,7 @@ public class FriendsService {
     private final ProfileRepository profileRepo;
     private final FriendRequestRepository friendRequestRepo;
     private final FriendshipRepository friendshipRepo;
-    private final OnlineUserRepository onlineUserRepo;
+
     private final PostRepository postRepo;
     private final FollowRepository followRepo;
 
@@ -42,22 +40,21 @@ public class FriendsService {
             ProfileRepository profileRepo,
             FriendRequestRepository friendRequestRepo,
             FriendshipRepository friendshipRepo,
-            OnlineUserRepository onlineUserRepo,
+
             PostRepository postRepo,
             FollowRepository followRepo) {
         this.userRepo = userRepo;
         this.profileRepo = profileRepo;
         this.friendRequestRepo = friendRequestRepo;
         this.friendshipRepo = friendshipRepo;
-        this.onlineUserRepo = onlineUserRepo;
+
         this.postRepo = postRepo;
         this.followRepo = followRepo;
     }
 
     private User resolveUser(String identifier) {
         if (identifier == null || identifier.isBlank() || "anonimo".equalsIgnoreCase(identifier)) {
-            return userRepo.findAll().stream().findFirst().orElseThrow(
-                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no autenticado"));
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
         var byEmail = userRepo.findByEmail(identifier);
         if (byEmail.isPresent()) return byEmail.get();
@@ -71,8 +68,7 @@ public class FriendsService {
         var byEmailPrefix = userRepo.findByEmailStartingWith(identifier + "@");
         if (byEmailPrefix.isPresent()) return byEmailPrefix.get();
 
-        return userRepo.findAll().stream().findFirst().orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
     }
 
     public List<FriendUserResponse> getPendingRequests(String identifier) {
@@ -262,13 +258,6 @@ public class FriendsService {
         User user = resolveUser(identifier);
         String finalStatus = (status != null && !status.isBlank()) ? status : "online";
 
-        OnlineUser online = onlineUserRepo.findById(user.getId()).orElse(
-                OnlineUser.builder().userId(user.getId()).build()
-        );
-        online.setStatus(finalStatus);
-        online.setLastSeen(LocalDateTime.now());
-        onlineUserRepo.save(online);
-
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
         result.put("userId", user.getId());
@@ -302,15 +291,7 @@ public class FriendsService {
     }
 
     private boolean isUserOnline(Integer userId) {
-        if (userId == null) return false;
-        Optional<OnlineUser> online = onlineUserRepo.findById(userId);
-        if (online.isEmpty()) return false;
-        if ("offline".equalsIgnoreCase(online.get().getStatus())) return false;
-
-        LocalDateTime lastSeen = online.get().getLastSeen();
-        if (lastSeen == null) return "online".equalsIgnoreCase(online.get().getStatus());
-
-        return lastSeen.isAfter(LocalDateTime.now().minusMinutes(15));
+        return true; // Supabase handles presence, fallback to true for UI rendering
     }
 
     private FriendUserResponse mapUserToFriendResponse(User user, boolean isFriend) {

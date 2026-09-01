@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaTrainingLogsRequest;
 import zentry.back.api.ai.dtos.IaTrainingLogsResponse;
 import zentry.back.api.ai.models.IaTrainingLogs;
 import zentry.back.api.ai.repositories.IaTrainingLogsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaTrainingLogsService {
     }
 
     public Page<IaTrainingLogsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaTrainingLogsResponse getById(UUID id) {
         IaTrainingLogs entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TrainingLog not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaTrainingLogsResponse create(IaTrainingLogsRequest request) {
@@ -40,7 +40,7 @@ public class IaTrainingLogsService {
                 .estado(request.getEstado())
                 .fecha(request.getFecha())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaTrainingLogsResponse update(UUID id, IaTrainingLogsRequest request) {
@@ -49,7 +49,7 @@ public class IaTrainingLogsService {
         entity.setModelId(request.getModelId());
         entity.setEstado(request.getEstado());
         entity.setFecha(request.getFecha());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

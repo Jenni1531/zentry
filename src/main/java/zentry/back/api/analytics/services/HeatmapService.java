@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.HeatmapRequest;
 import zentry.back.api.analytics.dtos.HeatmapResponse;
 import zentry.back.api.analytics.models.Heatmap;
 import zentry.back.api.analytics.repositories.HeatmapRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class HeatmapService {
     }
 
     public Page<HeatmapResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public HeatmapResponse getById(Integer id) {
         Heatmap entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Heatmap not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public HeatmapResponse create(HeatmapRequest request) {
@@ -37,7 +37,7 @@ public class HeatmapService {
                 .page(request.getPage())
                 .clickData(request.getClickData())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public HeatmapResponse update(Integer id, HeatmapRequest request) {
@@ -45,7 +45,7 @@ public class HeatmapService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Heatmap not found"));
         entity.setPage(request.getPage());
         entity.setClickData(request.getClickData());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

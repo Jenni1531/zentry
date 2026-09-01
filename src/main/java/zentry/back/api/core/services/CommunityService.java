@@ -16,7 +16,7 @@ import zentry.back.api.core.models.CommunityMember;
 import zentry.back.api.core.repositories.CommunityMemberRepository;
 import zentry.back.api.core.repositories.CommunityRepository;
 import zentry.back.api.core.repositories.UserRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -203,7 +203,7 @@ public class CommunityService {
     }
 
     private CommunityResponse enrichResponse(Community community, User currentUser) {
-        CommunityResponse response = mappers.toResponse(community);
+        CommunityResponse response = CoreMappers.toResponse(community);
 
         Integer membersCount = memberRepo.countByCommunityId(community.getId());
         response.setMembersCount(membersCount != null ? membersCount : 0);

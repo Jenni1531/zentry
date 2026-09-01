@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.CartRequest;
 import zentry.back.api.business.dtos.CartResponse;
 import zentry.back.api.business.models.Cart;
 import zentry.back.api.business.repositories.CartRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,27 +25,27 @@ public class CartService {
     }
 
     public Page<CartResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public CartResponse getById(UUID id) {
         Cart entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public CartResponse create(CartRequest request) {
         Cart entity = Cart.builder()
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public CartResponse update(UUID id, CartRequest request) {
         Cart entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart not found"));
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

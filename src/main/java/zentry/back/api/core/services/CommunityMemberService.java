@@ -11,7 +11,7 @@ import zentry.back.api.core.dtos.CommunityMemberResponse;
 import zentry.back.api.core.models.CommunityMember;
 import zentry.back.api.core.models.CommunityMember.CommunityMemberId;
 import zentry.back.api.core.repositories.CommunityMemberRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -24,14 +24,14 @@ public class CommunityMemberService {
     }
 
     public Page<CommunityMemberResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public CommunityMemberResponse getById(Integer communityId, Integer userId) {
         CommunityMemberId id = new CommunityMemberId(communityId, userId);
         CommunityMember entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CommunityMember not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public CommunityMemberResponse create(CommunityMemberRequest request) {
@@ -43,7 +43,7 @@ public class CommunityMemberService {
                 .communityId(request.getCommunityId())
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer communityId, Integer userId) {

@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.AdsCampaignsRequest;
 import zentry.back.api.business.dtos.AdsCampaignsResponse;
 import zentry.back.api.business.models.AdsCampaigns;
 import zentry.back.api.business.repositories.AdsCampaignsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class AdsCampaignsService {
     }
 
     public Page<AdsCampaignsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public AdsCampaignsResponse getById(UUID id) {
         AdsCampaigns entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AdsCampaign not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public AdsCampaignsResponse create(AdsCampaignsRequest request) {
@@ -42,7 +42,7 @@ public class AdsCampaignsService {
                 .userId(request.getUserId())
                 .nombre(request.getNombre())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public AdsCampaignsResponse update(UUID id, AdsCampaignsRequest request) {
@@ -50,7 +50,7 @@ public class AdsCampaignsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AdsCampaign not found"));
         entity.setUserId(request.getUserId());
         entity.setNombre(request.getNombre());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

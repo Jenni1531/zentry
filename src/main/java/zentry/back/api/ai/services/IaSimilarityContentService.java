@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaSimilarityContentRequest;
 import zentry.back.api.ai.dtos.IaSimilarityContentResponse;
 import zentry.back.api.ai.models.IaSimilarityContent;
 import zentry.back.api.ai.repositories.IaSimilarityContentRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaSimilarityContentService {
     }
 
     public Page<IaSimilarityContentResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaSimilarityContentResponse getById(UUID id) {
         IaSimilarityContent entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SimilarityContent not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaSimilarityContentResponse create(IaSimilarityContentRequest request) {
@@ -43,7 +43,7 @@ public class IaSimilarityContentService {
                 .postId2(request.getPostId2())
                 .score(request.getScore())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaSimilarityContentResponse update(UUID id, IaSimilarityContentRequest request) {
@@ -52,7 +52,7 @@ public class IaSimilarityContentService {
         entity.setPostId1(request.getPostId1());
         entity.setPostId2(request.getPostId2());
         entity.setScore(request.getScore());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

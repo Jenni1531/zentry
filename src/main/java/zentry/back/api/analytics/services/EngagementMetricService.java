@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.EngagementMetricRequest;
 import zentry.back.api.analytics.dtos.EngagementMetricResponse;
 import zentry.back.api.analytics.models.EngagementMetric;
 import zentry.back.api.analytics.repositories.EngagementMetricRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class EngagementMetricService {
     }
 
     public Page<EngagementMetricResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public EngagementMetricResponse getById(Integer id) {
         EngagementMetric entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "EngagementMetric not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public EngagementMetricResponse create(EngagementMetricRequest request) {
@@ -37,7 +37,7 @@ public class EngagementMetricService {
                 .userId(request.getUserId())
                 .score(request.getScore())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public EngagementMetricResponse update(Integer id, EngagementMetricRequest request) {
@@ -45,7 +45,7 @@ public class EngagementMetricService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "EngagementMetric not found"));
         entity.setUserId(request.getUserId());
         entity.setScore(request.getScore());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

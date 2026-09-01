@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.PostVersionRequest;
 import zentry.back.api.core.dtos.PostVersionResponse;
 import zentry.back.api.core.models.PostVersion;
 import zentry.back.api.core.repositories.PostVersionRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class PostVersionService {
     }
 
     public Page<PostVersionResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public PostVersionResponse getById(Integer id) {
         PostVersion entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PostVersion not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public PostVersionResponse create(PostVersionRequest request) {
@@ -37,7 +37,7 @@ public class PostVersionService {
                 .postId(request.getPostId())
                 .contenido(request.getContenido())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public PostVersionResponse update(Integer id, PostVersionRequest request) {
@@ -45,7 +45,7 @@ public class PostVersionService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PostVersion not found"));
         entity.setPostId(request.getPostId());
         entity.setContenido(request.getContenido());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

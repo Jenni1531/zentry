@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaRecommendationsRequest;
 import zentry.back.api.ai.dtos.IaRecommendationsResponse;
 import zentry.back.api.ai.models.IaRecommendations;
 import zentry.back.api.ai.repositories.IaRecommendationsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaRecommendationsService {
     }
 
     public Page<IaRecommendationsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaRecommendationsResponse getById(UUID id) {
         IaRecommendations entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Recommendation not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaRecommendationsResponse create(IaRecommendationsRequest request) {
@@ -43,7 +43,7 @@ public class IaRecommendationsService {
                 .contenidoId(request.getContenidoId())
                 .score(request.getScore())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaRecommendationsResponse update(UUID id, IaRecommendationsRequest request) {
@@ -52,7 +52,7 @@ public class IaRecommendationsService {
         entity.setUserId(request.getUserId());
         entity.setContenidoId(request.getContenidoId());
         entity.setScore(request.getScore());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

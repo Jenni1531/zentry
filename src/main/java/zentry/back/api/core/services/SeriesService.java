@@ -10,7 +10,7 @@ import zentry.back.api.core.dtos.SeriesRequest;
 import zentry.back.api.core.dtos.SeriesResponse;
 import zentry.back.api.core.models.Series;
 import zentry.back.api.core.repositories.SeriesRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.core.mappers.CoreMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,27 +23,27 @@ public class SeriesService {
     }
 
     public Page<SeriesResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(CoreMappers::toResponse);
     }
 
     public SeriesResponse getById(Integer id) {
         Series entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Series not found"));
-        return mappers.toResponse(entity);
+        return CoreMappers.toResponse(entity);
     }
 
     public SeriesResponse create(SeriesRequest request) {
         Series entity = Series.builder()
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public SeriesResponse update(Integer id, SeriesRequest request) {
         Series entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Series not found"));
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return CoreMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {

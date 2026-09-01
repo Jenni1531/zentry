@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.IaBehaivorAnalitycsRequest;
 import zentry.back.api.ai.dtos.IaBehaivorAnalitycsResponse;
 import zentry.back.api.ai.models.IaBehaivorAnalitycs;
 import zentry.back.api.ai.repositories.IaBehaivorAnalitycsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class IaBehaivorAnalitycsService {
     }
 
     public Page<IaBehaivorAnalitycsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public IaBehaivorAnalitycsResponse getById(UUID id) {
         IaBehaivorAnalitycs entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "BehaviorAnalytic not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public IaBehaivorAnalitycsResponse create(IaBehaivorAnalitycsRequest request) {
@@ -39,7 +39,7 @@ public class IaBehaivorAnalitycsService {
                 .userId(request.getUserId())
                 .score(request.getScore())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public IaBehaivorAnalitycsResponse update(UUID id, IaBehaivorAnalitycsRequest request) {
@@ -47,7 +47,7 @@ public class IaBehaivorAnalitycsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "BehaviorAnalytic not found"));
         entity.setUserId(request.getUserId());
         entity.setScore(request.getScore());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

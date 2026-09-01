@@ -37,14 +37,7 @@ public class PostService {
 
     private User findUserByIdentifier(String identifier) {
         if (identifier == null || identifier.isBlank() || "anonimo".equalsIgnoreCase(identifier)) {
-            return userRepo.findAll().stream().findFirst().orElseGet(() -> {
-                User defaultUser = User.builder()
-                        .username("creador")
-                        .email("creador@zentry.app")
-                        .password("123456")
-                        .build();
-                return userRepo.save(defaultUser);
-            });
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
 
         var byEmail = userRepo.findByEmail(identifier);
@@ -62,8 +55,7 @@ public class PostService {
         var byEmailPrefixRaw = userRepo.findByEmailStartingWith(identifier);
         if (byEmailPrefixRaw.isPresent()) return byEmailPrefixRaw.get();
 
-        return userRepo.findAll().stream().findFirst().orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
     }
 
     public List<PostResponse> getMyPosts(String identifier) {

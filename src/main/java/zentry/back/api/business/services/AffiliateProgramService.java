@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.AffiliateProgramRequest;
 import zentry.back.api.business.dtos.AffiliateProgramResponse;
 import zentry.back.api.business.models.AffiliateProgram;
 import zentry.back.api.business.repositories.AffiliateProgramRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class AffiliateProgramService {
     }
 
     public Page<AffiliateProgramResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public AffiliateProgramResponse getById(UUID id) {
         AffiliateProgram entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AffiliateProgram not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public AffiliateProgramResponse create(AffiliateProgramRequest request) {
@@ -41,14 +41,14 @@ public class AffiliateProgramService {
         AffiliateProgram entity = AffiliateProgram.builder()
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public AffiliateProgramResponse update(UUID id, AffiliateProgramRequest request) {
         AffiliateProgram entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AffiliateProgram not found"));
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

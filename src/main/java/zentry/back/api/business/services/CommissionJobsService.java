@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.CommissionJobsRequest;
 import zentry.back.api.business.dtos.CommissionJobsResponse;
 import zentry.back.api.business.models.CommissionJobs;
 import zentry.back.api.business.repositories.CommissionJobsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class CommissionJobsService {
     }
 
     public Page<CommissionJobsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public CommissionJobsResponse getById(UUID id) {
         CommissionJobs entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CommissionJob not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public CommissionJobsResponse create(CommissionJobsRequest request) {
@@ -39,7 +39,7 @@ public class CommissionJobsService {
                 .userId(request.getUserId())
                 .descripcion(request.getDescripcion())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public CommissionJobsResponse update(UUID id, CommissionJobsRequest request) {
@@ -47,7 +47,7 @@ public class CommissionJobsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CommissionJob not found"));
         entity.setUserId(request.getUserId());
         entity.setDescripcion(request.getDescripcion());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

@@ -10,7 +10,7 @@ import zentry.back.api.ai.dtos.UserEmbeddingsRequest;
 import zentry.back.api.ai.dtos.UserEmbeddingsResponse;
 import zentry.back.api.ai.models.UserEmbeddings;
 import zentry.back.api.ai.repositories.UserEmbeddingsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.ai.mappers.IaMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class UserEmbeddingsService {
     }
 
     public Page<UserEmbeddingsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(IaMappers::toResponse);
     }
 
     public UserEmbeddingsResponse getById(Integer userId) {
         UserEmbeddings entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserEmbedding not found"));
-        return mappers.toResponse(entity);
+        return IaMappers.toResponse(entity);
     }
 
     public UserEmbeddingsResponse create(UserEmbeddingsRequest request) {
@@ -40,14 +40,14 @@ public class UserEmbeddingsService {
                 .userId(request.getUserId())
                 .vector(request.getVector())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public UserEmbeddingsResponse update(Integer userId, UserEmbeddingsRequest request) {
         UserEmbeddings entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserEmbedding not found"));
         entity.setVector(request.getVector());
-        return mappers.toResponse(repo.save(entity));
+        return IaMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer userId) {

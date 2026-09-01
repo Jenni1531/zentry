@@ -10,7 +10,7 @@ import zentry.back.api.business.dtos.AffiliatePayoutsRequest;
 import zentry.back.api.business.dtos.AffiliatePayoutsResponse;
 import zentry.back.api.business.models.AffiliatePayouts;
 import zentry.back.api.business.repositories.AffiliatePayoutsRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.business.mappers.BusinessMappers;
 
 import java.util.UUID;
 
@@ -25,13 +25,13 @@ public class AffiliatePayoutsService {
     }
 
     public Page<AffiliatePayoutsResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }
 
     public AffiliatePayoutsResponse getById(UUID id) {
         AffiliatePayouts entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AffiliatePayout not found"));
-        return mappers.toResponse(entity);
+        return BusinessMappers.toResponse(entity);
     }
 
     public AffiliatePayoutsResponse create(AffiliatePayoutsRequest request) {
@@ -39,7 +39,7 @@ public class AffiliatePayoutsService {
                 .affiliateId(request.getAffiliateId())
                 .amount(request.getAmount())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public AffiliatePayoutsResponse update(UUID id, AffiliatePayoutsRequest request) {
@@ -47,7 +47,7 @@ public class AffiliatePayoutsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AffiliatePayout not found"));
         entity.setAffiliateId(request.getAffiliateId());
         entity.setAmount(request.getAmount());
-        return mappers.toResponse(repo.save(entity));
+        return BusinessMappers.toResponse(repo.save(entity));
     }
 
     public void delete(UUID id) {

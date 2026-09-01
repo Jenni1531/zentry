@@ -10,7 +10,7 @@ import zentry.back.api.analytics.dtos.AbTestResultRequest;
 import zentry.back.api.analytics.dtos.AbTestResultResponse;
 import zentry.back.api.analytics.models.AbTestResult;
 import zentry.back.api.analytics.repositories.AbTestResultRepository;
-import zentry.back.api.global.mappers;
+import zentry.back.api.analytics.mappers.AnalyticsMappers;
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +23,13 @@ public class AbTestResultService {
     }
 
     public Page<AbTestResultResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(mappers::toResponse);
+        return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
     }
 
     public AbTestResultResponse getById(Integer id) {
         AbTestResult entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AbTestResult not found"));
-        return mappers.toResponse(entity);
+        return AnalyticsMappers.toResponse(entity);
     }
 
     public AbTestResultResponse create(AbTestResultRequest request) {
@@ -39,7 +39,7 @@ public class AbTestResultService {
                 .result(request.getResult())
                 .userId(request.getUserId())
                 .build();
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public AbTestResultResponse update(Integer id, AbTestResultRequest request) {
@@ -49,7 +49,7 @@ public class AbTestResultService {
         entity.setVariant(request.getVariant());
         entity.setResult(request.getResult());
         entity.setUserId(request.getUserId());
-        return mappers.toResponse(repo.save(entity));
+        return AnalyticsMappers.toResponse(repo.save(entity));
     }
 
     public void delete(Integer id) {
