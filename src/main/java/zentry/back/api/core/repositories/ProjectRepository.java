@@ -12,6 +12,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByCreatedByOrderByUpdatedAtDesc(String createdBy);
 
+<<<<<<< HEAD
     @Query("SELECT p FROM Project p WHERE p.createdBy = :createdBy AND (LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.tags) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<Project> searchProjectsByUser(@Param("query") String query, @Param("createdBy") String createdBy);
+=======
+    @Query("SELECT p FROM Project p WHERE LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.tags) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<Project> searchProjects(@Param("query") String query);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 }

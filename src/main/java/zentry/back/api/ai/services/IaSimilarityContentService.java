@@ -10,7 +10,11 @@ import zentry.back.api.ai.dtos.IaSimilarityContentRequest;
 import zentry.back.api.ai.dtos.IaSimilarityContentResponse;
 import zentry.back.api.ai.models.IaSimilarityContent;
 import zentry.back.api.ai.repositories.IaSimilarityContentRepository;
+<<<<<<< HEAD
 import zentry.back.api.ai.mappers.IaMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -25,13 +29,21 @@ public class IaSimilarityContentService {
     }
 
     public Page<IaSimilarityContentResponse> list(Pageable pageable) {
+<<<<<<< HEAD
         return repo.findAll(pageable).map(IaMappers::toResponse);
+=======
+        return repo.findAll(pageable).map(mappers::toResponse);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaSimilarityContentResponse getById(UUID id) {
         IaSimilarityContent entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SimilarityContent not found"));
+<<<<<<< HEAD
         return IaMappers.toResponse(entity);
+=======
+        return mappers.toResponse(entity);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaSimilarityContentResponse create(IaSimilarityContentRequest request) {
@@ -43,7 +55,11 @@ public class IaSimilarityContentService {
                 .postId2(request.getPostId2())
                 .score(request.getScore())
                 .build();
+<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaSimilarityContentResponse update(UUID id, IaSimilarityContentRequest request) {
@@ -52,7 +68,11 @@ public class IaSimilarityContentService {
         entity.setPostId1(request.getPostId1());
         entity.setPostId2(request.getPostId2());
         entity.setScore(request.getScore());
+<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

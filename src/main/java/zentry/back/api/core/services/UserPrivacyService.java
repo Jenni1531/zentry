@@ -10,7 +10,11 @@ import zentry.back.api.core.dtos.UserPrivacyRequest;
 import zentry.back.api.core.dtos.UserPrivacyResponse;
 import zentry.back.api.core.models.UserPrivacy;
 import zentry.back.api.core.repositories.UserPrivacyRepository;
+<<<<<<< HEAD
 import zentry.back.api.core.mappers.CoreMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +27,21 @@ public class UserPrivacyService {
     }
 
     public Page<UserPrivacyResponse> list(Pageable pageable) {
+<<<<<<< HEAD
         return repo.findAll(pageable).map(CoreMappers::toResponse);
+=======
+        return repo.findAll(pageable).map(mappers::toResponse);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public UserPrivacyResponse getById(Integer userId) {
         UserPrivacy entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserPrivacy not found"));
+<<<<<<< HEAD
         return CoreMappers.toResponse(entity);
+=======
+        return mappers.toResponse(entity);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public UserPrivacyResponse create(UserPrivacyRequest request) {
@@ -40,14 +52,22 @@ public class UserPrivacyService {
                 .userId(request.getUserId())
                 .nivel(request.getNivel())
                 .build();
+<<<<<<< HEAD
         return CoreMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public UserPrivacyResponse update(Integer userId, UserPrivacyRequest request) {
         UserPrivacy entity = repo.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserPrivacy not found"));
         entity.setNivel(request.getNivel());
+<<<<<<< HEAD
         return CoreMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(Integer userId) {

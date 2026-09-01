@@ -10,7 +10,11 @@ import zentry.back.api.ai.dtos.FeedbackLabelsRequest;
 import zentry.back.api.ai.dtos.FeedbackLabelsResponse;
 import zentry.back.api.ai.models.FeedbackLabels;
 import zentry.back.api.ai.repositories.FeedbackLabelsRepository;
+<<<<<<< HEAD
 import zentry.back.api.ai.mappers.IaMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -25,13 +29,21 @@ public class FeedbackLabelsService {
     }
 
     public Page<FeedbackLabelsResponse> list(Pageable pageable) {
+<<<<<<< HEAD
         return repo.findAll(pageable).map(IaMappers::toResponse);
+=======
+        return repo.findAll(pageable).map(mappers::toResponse);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public FeedbackLabelsResponse getById(UUID id) {
         FeedbackLabels entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FeedbackLabel not found"));
+<<<<<<< HEAD
         return IaMappers.toResponse(entity);
+=======
+        return mappers.toResponse(entity);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public FeedbackLabelsResponse create(FeedbackLabelsRequest request) {
@@ -39,7 +51,11 @@ public class FeedbackLabelsService {
                 .feedbackId(request.getFeedbackId())
                 .etiqueta(request.getEtiqueta())
                 .build();
+<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public FeedbackLabelsResponse update(UUID id, FeedbackLabelsRequest request) {
@@ -47,7 +63,11 @@ public class FeedbackLabelsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FeedbackLabel not found"));
         entity.setFeedbackId(request.getFeedbackId());
         entity.setEtiqueta(request.getEtiqueta());
+<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

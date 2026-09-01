@@ -10,7 +10,11 @@ import zentry.back.api.analytics.dtos.ClickStreamRequest;
 import zentry.back.api.analytics.dtos.ClickStreamResponse;
 import zentry.back.api.analytics.models.ClickStream;
 import zentry.back.api.analytics.repositories.ClickStreamRepository;
+<<<<<<< HEAD
 import zentry.back.api.analytics.mappers.AnalyticsMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +27,21 @@ public class ClickStreamService {
     }
 
     public Page<ClickStreamResponse> list(Pageable pageable) {
+<<<<<<< HEAD
         return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
+=======
+        return repo.findAll(pageable).map(mappers::toResponse);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ClickStreamResponse getById(Integer id) {
         ClickStream entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ClickStream not found"));
+<<<<<<< HEAD
         return AnalyticsMappers.toResponse(entity);
+=======
+        return mappers.toResponse(entity);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ClickStreamResponse create(ClickStreamRequest request) {
@@ -38,7 +50,11 @@ public class ClickStreamService {
                 .element(request.getElement())
                 .page(request.getPage())
                 .build();
+<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ClickStreamResponse update(Integer id, ClickStreamRequest request) {
@@ -47,7 +63,11 @@ public class ClickStreamService {
         entity.setUserId(request.getUserId());
         entity.setElement(request.getElement());
         entity.setPage(request.getPage());
+<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(Integer id) {

@@ -7,7 +7,11 @@ import org.springframework.web.server.ResponseStatusException;
 import zentry.back.api.core.dtos.*;
 import zentry.back.api.core.models.*;
 import zentry.back.api.core.repositories.*;
+<<<<<<< HEAD
 import zentry.back.api.core.mappers.CoreMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -30,7 +34,11 @@ public class WalletService {
     public WalletResponse getWallet(String username) {
         Wallet wallet = getOrCreateWallet(username);
         List<WalletTransaction> transactions = txRepo.findByUsernameOrderByCreatedAtDesc(username);
+<<<<<<< HEAD
         return CoreMappers.toResponse(wallet, transactions);
+=======
+        return mappers.toResponse(wallet, transactions);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     @Transactional

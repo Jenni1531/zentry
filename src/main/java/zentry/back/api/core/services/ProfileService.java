@@ -19,8 +19,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
+<<<<<<< HEAD
 import lombok.Getter;
 import lombok.AllArgsConstructor;
+=======
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -29,7 +32,10 @@ public class ProfileService {
 
     private final ProfileRepository profileRepo;
     private final UserRepository userRepo;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     private final FollowRepository followRepo;
 
     public ProfileService(ProfileRepository profileRepo, UserRepository userRepo, FollowRepository followRepo) {
@@ -38,6 +44,7 @@ public class ProfileService {
         this.followRepo = followRepo;
     }
 
+<<<<<<< HEAD
     private User resolveUser(String identifier) {
         if (identifier == null || identifier.isBlank()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Identificador no proporcionado");
@@ -60,12 +67,22 @@ public class ProfileService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado");
     }
 
+=======
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     public ProfileResponse getProfileByUsername(String identifier) {
         return getProfileByUsername(identifier, null);
     }
 
     public ProfileResponse getProfileByUsername(String identifier, String currentUsername) {
+<<<<<<< HEAD
         User user = resolveUser(identifier);
+=======
+        User user = userRepo.findByUsernameOrEmail(identifier, identifier)
+                .orElseGet(() -> userRepo.findByEmail(identifier)
+                .orElseGet(() -> userRepo.findByEmailStartingWith(identifier + "@")
+                .orElseGet(() -> userRepo.findByEmailStartingWith(identifier)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Perfil no encontrado")))));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
         Profile profile = profileRepo.findByUserId(user.getId())
                 .orElse(new Profile());
@@ -109,6 +126,7 @@ public class ProfileService {
     public FollowResult toggleFollowUser(String followerIdentifier, String targetIdentifier) {
         User followerUser = userRepo.findByUsernameOrEmail(followerIdentifier, followerIdentifier)
                 .orElseGet(() -> userRepo.findByEmailStartingWith(followerIdentifier + "@")
+<<<<<<< HEAD
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Usuario seguidor no encontrado")));
 
@@ -116,6 +134,13 @@ public class ProfileService {
                 .orElseGet(() -> userRepo.findByEmailStartingWith(targetIdentifier + "@")
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Usuario a seguir no encontrado")));
+=======
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario seguidor no encontrado")));
+
+        User targetUser = userRepo.findByUsernameOrEmail(targetIdentifier, targetIdentifier)
+                .orElseGet(() -> userRepo.findByEmailStartingWith(targetIdentifier + "@")
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario a seguir no encontrado")));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
         if (followerUser.getId().equals(targetUser.getId())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puedes seguirte a ti mismo");
@@ -144,7 +169,16 @@ public class ProfileService {
     }
 
     public Profile findOrCreateByUsername(String usernameOrEmail) {
+<<<<<<< HEAD
         User user = resolveUser(usernameOrEmail);
+=======
+        User user = userRepo.findByEmail(usernameOrEmail)
+                .orElseGet(() -> userRepo.findByUsername(usernameOrEmail)
+                .orElseGet(() -> userRepo.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
+                .orElseGet(() -> userRepo.findByEmailStartingWith(usernameOrEmail + "@")
+                .orElseGet(() -> userRepo.findByEmailStartingWith(usernameOrEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"))))));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
         return profileRepo.findByUserId(user.getId())
                 .orElseGet(() -> {
@@ -165,6 +199,7 @@ public class ProfileService {
 
     @Transactional
     public ProfileResponse updateMyProfile(String emailOrUsername, ProfileRequest request) {
+<<<<<<< HEAD
         User user = resolveUser(emailOrUsername);
 
         Profile profile = findOrCreateByUsername(emailOrUsername);
@@ -177,6 +212,21 @@ public class ProfileService {
             profile.setLocation(request.getLocation());
         if (request.getBio() != null)
             profile.setBio(request.getBio());
+=======
+        User user = userRepo.findByEmail(emailOrUsername)
+                .orElseGet(() -> userRepo.findByUsername(emailOrUsername)
+                .orElseGet(() -> userRepo.findByUsernameOrEmail(emailOrUsername, emailOrUsername)
+                .orElseGet(() -> userRepo.findByEmailStartingWith(emailOrUsername + "@")
+                .orElseGet(() -> userRepo.findByEmailStartingWith(emailOrUsername)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"))))));
+
+        Profile profile = findOrCreateByUsername(emailOrUsername);
+
+        if (request.getName() != null && !request.getName().isBlank()) profile.setName(request.getName());
+        if (request.getDiscipline() != null) profile.setDiscipline(request.getDiscipline());
+        if (request.getLocation() != null) profile.setLocation(request.getLocation());
+        if (request.getBio() != null) profile.setBio(request.getBio());
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
         if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
             profile.setAvatarUrl(request.getAvatarUrl());
@@ -200,7 +250,11 @@ public class ProfileService {
         }
 
         Profile savedProfile = profileRepo.save(profile);
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
         long followersCount = followRepo.countByFollowing(user.getId());
         long followingCount = followRepo.countByFollower(user.getId());
 
@@ -234,8 +288,12 @@ public class ProfileService {
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
             return "/uploads/" + subfolder + "/" + fileName;
         } catch (Exception e) {
+<<<<<<< HEAD
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "No se pudo guardar la imagen: " + e.getMessage(), e);
+=======
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo guardar la imagen: " + e.getMessage(), e);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
         }
     }
 

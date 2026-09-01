@@ -26,6 +26,7 @@ public class Post {
     @Column(name = "image_url")
     private String imageUrl;
 
+<<<<<<< HEAD
     @Column(name = "content_type")
     private String contentType;
 
@@ -35,6 +36,8 @@ public class Post {
     @Column(name = "visibility")
     private String visibility;
 
+=======
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     @ElementCollection
     @CollectionTable(name = "post_tools", schema = "zentry_core", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "tool")
@@ -43,6 +46,7 @@ public class Post {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+<<<<<<< HEAD
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -61,6 +65,17 @@ public class Post {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+=======
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+
+    /*
+    @Column(name = "is_published")
+    private Boolean isPublished = false;
+    */
+   
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
     
 

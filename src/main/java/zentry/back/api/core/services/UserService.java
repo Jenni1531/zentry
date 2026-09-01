@@ -11,7 +11,11 @@ import zentry.back.api.core.dtos.UserRequest;
 import zentry.back.api.core.dtos.UserResponse;
 import zentry.back.api.core.models.User;
 import zentry.back.api.core.repositories.UserRepository;
+<<<<<<< HEAD
 import zentry.back.api.core.mappers.CoreMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -24,13 +28,21 @@ public class UserService {
     }
 
     public Page<UserResponse> list(Pageable pageable) {
+<<<<<<< HEAD
         return repo.findAll(pageable).map(CoreMappers::toResponse);
+=======
+        return repo.findAll(pageable).map(mappers::toResponse);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public UserResponse getById(Integer id) {
         User entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+<<<<<<< HEAD
         return CoreMappers.toResponse(entity);
+=======
+        return mappers.toResponse(entity);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public UserResponse create(UserRequest request) {
@@ -39,7 +51,11 @@ public class UserService {
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .build();
+<<<<<<< HEAD
         return CoreMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public UserResponse update(Integer id, UserRequest request) {
@@ -48,7 +64,11 @@ public class UserService {
         entity.setUsername(request.getUsername());
         entity.setEmail(request.getEmail());
         entity.setPassword(request.getPassword());
+<<<<<<< HEAD
         return CoreMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(Integer id) {
@@ -68,6 +88,10 @@ public class UserService {
         if (!user.getPassword().equals(request.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
         }
+<<<<<<< HEAD
         return CoreMappers.toResponse(user);
+=======
+        return mappers.toResponse(user);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 }

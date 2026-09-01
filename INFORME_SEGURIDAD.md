@@ -158,8 +158,13 @@ Funcionalidades sociales completas:
   También se encuentra la contraseña de MongoDB Atlas en un comentario.
 - **Riesgo:** Acceso total a la base de datos por cualquier persona con acceso al código fuente.
 - **Datos expuestos:**
+<<<<<<< HEAD
   - PostgreSQL: `__REDACTED__` (usuario: `neondb_owner`)
   - MongoDB: `__REDACTED__`
+=======
+  - PostgreSQL: `npg_R5ZHkqSyo8cE` (usuario: `neondb_owner`)
+  - MongoDB: `8RYCa8cb9wopcvNy`
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 #### V-002: Sin Autenticación
 - **Ubicación:** `config/securityConfig.java`
@@ -680,7 +685,11 @@ Independientemente de la opción de autenticación elegida, estas medidas deben 
 
 **Estado actual (INSEGURO):**
 ```properties
+<<<<<<< HEAD
 spring.datasource.password=${DB_PASSWORD}
+=======
+spring.datasource.password=npg_R5ZHkqSyo8cE
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 ```
 
 **Estado correcto:**

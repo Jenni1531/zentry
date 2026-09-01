@@ -11,7 +11,11 @@ import zentry.back.api.core.dtos.PostTagResponse;
 import zentry.back.api.core.models.PostTag;
 import zentry.back.api.core.models.PostTag.PostTagId;
 import zentry.back.api.core.repositories.PostTagRepository;
+<<<<<<< HEAD
 import zentry.back.api.core.mappers.CoreMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -24,14 +28,22 @@ public class PostTagService {
     }
 
     public Page<PostTagResponse> list(Pageable pageable) {
+<<<<<<< HEAD
         return repo.findAll(pageable).map(CoreMappers::toResponse);
+=======
+        return repo.findAll(pageable).map(mappers::toResponse);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public PostTagResponse getById(Integer postId, Integer tagId) {
         PostTagId id = new PostTagId(postId, tagId);
         PostTag entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PostTag not found"));
+<<<<<<< HEAD
         return CoreMappers.toResponse(entity);
+=======
+        return mappers.toResponse(entity);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public PostTagResponse create(PostTagRequest request) {
@@ -43,7 +55,11 @@ public class PostTagService {
                 .postId(request.getPostId())
                 .tagId(request.getTagId())
                 .build();
+<<<<<<< HEAD
         return CoreMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(Integer postId, Integer tagId) {

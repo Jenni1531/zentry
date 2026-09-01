@@ -10,7 +10,11 @@ import zentry.back.api.analytics.dtos.UserBehaviorRequest;
 import zentry.back.api.analytics.dtos.UserBehaviorResponse;
 import zentry.back.api.analytics.models.UserBehavior;
 import zentry.back.api.analytics.repositories.UserBehaviorRepository;
+<<<<<<< HEAD
 import zentry.back.api.analytics.mappers.AnalyticsMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -23,13 +27,21 @@ public class UserBehaviorService {
     }
 
     public Page<UserBehaviorResponse> list(Pageable pageable) {
+<<<<<<< HEAD
         return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
+=======
+        return repo.findAll(pageable).map(mappers::toResponse);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public UserBehaviorResponse getById(Integer id) {
         UserBehavior entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserBehavior not found"));
+<<<<<<< HEAD
         return AnalyticsMappers.toResponse(entity);
+=======
+        return mappers.toResponse(entity);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public UserBehaviorResponse create(UserBehaviorRequest request) {
@@ -38,7 +50,11 @@ public class UserBehaviorService {
                 .type(request.getType())
                 .metadata(request.getMetadata())
                 .build();
+<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public UserBehaviorResponse update(Integer id, UserBehaviorRequest request) {
@@ -47,7 +63,11 @@ public class UserBehaviorService {
         entity.setUserId(request.getUserId());
         entity.setType(request.getType());
         entity.setMetadata(request.getMetadata());
+<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(Integer id) {

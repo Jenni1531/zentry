@@ -10,7 +10,11 @@ import zentry.back.api.ai.dtos.IaTrainingLogsRequest;
 import zentry.back.api.ai.dtos.IaTrainingLogsResponse;
 import zentry.back.api.ai.models.IaTrainingLogs;
 import zentry.back.api.ai.repositories.IaTrainingLogsRepository;
+<<<<<<< HEAD
 import zentry.back.api.ai.mappers.IaMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -25,13 +29,21 @@ public class IaTrainingLogsService {
     }
 
     public Page<IaTrainingLogsResponse> list(Pageable pageable) {
+<<<<<<< HEAD
         return repo.findAll(pageable).map(IaMappers::toResponse);
+=======
+        return repo.findAll(pageable).map(mappers::toResponse);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaTrainingLogsResponse getById(UUID id) {
         IaTrainingLogs entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TrainingLog not found"));
+<<<<<<< HEAD
         return IaMappers.toResponse(entity);
+=======
+        return mappers.toResponse(entity);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaTrainingLogsResponse create(IaTrainingLogsRequest request) {
@@ -40,7 +52,11 @@ public class IaTrainingLogsService {
                 .estado(request.getEstado())
                 .fecha(request.getFecha())
                 .build();
+<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaTrainingLogsResponse update(UUID id, IaTrainingLogsRequest request) {
@@ -49,7 +65,11 @@ public class IaTrainingLogsService {
         entity.setModelId(request.getModelId());
         entity.setEstado(request.getEstado());
         entity.setFecha(request.getFecha());
+<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

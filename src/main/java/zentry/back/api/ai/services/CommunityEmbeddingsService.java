@@ -10,7 +10,11 @@ import zentry.back.api.ai.dtos.CommunityEmbeddingsRequest;
 import zentry.back.api.ai.dtos.CommunityEmbeddingsResponse;
 import zentry.back.api.ai.models.CommunityEmbeddings;
 import zentry.back.api.ai.repositories.CommunityEmbeddingsRepository;
+<<<<<<< HEAD
 import zentry.back.api.ai.mappers.IaMappers;
+=======
+import zentry.back.api.global.mappers;
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -25,13 +29,21 @@ public class CommunityEmbeddingsService {
     }
 
     public Page<CommunityEmbeddingsResponse> list(Pageable pageable) {
+<<<<<<< HEAD
         return repo.findAll(pageable).map(IaMappers::toResponse);
+=======
+        return repo.findAll(pageable).map(mappers::toResponse);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public CommunityEmbeddingsResponse getById(UUID id) {
         CommunityEmbeddings entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CommunityEmbedding not found"));
+<<<<<<< HEAD
         return IaMappers.toResponse(entity);
+=======
+        return mappers.toResponse(entity);
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public CommunityEmbeddingsResponse create(CommunityEmbeddingsRequest request) {
@@ -39,7 +51,11 @@ public class CommunityEmbeddingsService {
                 .communityId(request.getCommunityId())
                 .vector(request.getVector())
                 .build();
+<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public CommunityEmbeddingsResponse update(UUID id, CommunityEmbeddingsRequest request) {
@@ -47,7 +63,11 @@ public class CommunityEmbeddingsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CommunityEmbedding not found"));
         entity.setCommunityId(request.getCommunityId());
         entity.setVector(request.getVector());
+<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
+=======
+        return mappers.toResponse(repo.save(entity));
+>>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {
