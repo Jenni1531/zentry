@@ -2,10 +2,7 @@ package zentry.back.api.core.dtos;
 
 import java.time.LocalDateTime;
 import java.util.List;
-<<<<<<< HEAD
 import com.fasterxml.jackson.annotation.JsonProperty;
-=======
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 import lombok.*;
 
 @Getter @Setter @Builder
@@ -21,7 +18,6 @@ public class PostResponse {
     // Datos de la obra
     private String title;
     private String contenido;
-<<<<<<< HEAD
 
     @JsonProperty("content_type")
     private String contentType;
@@ -34,8 +30,6 @@ public class PostResponse {
 
     private String visibility;
     private List<String> tools;
-=======
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     private List<String> mediaUrls;
     private List<String> tags;
     
@@ -44,7 +38,6 @@ public class PostResponse {
     private Integer commentsCount;
     
     private LocalDateTime createdAt;
-<<<<<<< HEAD
     private LocalDateTime updatedAt;
 
     @JsonProperty("content")
@@ -56,7 +49,4 @@ public class PostResponse {
     public String getType() {
         return this.contentType != null ? this.contentType : "canvas";
     }
-=======
-
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 }

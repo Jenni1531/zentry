@@ -10,11 +10,7 @@ import zentry.back.api.business.dtos.PayoutsRequest;
 import zentry.back.api.business.dtos.PayoutsResponse;
 import zentry.back.api.business.models.Payouts;
 import zentry.back.api.business.repositories.PayoutsRepository;
-<<<<<<< HEAD
 import zentry.back.api.business.mappers.BusinessMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -29,21 +25,13 @@ public class PayoutsService {
     }
 
     public Page<PayoutsResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(BusinessMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public PayoutsResponse getById(UUID id) {
         Payouts entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payout not found"));
-<<<<<<< HEAD
         return BusinessMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public PayoutsResponse create(PayoutsRequest request) {
@@ -51,11 +39,7 @@ public class PayoutsService {
                 .userId(request.getUserId())
                 .amount(request.getAmount())
                 .build();
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public PayoutsResponse update(UUID id, PayoutsRequest request) {
@@ -63,11 +47,7 @@ public class PayoutsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payout not found"));
         entity.setUserId(request.getUserId());
         entity.setAmount(request.getAmount());
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

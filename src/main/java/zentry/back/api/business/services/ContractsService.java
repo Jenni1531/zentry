@@ -10,11 +10,7 @@ import zentry.back.api.business.dtos.ContractsRequest;
 import zentry.back.api.business.dtos.ContractsResponse;
 import zentry.back.api.business.models.Contracts;
 import zentry.back.api.business.repositories.ContractsRepository;
-<<<<<<< HEAD
 import zentry.back.api.business.mappers.BusinessMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -29,21 +25,13 @@ public class ContractsService {
     }
 
     public Page<ContractsResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(BusinessMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ContractsResponse getById(UUID id) {
         Contracts entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found"));
-<<<<<<< HEAD
         return BusinessMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ContractsResponse create(ContractsRequest request) {
@@ -51,11 +39,7 @@ public class ContractsService {
                 .userId(request.getUserId())
                 .detalles(request.getDetalles())
                 .build();
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ContractsResponse update(UUID id, ContractsRequest request) {
@@ -63,11 +47,7 @@ public class ContractsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Contract not found"));
         entity.setUserId(request.getUserId());
         entity.setDetalles(request.getDetalles());
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

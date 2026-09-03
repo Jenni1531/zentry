@@ -10,11 +10,7 @@ import zentry.back.api.analytics.dtos.ErrorTrackingRequest;
 import zentry.back.api.analytics.dtos.ErrorTrackingResponse;
 import zentry.back.api.analytics.models.ErrorTracking;
 import zentry.back.api.analytics.repositories.ErrorTrackingRepository;
-<<<<<<< HEAD
 import zentry.back.api.analytics.mappers.AnalyticsMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -27,21 +23,13 @@ public class ErrorTrackingService {
     }
 
     public Page<ErrorTrackingResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ErrorTrackingResponse getById(Integer id) {
         ErrorTracking entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ErrorTracking not found"));
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ErrorTrackingResponse create(ErrorTrackingRequest request) {
@@ -50,11 +38,7 @@ public class ErrorTrackingService {
                 .stackTrace(request.getStackTrace())
                 .userId(request.getUserId())
                 .build();
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ErrorTrackingResponse update(Integer id, ErrorTrackingRequest request) {
@@ -63,11 +47,7 @@ public class ErrorTrackingService {
         entity.setError(request.getError());
         entity.setStackTrace(request.getStackTrace());
         entity.setUserId(request.getUserId());
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(Integer id) {

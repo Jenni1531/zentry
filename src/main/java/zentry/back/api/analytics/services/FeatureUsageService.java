@@ -10,11 +10,7 @@ import zentry.back.api.analytics.dtos.FeatureUsageRequest;
 import zentry.back.api.analytics.dtos.FeatureUsageResponse;
 import zentry.back.api.analytics.models.FeatureUsage;
 import zentry.back.api.analytics.repositories.FeatureUsageRepository;
-<<<<<<< HEAD
 import zentry.back.api.analytics.mappers.AnalyticsMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -27,21 +23,13 @@ public class FeatureUsageService {
     }
 
     public Page<FeatureUsageResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public FeatureUsageResponse getById(Integer id) {
         FeatureUsage entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FeatureUsage not found"));
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public FeatureUsageResponse create(FeatureUsageRequest request) {
@@ -49,11 +37,7 @@ public class FeatureUsageService {
                 .feature(request.getFeature())
                 .usageCount(request.getUsageCount())
                 .build();
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public FeatureUsageResponse update(Integer id, FeatureUsageRequest request) {
@@ -61,11 +45,7 @@ public class FeatureUsageService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "FeatureUsage not found"));
         entity.setFeature(request.getFeature());
         entity.setUsageCount(request.getUsageCount());
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(Integer id) {

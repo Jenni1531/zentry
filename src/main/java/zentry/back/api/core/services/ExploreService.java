@@ -5,11 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import zentry.back.api.core.dtos.*;
 import zentry.back.api.core.models.*;
 import zentry.back.api.core.repositories.*;
-<<<<<<< HEAD
 import zentry.back.api.core.mappers.CoreMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -42,11 +38,7 @@ public class ExploreService {
             list = seedInitialTrendingTopics();
         }
         return list.stream()
-<<<<<<< HEAD
                 .map(CoreMappers::toResponse)
-=======
-                .map(mappers::toResponse)
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
                 .collect(Collectors.toList());
     }
 
@@ -67,11 +59,7 @@ public class ExploreService {
                     .collect(Collectors.toList());
         }
         return list.stream()
-<<<<<<< HEAD
                 .map(CoreMappers::toResponse)
-=======
-                .map(mappers::toResponse)
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
                 .collect(Collectors.toList());
     }
 
@@ -132,11 +120,7 @@ public class ExploreService {
         }
 
         List<TrendingTopicResponse> trending = matchingTrends.stream()
-<<<<<<< HEAD
                 .map(CoreMappers::toResponse)
-=======
-                .map(mappers::toResponse)
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
                 .collect(Collectors.toList());
 
         return UnifiedSearchResponse.builder()

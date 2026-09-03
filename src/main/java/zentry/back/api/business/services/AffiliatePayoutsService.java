@@ -10,11 +10,7 @@ import zentry.back.api.business.dtos.AffiliatePayoutsRequest;
 import zentry.back.api.business.dtos.AffiliatePayoutsResponse;
 import zentry.back.api.business.models.AffiliatePayouts;
 import zentry.back.api.business.repositories.AffiliatePayoutsRepository;
-<<<<<<< HEAD
 import zentry.back.api.business.mappers.BusinessMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -29,21 +25,13 @@ public class AffiliatePayoutsService {
     }
 
     public Page<AffiliatePayoutsResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(BusinessMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public AffiliatePayoutsResponse getById(UUID id) {
         AffiliatePayouts entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AffiliatePayout not found"));
-<<<<<<< HEAD
         return BusinessMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public AffiliatePayoutsResponse create(AffiliatePayoutsRequest request) {
@@ -51,11 +39,7 @@ public class AffiliatePayoutsService {
                 .affiliateId(request.getAffiliateId())
                 .amount(request.getAmount())
                 .build();
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public AffiliatePayoutsResponse update(UUID id, AffiliatePayoutsRequest request) {
@@ -63,11 +47,7 @@ public class AffiliatePayoutsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "AffiliatePayout not found"));
         entity.setAffiliateId(request.getAffiliateId());
         entity.setAmount(request.getAmount());
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

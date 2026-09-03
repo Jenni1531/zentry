@@ -10,11 +10,7 @@ import zentry.back.api.analytics.dtos.EngagementMetricRequest;
 import zentry.back.api.analytics.dtos.EngagementMetricResponse;
 import zentry.back.api.analytics.models.EngagementMetric;
 import zentry.back.api.analytics.repositories.EngagementMetricRepository;
-<<<<<<< HEAD
 import zentry.back.api.analytics.mappers.AnalyticsMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -27,21 +23,13 @@ public class EngagementMetricService {
     }
 
     public Page<EngagementMetricResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public EngagementMetricResponse getById(Integer id) {
         EngagementMetric entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "EngagementMetric not found"));
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public EngagementMetricResponse create(EngagementMetricRequest request) {
@@ -49,11 +37,7 @@ public class EngagementMetricService {
                 .userId(request.getUserId())
                 .score(request.getScore())
                 .build();
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public EngagementMetricResponse update(Integer id, EngagementMetricRequest request) {
@@ -61,11 +45,7 @@ public class EngagementMetricService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "EngagementMetric not found"));
         entity.setUserId(request.getUserId());
         entity.setScore(request.getScore());
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(Integer id) {

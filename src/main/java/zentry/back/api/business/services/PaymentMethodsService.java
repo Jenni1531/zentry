@@ -10,11 +10,7 @@ import zentry.back.api.business.dtos.PaymentMethodsRequest;
 import zentry.back.api.business.dtos.PaymentMethodsResponse;
 import zentry.back.api.business.models.PaymentMethods;
 import zentry.back.api.business.repositories.PaymentMethodsRepository;
-<<<<<<< HEAD
 import zentry.back.api.business.mappers.BusinessMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -29,21 +25,13 @@ public class PaymentMethodsService {
     }
 
     public Page<PaymentMethodsResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(BusinessMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public PaymentMethodsResponse getById(UUID id) {
         PaymentMethods entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PaymentMethod not found"));
-<<<<<<< HEAD
         return BusinessMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public PaymentMethodsResponse create(PaymentMethodsRequest request) {
@@ -54,11 +42,7 @@ public class PaymentMethodsService {
                 .userId(request.getUserId())
                 .metodo(request.getMetodo())
                 .build();
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public PaymentMethodsResponse update(UUID id, PaymentMethodsRequest request) {
@@ -66,11 +50,7 @@ public class PaymentMethodsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "PaymentMethod not found"));
         entity.setUserId(request.getUserId());
         entity.setMetodo(request.getMetodo());
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

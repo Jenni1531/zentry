@@ -18,10 +18,7 @@ public class ProjectActivity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-<<<<<<< HEAD
     @Column(name = "\"user\"")
-=======
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     private String user;
     private String avatar;
     private String action; // "completó la tarea", "subió el recurso", "creó el proyecto"

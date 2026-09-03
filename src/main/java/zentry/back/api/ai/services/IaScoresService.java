@@ -10,11 +10,7 @@ import zentry.back.api.ai.dtos.IaScoresRequest;
 import zentry.back.api.ai.dtos.IaScoresResponse;
 import zentry.back.api.ai.models.IaScores;
 import zentry.back.api.ai.repositories.IaScoresRepository;
-<<<<<<< HEAD
 import zentry.back.api.ai.mappers.IaMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -29,21 +25,13 @@ public class IaScoresService {
     }
 
     public Page<IaScoresResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(IaMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaScoresResponse getById(UUID id) {
         IaScores entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Score not found"));
-<<<<<<< HEAD
         return IaMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaScoresResponse create(IaScoresRequest request) {
@@ -51,11 +39,7 @@ public class IaScoresService {
                 .postId(request.getPostId())
                 .score(request.getScore())
                 .build();
-<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaScoresResponse update(UUID id, IaScoresRequest request) {
@@ -63,11 +47,7 @@ public class IaScoresService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Score not found"));
         entity.setPostId(request.getPostId());
         entity.setScore(request.getScore());
-<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

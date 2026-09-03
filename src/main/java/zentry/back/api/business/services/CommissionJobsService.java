@@ -10,11 +10,7 @@ import zentry.back.api.business.dtos.CommissionJobsRequest;
 import zentry.back.api.business.dtos.CommissionJobsResponse;
 import zentry.back.api.business.models.CommissionJobs;
 import zentry.back.api.business.repositories.CommissionJobsRepository;
-<<<<<<< HEAD
 import zentry.back.api.business.mappers.BusinessMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -29,21 +25,13 @@ public class CommissionJobsService {
     }
 
     public Page<CommissionJobsResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(BusinessMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public CommissionJobsResponse getById(UUID id) {
         CommissionJobs entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CommissionJob not found"));
-<<<<<<< HEAD
         return BusinessMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public CommissionJobsResponse create(CommissionJobsRequest request) {
@@ -51,11 +39,7 @@ public class CommissionJobsService {
                 .userId(request.getUserId())
                 .descripcion(request.getDescripcion())
                 .build();
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public CommissionJobsResponse update(UUID id, CommissionJobsRequest request) {
@@ -63,11 +47,7 @@ public class CommissionJobsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CommissionJob not found"));
         entity.setUserId(request.getUserId());
         entity.setDescripcion(request.getDescripcion());
-<<<<<<< HEAD
         return BusinessMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

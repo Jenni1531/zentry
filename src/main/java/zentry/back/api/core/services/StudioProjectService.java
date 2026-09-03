@@ -11,11 +11,7 @@ import zentry.back.api.core.models.StudioProject;
 import zentry.back.api.core.models.User;
 import zentry.back.api.core.repositories.StudioProjectRepository;
 import zentry.back.api.core.repositories.UserRepository;
-<<<<<<< HEAD
 import zentry.back.api.core.mappers.CoreMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,11 +46,7 @@ public class StudioProjectService {
         }
 
         return projects.stream()
-<<<<<<< HEAD
                 .map(CoreMappers::toResponse)
-=======
-                .map(mappers::toResponse)
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
                 .collect(Collectors.toList());
     }
 
@@ -81,22 +73,14 @@ public class StudioProjectService {
                 .build();
 
         StudioProject saved = repo.save(project);
-<<<<<<< HEAD
         return CoreMappers.toResponse(saved);
-=======
-        return mappers.toResponse(saved);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public StudioProjectResponse getProjectDetail(Integer id, String userEmail) {
         StudioProject project = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proyecto no encontrado"));
 
-<<<<<<< HEAD
         return CoreMappers.toResponse(project);
-=======
-        return mappers.toResponse(project);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public StudioProjectResponse updateProject(Integer id, String userEmail, StudioProjectRequest request) {
@@ -130,11 +114,7 @@ public class StudioProjectService {
         }
 
         StudioProject updated = repo.save(project);
-<<<<<<< HEAD
         return CoreMappers.toResponse(updated);
-=======
-        return mappers.toResponse(updated);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void deleteProject(Integer id, String userEmail) {

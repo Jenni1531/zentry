@@ -10,11 +10,7 @@ import zentry.back.api.ai.dtos.IaModelsRequest;
 import zentry.back.api.ai.dtos.IaModelsResponse;
 import zentry.back.api.ai.models.IaModels;
 import zentry.back.api.ai.repositories.IaModelsRepository;
-<<<<<<< HEAD
 import zentry.back.api.ai.mappers.IaMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 import java.util.UUID;
 
@@ -29,21 +25,13 @@ public class IaModelsService {
     }
 
     public Page<IaModelsResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(IaMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaModelsResponse getById(UUID id) {
         IaModels model = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Model not found"));
-<<<<<<< HEAD
         return IaMappers.toResponse(model);
-=======
-        return mappers.toResponse(model);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaModelsResponse create(IaModelsRequest request) {
@@ -53,22 +41,14 @@ public class IaModelsService {
         IaModels model = IaModels.builder()
                 .nombre(request.getNombre())
                 .build();
-<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(model));
-=======
-        return mappers.toResponse(repo.save(model));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public IaModelsResponse update(UUID id, IaModelsRequest request) {
         IaModels model = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Model not found"));
         model.setNombre(request.getNombre());
-<<<<<<< HEAD
         return IaMappers.toResponse(repo.save(model));
-=======
-        return mappers.toResponse(repo.save(model));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(UUID id) {

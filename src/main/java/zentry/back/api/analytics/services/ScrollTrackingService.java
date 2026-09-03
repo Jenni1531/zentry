@@ -10,11 +10,7 @@ import zentry.back.api.analytics.dtos.ScrollTrackingRequest;
 import zentry.back.api.analytics.dtos.ScrollTrackingResponse;
 import zentry.back.api.analytics.models.ScrollTracking;
 import zentry.back.api.analytics.repositories.ScrollTrackingRepository;
-<<<<<<< HEAD
 import zentry.back.api.analytics.mappers.AnalyticsMappers;
-=======
-import zentry.back.api.global.mappers;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -27,21 +23,13 @@ public class ScrollTrackingService {
     }
 
     public Page<ScrollTrackingResponse> list(Pageable pageable) {
-<<<<<<< HEAD
         return repo.findAll(pageable).map(AnalyticsMappers::toResponse);
-=======
-        return repo.findAll(pageable).map(mappers::toResponse);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ScrollTrackingResponse getById(Integer id) {
         ScrollTracking entity = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "ScrollTracking not found"));
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(entity);
-=======
-        return mappers.toResponse(entity);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ScrollTrackingResponse create(ScrollTrackingRequest request) {
@@ -50,11 +38,7 @@ public class ScrollTrackingService {
                 .page(request.getPage())
                 .depth(request.getDepth())
                 .build();
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public ScrollTrackingResponse update(Integer id, ScrollTrackingRequest request) {
@@ -63,11 +47,7 @@ public class ScrollTrackingService {
         entity.setUserId(request.getUserId());
         entity.setPage(request.getPage());
         entity.setDepth(request.getDepth());
-<<<<<<< HEAD
         return AnalyticsMappers.toResponse(repo.save(entity));
-=======
-        return mappers.toResponse(repo.save(entity));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     }
 
     public void delete(Integer id) {

@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-<<<<<<< HEAD
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,29 +16,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-=======
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import org.springframework.web.multipart.MultipartFile;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 import zentry.back.api.core.dtos.PostRequest;
 import zentry.back.api.core.dtos.PostResponse;
 import zentry.back.api.core.models.User;
 import zentry.back.api.core.models.Post;
-<<<<<<< HEAD
 import zentry.back.api.core.repositories.PostRepository;
 import zentry.back.api.core.repositories.UserRepository;
-=======
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import zentry.back.api.core.repositories.PostRepository;
-import zentry.back.api.core.repositories.UserRepository;
-import zentry.back.api.global.mappers;
-import java.util.UUID;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
 @Service
 @SuppressWarnings("null")
@@ -53,7 +35,6 @@ public class PostService {
         this.userRepo = userRepo;
     }
 
-<<<<<<< HEAD
     private User findUserByIdentifier(String identifier) {
         if (identifier == null || identifier.isBlank() || "anonimo".equalsIgnoreCase(identifier)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
@@ -83,8 +64,6 @@ public class PostService {
         return posts.stream().map(p -> mapToResponse(user, p)).collect(Collectors.toList());
     }
 
-=======
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
     public Page<PostResponse> list(Pageable pageable) {
         return postRepo.findAll(pageable).map(post -> {
             User user = userRepo.findById(post.getUserId()).orElse(new User());
@@ -101,32 +80,16 @@ public class PostService {
     }
 
     public Page<PostResponse> getAllPosts(Pageable pageable) {
-<<<<<<< HEAD
         return list(pageable);
     }
 
     public PostResponse create(String identifier, PostRequest request) {
         User user = findUserByIdentifier(identifier);
-=======
-        return postRepo.findAllByOrderByCreatedAtDesc(pageable)
-            .map(post -> {
-                // Buscamos al dueño de la obra para enviar sus datos (nombre, avatar)
-                User author = userRepo.findById(post.getUserId()).orElse(new User());
-                return mapToResponse(author, post);
-            });
-    }
-
-
-   public PostResponse create(String email, PostRequest request) {
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
         Post post = Post.builder()
                 .userId(user.getId())
                 .title(request.getTitle())
                 .contenido(request.getContenido())
-<<<<<<< HEAD
                 .contentType(request.getContentType() != null ? request.getContentType() : "canvas")
                 .visibility(request.getVisibility() != null ? request.getVisibility() : "public")
                 .build();
@@ -154,13 +117,6 @@ public class PostService {
             if (post.getThumbnailUrl() == null) {
                 post.setThumbnailUrl("/uploads/posts/" + imageName);
             }
-=======
-                .build();
-
-        if (request.getImage() != null && !request.getImage().isEmpty()) {
-            String imageName = saveImage(request.getImage(), user.getUsername(), "post");
-            post.setImageUrl("/uploads/posts/" + imageName);
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
         }
 
         if (request.getTools() != null && !request.getTools().isEmpty()) {
@@ -170,37 +126,8 @@ public class PostService {
         return mapToResponse(user, postRepo.save(post));
     }
 
-<<<<<<< HEAD
     public PostResponse update(Integer id, String identifier, PostRequest request) {
         User user = findUserByIdentifier(identifier);
-=======
-// MÉTODO PARA GUARDAR EN DISCO
-    private String saveImage(MultipartFile file, String username, String type) {
-        try {
-            Path uploadPath = Paths.get("uploads/posts");
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename != null && originalFilename.contains(".") 
-                ? originalFilename.substring(originalFilename.lastIndexOf(".")) 
-                : ".jpg";
-            String newFilename = username + "_" + type + "_" + UUID.randomUUID().toString().substring(0, 5) + extension;
-
-            Path filePath = uploadPath.resolve(newFilename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            return newFilename;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar la imagen de la obra", e);
-        }
-    }
-
-    public PostResponse update(Integer id, String email, PostRequest request) {
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
         Post post = postRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Obra no encontrada"));
@@ -209,7 +136,6 @@ public class PostService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para editar esta obra");
         }
 
-<<<<<<< HEAD
         if (request.getTitle() != null && !request.getTitle().isBlank()) {
             post.setTitle(request.getTitle());
         }
@@ -252,17 +178,6 @@ public class PostService {
 
     public void delete(Integer id, String identifier) {
         User user = findUserByIdentifier(identifier);
-=======
-        post.setTitle(request.getTitle());
-        post.setContenido(request.getContenido());
-
-        return mapToResponse(user, postRepo.save(post));
-    }
-
-    public void delete(Integer id, String email) {
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
 
         Post post = postRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Obra no encontrada"));
@@ -281,7 +196,6 @@ public class PostService {
         return mapToResponse(user, post);
     }
 
-<<<<<<< HEAD
     private String saveImage(MultipartFile file, String username, String type) {
         try {
             Path uploadPath = Paths.get("uploads/posts");
@@ -346,24 +260,12 @@ public class PostService {
                 .imageUrl(post.getImageUrl())
                 .visibility(post.getVisibility())
                 .tools(post.getTools() != null ? post.getTools() : new ArrayList<>())
-=======
-    private PostResponse mapToResponse(User user, Post post) {
-        return PostResponse.builder()
-                .id(post.getId())
-                .authorUsername(user.getUsername())
-                .authorName(user.getUsername())
-                .title(post.getTitle())
-                .contenido(post.getContenido())
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
                 .mediaUrls(new ArrayList<>())
                 .tags(new ArrayList<>())
                 .likesCount(0)
                 .commentsCount(0)
                 .createdAt(post.getCreatedAt())
-<<<<<<< HEAD
                 .updatedAt(post.getUpdatedAt())
-=======
->>>>>>> 7a1026500d2fa605f096db22f93fbab6417dc45f
                 .build();
     }
 }
