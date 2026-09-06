@@ -20,11 +20,19 @@ public class WalletService {
     private final WalletRepository walletRepo;
     private final WalletTransactionRepository txRepo;
     private final UserRepository userRepo;
+    private final GamificationEventService gamificationEventService;
 
-    public WalletService(WalletRepository walletRepo, WalletTransactionRepository txRepo, UserRepository userRepo) {
+    public WalletService(WalletRepository walletRepo, WalletTransactionRepository txRepo, UserRepository userRepo,
+                          @org.springframework.context.annotation.Lazy GamificationEventService gamificationEventService) {
         this.walletRepo = walletRepo;
         this.txRepo = txRepo;
         this.userRepo = userRepo;
+        this.gamificationEventService = gamificationEventService;
+    }
+
+    private void trackWalletBalanceAchievement(String username, BigDecimal balance) {
+        userRepo.findByEmail(username).ifPresent(u ->
+                gamificationEventService.setAchievementProgressAbsolute(u.getId(), "wallet_balance", balance.intValue()));
     }
 
     public WalletResponse getWallet(String username) {
@@ -84,6 +92,8 @@ public class WalletService {
                 .createdAt(LocalDateTime.now())
                 .build());
 
+        trackWalletBalanceAchievement(username, wallet.getBalance());
+
         return getWallet(username);
     }
 
@@ -132,6 +142,8 @@ public class WalletService {
                 .description("Transferencia recibida de " + senderUsername)
                 .createdAt(LocalDateTime.now())
                 .build());
+
+        trackWalletBalanceAchievement(actualRecipientUsername, recipientWallet.getBalance());
 
         return getWallet(senderUsername);
     }

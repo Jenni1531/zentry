@@ -44,7 +44,7 @@ public class WalletController {
     // ─── POST /api/core/wallet/topup ──────────────────────────────────────────
     @Operation(summary = "Recargar Zentry Coins (ZC)",
                description = "Incrementa el saldo de ZC de la billetera del usuario y registra la transacción de recarga.")
-    @PostMapping("/topup")
+    @PostMapping({"/topup", "/recharge"})
     public ResponseEntity<WalletResponse> topup(Principal principal, Authentication authentication,
                                                 @Valid @RequestBody TopupRequest request) {
         String username = extractUsername(principal, authentication);

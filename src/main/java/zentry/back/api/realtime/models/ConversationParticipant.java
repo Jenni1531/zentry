@@ -24,6 +24,9 @@ public class ConversationParticipant {
     @Column(name = "joined_at")
     private LocalDateTime joinedAt;
 
+    @Column(name = "last_read_at")
+    private LocalDateTime lastReadAt;
+
     @lombok.EqualsAndHashCode
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor

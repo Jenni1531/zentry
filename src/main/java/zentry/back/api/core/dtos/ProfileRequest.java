@@ -10,11 +10,16 @@ public class ProfileRequest {
 
     @JsonAlias({"displayName", "display_name", "fullName", "full_name"})
     private String name;
+    private String username;
     
     private String displayName;
     private String discipline;
     private String location;
     private String bio;
+    
+    private String artisticName;
+    private String experienceLevel;
+    private String rank;
     
     @JsonAlias({"avatar_url", "photo", "image"})
     private String avatarUrl;

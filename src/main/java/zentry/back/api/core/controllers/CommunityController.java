@@ -21,7 +21,11 @@ import zentry.back.api.core.dtos.CommunityRequest;
 import zentry.back.api.core.dtos.CommunityResponse;
 import zentry.back.api.core.dtos.PostRequest;
 import zentry.back.api.core.dtos.PostResponse;
+import zentry.back.api.core.dtos.ForumThreadRequest;
+import zentry.back.api.core.dtos.ForumThreadResponse;
 import zentry.back.api.core.services.CommunityService;
+import zentry.back.api.core.services.ForumThreadService;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping({"/api/core/communities", "/api/v1/communities"})
@@ -29,9 +33,11 @@ import zentry.back.api.core.services.CommunityService;
 public class CommunityController {
 
     private final CommunityService service;
+    private final ForumThreadService forumThreadService;
 
-    public CommunityController(CommunityService service) {
+    public CommunityController(CommunityService service, ForumThreadService forumThreadService) {
         this.service = service;
+        this.forumThreadService = forumThreadService;
     }
 
     @Operation(summary = "Listar y buscar comunidades", description = "Devuelve lista paginada de comunidades con filtro de búsqueda opcional.")
@@ -115,6 +121,20 @@ public class CommunityController {
         return ResponseEntity.ok(service.leaveCommunity(identifier, principal.getName()));
     }
 
+    @Operation(summary = "Listar publicaciones de la comunidad")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Comunidad no encontrada", content = @Content)
+    })
+    @GetMapping("/{identifier}/posts")
+    public ResponseEntity<Page<PostResponse>> getCommunityPosts(
+            @Parameter(description = "ID o Slug de la comunidad") @PathVariable String identifier,
+            @PageableDefault(size = 20) Pageable pageable,
+            Principal principal) {
+        String viewer = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.getCommunityPosts(identifier, pageable, viewer));
+    }
+
     @Operation(summary = "Crear publicación en la comunidad")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Publicación creada en la comunidad"),
@@ -126,6 +146,38 @@ public class CommunityController {
             @Valid @ModelAttribute PostRequest request,
             Principal principal) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createPostInCommunity(identifier, principal.getName(), request));
+    }
+
+    @Operation(summary = "Listar hilos de foro de la comunidad", description = "Devuelve los hilos de discusión de la comunidad ordenados por actividad reciente.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente"),
+        @ApiResponse(responseCode = "404", description = "Comunidad no encontrada", content = @Content)
+    })
+    @GetMapping("/{identifier}/forum-threads")
+    public ResponseEntity<Page<ForumThreadResponse>> getCommunityForumThreads(
+            @Parameter(description = "ID o Slug de la comunidad") @PathVariable String identifier,
+            @PageableDefault(size = 20) Pageable pageable) {
+        Integer communityId = service.getByIdentifier(identifier, null).getId();
+        return ResponseEntity.ok(forumThreadService.listByCommunity(communityId, pageable));
+    }
+
+    @Operation(summary = "Abrir un hilo de foro en la comunidad")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Hilo creado exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Comunidad no encontrada", content = @Content)
+    })
+    @PostMapping("/{identifier}/forum-threads")
+    public ResponseEntity<ForumThreadResponse> createCommunityForumThread(
+            @Parameter(description = "ID o Slug de la comunidad") @PathVariable String identifier,
+            @Valid @RequestBody ForumThreadRequest request,
+            Principal principal) {
+        if (principal == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Debes iniciar sesión");
+        }
+        Integer communityId = service.getByIdentifier(identifier, null).getId();
+        request.setCommunityId(communityId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(forumThreadService.create(principal.getName(), request));
     }
 
     @Operation(summary = "Activar o desactivar notificaciones de la comunidad")

@@ -19,7 +19,11 @@ public class CommunityMember {
 
     @Column(name = "joined_at", updatable = false)
     private LocalDateTime joinedAt;
-    
+
+    @lombok.Builder.Default
+    @Column(name = "notifications_enabled", columnDefinition = "boolean default true")
+    private Boolean notificationsEnabled = true;
+
     @Id
     @Column(name = "user_id")
     private Integer userId;

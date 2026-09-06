@@ -2,10 +2,14 @@ package zentry.back.api.core.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import zentry.back.api.core.dtos.InviteMemberRequest;
 import zentry.back.api.core.dtos.NoteRequestDTO;
+import zentry.back.api.core.dtos.ProjectLikeResponse;
+import zentry.back.api.core.dtos.ProjectMemberResponse;
 import zentry.back.api.core.dtos.ProjectRequestDTO;
 import zentry.back.api.core.dtos.ResourceRequestDTO;
 import zentry.back.api.core.dtos.TaskRequestDTO;
@@ -136,5 +140,52 @@ public class ProjectController {
     public ResponseEntity<List<Project>> searchProjects(@RequestParam("q") String query, Principal principal) {
         String username = principal != null ? principal.getName() : null;
         return ResponseEntity.ok(projectService.searchProjects(username, query));
+    }
+
+    // GET /api/core/projects/{id}/members -> Listar colaboradores
+    @GetMapping("/{id}/members")
+    @Operation(summary = "Listar colaboradores de un proyecto")
+    public ResponseEntity<List<ProjectMemberResponse>> listMembers(@PathVariable Long id, Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(projectService.listMembers(id, username));
+    }
+
+    // POST /api/core/projects/{id}/invite -> Invitar colaborador (solo el dueño)
+    @PostMapping("/{id}/invite")
+    @Operation(summary = "Invitar a un usuario a colaborar en el proyecto")
+    public ResponseEntity<ProjectMemberResponse> inviteMember(
+            @PathVariable Long id,
+            @Valid @RequestBody InviteMemberRequest request,
+            Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(projectService.inviteMember(id, username, request));
+    }
+
+    // DELETE /api/core/projects/{id}/members/{username} -> Salir o quitar colaborador
+    @DeleteMapping("/{id}/members/{username}")
+    @Operation(summary = "Quitar un colaborador o abandonar el proyecto")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable Long id,
+            @PathVariable String username,
+            Principal principal) {
+        String requester = principal != null ? principal.getName() : null;
+        projectService.removeMember(id, requester, username);
+        return ResponseEntity.noContent().build();
+    }
+
+    // POST /api/core/projects/{id}/like -> Alternar "me gusta"
+    @PostMapping("/{id}/like")
+    @Operation(summary = "Alternar me gusta en un proyecto")
+    public ResponseEntity<ProjectLikeResponse> toggleLike(@PathVariable Long id, Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(projectService.toggleLike(id, username));
+    }
+
+    // GET /api/core/projects/{id}/like -> Estado de "me gusta"
+    @GetMapping("/{id}/like")
+    @Operation(summary = "Consultar estado de me gusta")
+    public ResponseEntity<ProjectLikeResponse> getLikeStatus(@PathVariable Long id, Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(projectService.getLikeStatus(id, username));
     }
 }

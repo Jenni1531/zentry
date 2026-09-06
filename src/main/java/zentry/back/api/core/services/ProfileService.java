@@ -31,11 +31,14 @@ public class ProfileService {
     private final UserRepository userRepo;
 
     private final FollowRepository followRepo;
+    private final GamificationEventService gamificationEventService;
 
-    public ProfileService(ProfileRepository profileRepo, UserRepository userRepo, FollowRepository followRepo) {
+    public ProfileService(ProfileRepository profileRepo, UserRepository userRepo, FollowRepository followRepo,
+                           GamificationEventService gamificationEventService) {
         this.profileRepo = profileRepo;
         this.userRepo = userRepo;
         this.followRepo = followRepo;
+        this.gamificationEventService = gamificationEventService;
     }
 
     private User resolveUser(String identifier) {
@@ -62,6 +65,33 @@ public class ProfileService {
 
     public ProfileResponse getProfileByUsername(String identifier) {
         return getProfileByUsername(identifier, null);
+    }
+
+    public ProfileResponse getProfileByUserId(Integer userId, String currentUsername) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        Profile profile = profileRepo.findByUserId(user.getId())
+                .orElse(new Profile());
+
+        boolean isFollowing = false;
+        if (currentUsername != null && !currentUsername.isBlank()) {
+            User currentUser = userRepo.findByUsernameOrEmail(currentUsername, currentUsername)
+                    .orElseGet(() -> userRepo.findByEmail(currentUsername).orElse(null));
+            if (currentUser != null) {
+                isFollowing = followRepo.existsByFollowerAndFollowing(currentUser.getId(), user.getId());
+            }
+        }
+
+        long followersCount = followRepo.countByFollowing(user.getId());
+        long followingCount = followRepo.countByFollower(user.getId());
+
+        ProfileResponse response = mapToResponse(user, profile);
+        response.setFollowersCount((int) followersCount);
+        response.setFollowingCount((int) followingCount);
+        response.setIsFollowing(isFollowing);
+
+        return response;
     }
 
     public ProfileResponse getProfileByUsername(String identifier, String currentUsername) {
@@ -132,6 +162,8 @@ public class ProfileService {
                     .following(targetUser.getId())
                     .build());
             isFollowing = true;
+
+            gamificationEventService.recordMissionProgress(followerUser.getId(), "follow_users", 1);
         }
 
         long followersCount = followRepo.countByFollowing(targetUser.getId());
@@ -167,6 +199,11 @@ public class ProfileService {
     public ProfileResponse updateMyProfile(String emailOrUsername, ProfileRequest request) {
         User user = resolveUser(emailOrUsername);
 
+        if (request.getUsername() != null && !request.getUsername().isBlank()) {
+            user.setUsername(request.getUsername());
+            userRepo.save(user);
+        }
+
         Profile profile = findOrCreateByUsername(emailOrUsername);
 
         if (request.getName() != null && !request.getName().isBlank())
@@ -177,6 +214,20 @@ public class ProfileService {
             profile.setLocation(request.getLocation());
         if (request.getBio() != null)
             profile.setBio(request.getBio());
+            
+        if (request.getArtisticName() != null)
+            profile.setArtisticName(request.getArtisticName());
+            
+        if (request.getExperienceLevel() != null) {
+            profile.setExperienceLevel(request.getExperienceLevel());
+            if (profile.getRank() == null) {
+                profile.setRank("Bronce");
+            }
+        }
+        
+        if (request.getRank() != null)
+            profile.setRank(request.getRank());
+
 
         if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
             profile.setAvatarUrl(request.getAvatarUrl());
@@ -200,6 +251,9 @@ public class ProfileService {
         }
 
         Profile savedProfile = profileRepo.save(profile);
+
+        gamificationEventService.recordMissionProgress(user.getId(), "update_profile", 1);
+        gamificationEventService.recordAchievementProgress(user.getId(), "complete_profile", 1);
 
         long followersCount = followRepo.countByFollowing(user.getId());
         long followingCount = followRepo.countByFollower(user.getId());
@@ -248,11 +302,14 @@ public class ProfileService {
     }
 
     private ProfileResponse mapToResponse(User user, Profile profile) {
-        String displayUsername = user.getUsername() != null ? user.getUsername() : user.getEmail().split("@")[0];
+        String displayUsername = user.getHandle() != null ? user.getHandle() : user.getEmail().split("@")[0];
         return ProfileResponse.builder()
-                .username(user.getUsername())
+                .username(user.getHandle())
                 .name(profile.getName() != null ? profile.getName() : displayUsername)
+                .artisticName(profile.getArtisticName())
                 .discipline(profile.getDiscipline())
+                .experienceLevel(profile.getExperienceLevel())
+                .rank(profile.getRank())
                 .location(profile.getLocation())
                 .bio(profile.getBio())
                 .avatarUrl(profile.getAvatarUrl())

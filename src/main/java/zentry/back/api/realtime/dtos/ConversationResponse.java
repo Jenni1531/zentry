@@ -12,4 +12,5 @@ public class ConversationResponse {
     private String name;
     private Integer createdBy;
     private LocalDateTime createdAt;
+    private LocalDateTime lastMessageAt;
 }

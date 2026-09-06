@@ -45,7 +45,8 @@ public class PostController {
             }
             return ResponseEntity.ok(service.getMyPosts(principal.getName()));
         }
-        return ResponseEntity.ok(service.getAllPosts(pageable));
+        String viewer = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.getAllPosts(pageable, viewer));
     }
 
     @GetMapping("/my")
@@ -64,8 +65,10 @@ public class PostController {
         @ApiResponse(responseCode = "404", description = "No encontrada", content = @Content)
     })
     public ResponseEntity<PostResponse> getById(
-            @Parameter(description = "ID de la publicación") @PathVariable Integer id) {
-        return ResponseEntity.ok(service.getById(id));
+            @Parameter(description = "ID de la publicación") @PathVariable Integer id,
+            Principal principal) {
+        String viewer = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.getById(id, viewer));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -90,10 +93,19 @@ public class PostController {
     }
 
     @PostMapping("/{id}/like")
-    @Operation(summary = "Dar me gusta o reaccionar a una publicación")
-    public ResponseEntity<PostResponse> likePost(
-            @Parameter(description = "ID de la publicación") @PathVariable Integer id) {
-        return ResponseEntity.ok(service.likePost(id));
+    @Operation(summary = "Dar o quitar me gusta a una publicación")
+    public ResponseEntity<PostResponse> toggleLike(
+            @Parameter(description = "ID de la publicación") @PathVariable Integer id,
+            Principal principal) {
+        String username = requireUsername(principal);
+        return ResponseEntity.ok(service.toggleLike(id, username));
+    }
+
+    private String requireUsername(Principal principal) {
+        if (principal == null) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "Debes iniciar sesión");
+        }
+        return principal.getName();
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)

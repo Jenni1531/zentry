@@ -30,6 +30,9 @@ public class User implements UserDetails {
     @Column(name = "password", length = 255)
     private String password;
 
+    @Builder.Default
+    @Column(name = "verified", nullable = false, columnDefinition = "boolean default false")
+    private Boolean verified = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -43,7 +46,16 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email; 
+        return this.email;
+    }
+
+    /**
+     * Nombre de usuario real (distinto del email que exige el contrato de UserDetails).
+     * Lombok no genera un getter para el campo "username" porque el override de arriba
+     * ya ocupa esa firma, así que este método expone el valor real del campo.
+     */
+    public String getHandle() {
+        return this.username;
     }
 
     @Override

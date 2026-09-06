@@ -31,6 +31,17 @@ public class ProfileController {
         return ResponseEntity.ok(service.searchProfiles(query));
     }
 
+    @GetMapping("/by-user-id/{userId}")
+    @Operation(summary = "Obtener perfil por ID numérico de usuario",
+               description = "Lectura pública de perfil a partir del ID interno del usuario (útil para resolver participantes de una conversación).")
+    public ResponseEntity<ProfileResponse> getProfileByUserId(
+            @PathVariable Integer userId,
+            Principal principal) {
+        String currentUsername = principal != null ? principal.getName() : null;
+        ProfileResponse profile = service.getProfileByUserId(userId, currentUsername);
+        return ResponseEntity.ok(profile);
+    }
+
     @GetMapping("/{identifier}")
     @Operation(summary = "Obtener perfil por identificador (username o email)",
                description = "Lectura pública de perfil. Retorna la información del creador y booleano isFollowing si el cliente está autenticado.")
@@ -46,8 +57,12 @@ public class ProfileController {
     }
 
     // 1. JSON
-    @PutMapping(value = "/me", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "Actualizar mi propio perfil vía JSON (Solo el usuario autenticado)")
+    @RequestMapping(
+        value = {"/me", "/onboarding"}, 
+        method = {RequestMethod.PUT, RequestMethod.POST}, 
+        consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @Operation(summary = "Actualizar mi propio perfil o hacer onboarding vía JSON (Solo el usuario autenticado)")
     public ResponseEntity<ProfileResponse> updateJson(
             @RequestBody ProfileRequest request,
             Principal principal) {

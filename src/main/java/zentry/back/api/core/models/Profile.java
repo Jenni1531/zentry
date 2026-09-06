@@ -24,8 +24,19 @@ public class Profile {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "artistic_name")
+    private String artisticName;
+
+
     @Column(name = "discipline")
     private String discipline;
+
+    @Column(name = "experience_level")
+    private String experienceLevel;
+
+    @Column(name = "rank")
+    private String rank;
+
 
     @Column(name = "location")
     private String location;

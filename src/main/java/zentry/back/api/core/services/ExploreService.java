@@ -72,8 +72,8 @@ public class ExploreService {
                 .map(user -> {
                     Profile profile = profileRepo.findByUserId(user.getId()).orElse(new Profile());
                     return ProfileResponse.builder()
-                            .username(user.getUsername())
-                            .name(profile.getName() != null ? profile.getName() : user.getUsername())
+                            .username(user.getHandle())
+                            .name(profile.getName() != null ? profile.getName() : user.getHandle())
                             .discipline(profile.getDiscipline())
                             .location(profile.getLocation())
                             .bio(profile.getBio())
@@ -94,8 +94,8 @@ public class ExploreService {
                     Profile profile = profileRepo.findByUserId(author.getId()).orElse(new Profile());
                     return PostResponse.builder()
                             .id(post.getId())
-                            .authorUsername(author.getUsername())
-                            .authorName(profile.getName() != null ? profile.getName() : author.getUsername())
+                            .authorUsername(author.getHandle())
+                            .authorName(profile.getName() != null ? profile.getName() : author.getHandle())
                             .authorAvatar(profile.getAvatarUrl())
                             .title(post.getTitle())
                             .contenido(post.getContenido())

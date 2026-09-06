@@ -11,13 +11,8 @@ public class MessageRequest {
     @NotNull
     private Integer conversationId;
 
-    @NotNull
-    private Integer senderId;
-
     private String content;
 
     @Size(max = 10)
     private String type;
-
-    private Boolean read;
 }

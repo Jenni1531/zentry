@@ -11,7 +11,7 @@ public final class CoreMappers {
         if (entity == null) return null;
         return UserResponse.builder()
                 .id(entity.getId())
-                .username(entity.getUsername())
+                .username(entity.getHandle())
                 .email(entity.getEmail())
                 .build();
     }

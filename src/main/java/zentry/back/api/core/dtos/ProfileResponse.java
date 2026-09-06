@@ -10,7 +10,10 @@ public class ProfileResponse {
 
     private String username;
     private String name;
+    private String artisticName;
     private String discipline;
+    private String experienceLevel;
+    private String rank;
     private String location;
     private String bio;
     private String avatarUrl;

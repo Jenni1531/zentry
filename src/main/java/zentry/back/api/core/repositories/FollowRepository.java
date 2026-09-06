@@ -10,4 +10,6 @@ public interface FollowRepository extends JpaRepository<Follow, Follow.FollowId>
     long countByFollowing(Integer following);
     long countByFollower(Integer follower);
     void deleteByFollowerAndFollowing(Integer follower, Integer following);
+    java.util.List<Follow> findByFollowing(Integer following);
+    java.util.List<Follow> findByFollower(Integer follower);
 }

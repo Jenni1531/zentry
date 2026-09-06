@@ -18,9 +18,14 @@ import java.util.stream.Collectors;
 
 import zentry.back.api.core.dtos.PostRequest;
 import zentry.back.api.core.dtos.PostResponse;
+import zentry.back.api.core.models.Profile;
 import zentry.back.api.core.models.User;
 import zentry.back.api.core.models.Post;
+import zentry.back.api.core.models.PostLike;
+import zentry.back.api.core.repositories.CommentRepository;
+import zentry.back.api.core.repositories.PostLikeRepository;
 import zentry.back.api.core.repositories.PostRepository;
+import zentry.back.api.core.repositories.ProfileRepository;
 import zentry.back.api.core.repositories.UserRepository;
 
 @Service
@@ -29,10 +34,35 @@ public class PostService {
 
     private final PostRepository postRepo;
     private final UserRepository userRepo;
+    private final PostLikeRepository postLikeRepo;
+    private final CommentRepository commentRepo;
+    private final ProfileRepository profileRepo;
+    private final GamificationEventService gamificationEventService;
 
-    public PostService(PostRepository postRepo, UserRepository userRepo) {
+    public PostService(PostRepository postRepo, UserRepository userRepo, PostLikeRepository postLikeRepo,
+                        CommentRepository commentRepo, ProfileRepository profileRepo,
+                        GamificationEventService gamificationEventService) {
         this.postRepo = postRepo;
         this.userRepo = userRepo;
+        this.postLikeRepo = postLikeRepo;
+        this.commentRepo = commentRepo;
+        this.profileRepo = profileRepo;
+        this.gamificationEventService = gamificationEventService;
+    }
+
+    private String filenameSafeHandle(User user) {
+        return user.getHandle() != null && !user.getHandle().isBlank() ? user.getHandle() : "user";
+    }
+
+    private User tryFindUser(String identifier) {
+        if (identifier == null || identifier.isBlank() || "anonimo".equalsIgnoreCase(identifier)) {
+            return null;
+        }
+        try {
+            return findUserByIdentifier(identifier);
+        } catch (ResponseStatusException e) {
+            return null;
+        }
     }
 
     private User findUserByIdentifier(String identifier) {
@@ -61,29 +91,47 @@ public class PostService {
     public List<PostResponse> getMyPosts(String identifier) {
         User user = findUserByIdentifier(identifier);
         List<Post> posts = postRepo.findByUserIdOrderByCreatedAtDesc(user.getId());
-        return posts.stream().map(p -> mapToResponse(user, p)).collect(Collectors.toList());
+        return posts.stream().map(p -> mapToResponse(user, p, user.getId())).collect(Collectors.toList());
     }
 
-    public Page<PostResponse> list(Pageable pageable) {
+    public Page<PostResponse> list(Pageable pageable, String viewerIdentifier) {
+        Integer viewerId = resolveViewerId(viewerIdentifier);
         return postRepo.findAll(pageable).map(post -> {
             User user = userRepo.findById(post.getUserId()).orElse(new User());
-            return mapToResponse(user, post);
+            return mapToResponse(user, post, viewerId);
         });
     }
-    
-    public PostResponse getById(Integer id) {
+
+    public PostResponse getById(Integer id, String viewerIdentifier) {
         Post post = postRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Obra no encontrada"));
         User user = userRepo.findById(post.getUserId()).orElse(new User());
-        
-        return mapToResponse(user, post);
+
+        return mapToResponse(user, post, resolveViewerId(viewerIdentifier));
     }
 
-    public Page<PostResponse> getAllPosts(Pageable pageable) {
-        return list(pageable);
+    public Page<PostResponse> getAllPosts(Pageable pageable, String viewerIdentifier) {
+        return list(pageable, viewerIdentifier);
+    }
+
+    public Page<PostResponse> getPostsByCommunity(Integer communityId, Pageable pageable, String viewerIdentifier) {
+        Integer viewerId = resolveViewerId(viewerIdentifier);
+        return postRepo.findByCommunityIdOrderByCreatedAtDesc(communityId, pageable).map(post -> {
+            User user = userRepo.findById(post.getUserId()).orElse(new User());
+            return mapToResponse(user, post, viewerId);
+        });
+    }
+
+    private Integer resolveViewerId(String viewerIdentifier) {
+        User viewer = tryFindUser(viewerIdentifier);
+        return viewer != null ? viewer.getId() : null;
     }
 
     public PostResponse create(String identifier, PostRequest request) {
+        return create(identifier, request, null);
+    }
+
+    public PostResponse create(String identifier, PostRequest request, Integer communityId) {
         User user = findUserByIdentifier(identifier);
 
         Post post = Post.builder()
@@ -92,11 +140,12 @@ public class PostService {
                 .contenido(request.getContenido())
                 .contentType(request.getContentType() != null ? request.getContentType() : "canvas")
                 .visibility(request.getVisibility() != null ? request.getVisibility() : "public")
+                .communityId(communityId)
                 .build();
 
         if (request.getThumbnailUrl() != null && !request.getThumbnailUrl().isBlank()) {
             if (request.getThumbnailUrl().startsWith("data:image/")) {
-                String savedPath = saveBase64Image(request.getThumbnailUrl(), user.getUsername(), "thumb");
+                String savedPath = saveBase64Image(request.getThumbnailUrl(), filenameSafeHandle(user), "thumb");
                 post.setThumbnailUrl(savedPath);
                 post.setImageUrl(savedPath);
             } else {
@@ -112,7 +161,7 @@ public class PostService {
         }
 
         if (request.getImage() != null && !request.getImage().isEmpty()) {
-            String imageName = saveImage(request.getImage(), user.getUsername(), "post");
+            String imageName = saveImage(request.getImage(), filenameSafeHandle(user), "post");
             post.setImageUrl("/uploads/posts/" + imageName);
             if (post.getThumbnailUrl() == null) {
                 post.setThumbnailUrl("/uploads/posts/" + imageName);
@@ -123,7 +172,12 @@ public class PostService {
             post.setTools(java.util.Arrays.asList(request.getTools().split(",")));
         }
 
-        return mapToResponse(user, postRepo.save(post));
+        Post saved = postRepo.save(post);
+
+        gamificationEventService.recordMissionProgress(user.getId(), "create_post", 1);
+        gamificationEventService.recordAchievementProgress(user.getId(), "create_first_project", 1);
+
+        return mapToResponse(user, saved, user.getId());
     }
 
     public PostResponse update(Integer id, String identifier, PostRequest request) {
@@ -151,7 +205,7 @@ public class PostService {
 
         if (request.getThumbnailUrl() != null && !request.getThumbnailUrl().isBlank()) {
             if (request.getThumbnailUrl().startsWith("data:image/")) {
-                String savedPath = saveBase64Image(request.getThumbnailUrl(), user.getUsername(), "thumb");
+                String savedPath = saveBase64Image(request.getThumbnailUrl(), filenameSafeHandle(user), "thumb");
                 post.setThumbnailUrl(savedPath);
                 post.setImageUrl(savedPath);
             } else {
@@ -164,7 +218,7 @@ public class PostService {
         }
 
         if (request.getImage() != null && !request.getImage().isEmpty()) {
-            String imageName = saveImage(request.getImage(), user.getUsername(), "post");
+            String imageName = saveImage(request.getImage(), filenameSafeHandle(user), "post");
             post.setImageUrl("/uploads/posts/" + imageName);
         }
 
@@ -173,7 +227,7 @@ public class PostService {
         }
 
         post.setUpdatedAt(java.time.LocalDateTime.now());
-        return mapToResponse(user, postRepo.save(post));
+        return mapToResponse(user, postRepo.save(post), user.getId());
     }
 
     public void delete(Integer id, String identifier) {
@@ -189,11 +243,30 @@ public class PostService {
         postRepo.delete(post);
     }
 
-    public PostResponse likePost(Integer id) {
+    public PostResponse toggleLike(Integer id, String identifier) {
         Post post = postRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Obra no encontrada"));
-        User user = userRepo.findById(post.getUserId()).orElse(new User());
-        return mapToResponse(user, post);
+        User liker = findUserByIdentifier(identifier);
+        User author = userRepo.findById(post.getUserId()).orElse(new User());
+
+        boolean alreadyLiked = postLikeRepo.existsByPostIdAndUserId(id, liker.getId());
+        if (alreadyLiked) {
+            postLikeRepo.deleteByPostIdAndUserId(id, liker.getId());
+        } else {
+            postLikeRepo.save(PostLike.builder()
+                    .postId(id)
+                    .userId(liker.getId())
+                    .createdAt(java.time.LocalDateTime.now())
+                    .build());
+
+            gamificationEventService.recordMissionProgress(liker.getId(), "react_posts", 1);
+            gamificationEventService.recordAchievementProgress(liker.getId(), "like_posts", 1);
+
+            long likesOnPost = postLikeRepo.countByPostId(id);
+            gamificationEventService.setAchievementProgressAbsolute(author.getId(), "post_reactions", (int) likesOnPost);
+        }
+
+        return mapToResponse(author, post, liker.getId());
     }
 
     private String saveImage(MultipartFile file, String username, String type) {
@@ -248,22 +321,31 @@ public class PostService {
         }
     }
 
-    private PostResponse mapToResponse(User user, Post post) {
+    private PostResponse mapToResponse(User user, Post post, Integer viewerUserId) {
+        long likesCount = postLikeRepo.countByPostId(post.getId());
+        long commentsCount = commentRepo.countByPostId(post.getId());
+        boolean liked = viewerUserId != null && postLikeRepo.existsByPostIdAndUserId(post.getId(), viewerUserId);
+        Profile authorProfile = user.getId() != null ? profileRepo.findByUserId(user.getId()).orElse(null) : null;
+
         return PostResponse.builder()
                 .id(post.getId())
-                .authorUsername(user.getUsername() != null ? user.getUsername() : "usuario")
-                .authorName(user.getUsername() != null ? user.getUsername() : "usuario")
+                .authorUsername(user.getHandle() != null ? user.getHandle() : "usuario")
+                .authorName(user.getHandle() != null ? user.getHandle() : "usuario")
+                .authorAvatar(authorProfile != null ? authorProfile.getAvatarUrl() : null)
+                .authorDiscipline(authorProfile != null ? authorProfile.getDiscipline() : null)
                 .title(post.getTitle())
                 .contenido(post.getContenido())
                 .contentType(post.getContentType() != null ? post.getContentType() : "canvas")
                 .thumbnailUrl(post.getThumbnailUrl())
                 .imageUrl(post.getImageUrl())
                 .visibility(post.getVisibility())
+                .communityId(post.getCommunityId())
                 .tools(post.getTools() != null ? post.getTools() : new ArrayList<>())
                 .mediaUrls(new ArrayList<>())
                 .tags(new ArrayList<>())
-                .likesCount(0)
-                .commentsCount(0)
+                .likesCount((int) likesCount)
+                .commentsCount((int) commentsCount)
+                .liked(liked)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();

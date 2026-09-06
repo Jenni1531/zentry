@@ -33,12 +33,15 @@ public class CommunityService {
     private final CommunityMemberRepository memberRepo;
     private final UserRepository userRepo;
     private final PostService postService;
+    private final GamificationEventService gamificationEventService;
 
-    public CommunityService(CommunityRepository repo, CommunityMemberRepository memberRepo, UserRepository userRepo, PostService postService) {
+    public CommunityService(CommunityRepository repo, CommunityMemberRepository memberRepo, UserRepository userRepo,
+                             PostService postService, GamificationEventService gamificationEventService) {
         this.repo = repo;
         this.memberRepo = memberRepo;
         this.userRepo = userRepo;
         this.postService = postService;
+        this.gamificationEventService = gamificationEventService;
     }
 
     public Page<CommunityResponse> list(String search, Pageable pageable, String currentUserEmail) {
@@ -87,7 +90,7 @@ public class CommunityService {
                 .imageUrl(request.getAvatarUrl() != null ? request.getAvatarUrl() : request.getBannerUrl())
                 .rules(request.getRules() != null ? request.getRules() : new ArrayList<>())
                 .creatorId(creator.getId())
-                .ownerUsername(creator.getUsername())
+                .ownerUsername(creator.getHandle())
                 .build();
         
         Community savedCommunity = repo.save(entity);
@@ -109,7 +112,7 @@ public class CommunityService {
 
         Community entity = findEntityByIdentifier(identifier);
 
-        boolean isOwner = (entity.getOwnerUsername() != null && (entity.getOwnerUsername().equalsIgnoreCase(user.getUsername()) || entity.getOwnerUsername().equalsIgnoreCase(user.getEmail())))
+        boolean isOwner = (entity.getOwnerUsername() != null && (entity.getOwnerUsername().equalsIgnoreCase(user.getHandle()) || entity.getOwnerUsername().equalsIgnoreCase(user.getEmail())))
                 || (entity.getCreatorId() != null && entity.getCreatorId().equals(user.getId()));
 
         if (!isOwner) {
@@ -164,6 +167,9 @@ public class CommunityService {
                     .joinedAt(LocalDateTime.now())
                     .build();
             memberRepo.save(member);
+
+            gamificationEventService.recordMissionProgress(user.getId(), "visit_community", 1);
+            gamificationEventService.recordAchievementProgress(user.getId(), "join_communities", 1);
         }
 
         return enrichResponse(community, user);
@@ -182,17 +188,31 @@ public class CommunityService {
     }
 
     public PostResponse createPostInCommunity(String identifier, String userEmail, PostRequest request) {
-        findEntityByIdentifier(identifier);
-        return postService.create(userEmail, request);
+        Community community = findEntityByIdentifier(identifier);
+        return postService.create(userEmail, request, community.getId());
+    }
+
+    public org.springframework.data.domain.Page<PostResponse> getCommunityPosts(String identifier, org.springframework.data.domain.Pageable pageable, String viewerEmail) {
+        Community community = findEntityByIdentifier(identifier);
+        return postService.getPostsByCommunity(community.getId(), pageable, viewerEmail);
     }
 
     public Map<String, Object> toggleNotifications(String identifier, String userEmail) {
+        User user = userRepo.findByEmail(userEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
         Community community = findEntityByIdentifier(identifier);
+
+        CommunityMember member = memberRepo.findByCommunityIdAndUserId(community.getId(), user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Debes ser miembro de la comunidad para gestionar sus notificaciones"));
+
+        boolean nextValue = !Boolean.TRUE.equals(member.getNotificationsEnabled());
+        member.setNotificationsEnabled(nextValue);
+        memberRepo.save(member);
 
         Map<String, Object> response = new HashMap<>();
         response.put("communityId", community.getId());
-        response.put("notificationsEnabled", true);
-        response.put("message", "Notificaciones actualizadas exitosamente");
+        response.put("notificationsEnabled", nextValue);
+        response.put("message", nextValue ? "Notificaciones activadas" : "Notificaciones desactivadas");
         return response;
     }
 

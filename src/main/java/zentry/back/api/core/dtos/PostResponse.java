@@ -14,6 +14,7 @@ public class PostResponse {
     private String authorUsername;
     private String authorAvatar;
     private String authorName;
+    private String authorDiscipline;
 
     // Datos de la obra
     private String title;
@@ -29,6 +30,7 @@ public class PostResponse {
     private String imageUrl;
 
     private String visibility;
+    private Integer communityId;
     private List<String> tools;
     private List<String> mediaUrls;
     private List<String> tags;
@@ -36,7 +38,8 @@ public class PostResponse {
     // Estadísticas
     private Integer likesCount;
     private Integer commentsCount;
-    
+    private Boolean liked;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

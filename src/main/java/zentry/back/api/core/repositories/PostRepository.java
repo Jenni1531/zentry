@@ -18,4 +18,5 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     Page<Post> findByUserIdOrderByCreatedAtDesc(Integer userId, Pageable pageable);
     Optional<Post> findByIdAndUserId(Integer id, Integer userId);
     long countByUserId(Integer userId);
+    Page<Post> findByCommunityIdOrderByCreatedAtDesc(Integer communityId, Pageable pageable);
 }

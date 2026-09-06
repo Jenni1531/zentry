@@ -112,7 +112,7 @@ public class StoryService {
             User user = userRepo.findById(userId).orElse(null);
             Profile profile = profileRepo.findByUserId(userId).orElse(null);
 
-            String rawUsername = user != null && user.getUsername() != null ? user.getUsername() : "usuario_" + userId;
+            String rawUsername = user != null && user.getHandle() != null ? user.getHandle() : "usuario_" + userId;
             String cleanUsername = rawUsername.replaceFirst("@.*", "");
             String displayName = (profile != null && profile.getName() != null && !profile.getName().isBlank())
                     ? profile.getName()
@@ -251,7 +251,7 @@ public class StoryService {
         Profile profile = profileRepo.findByUserId(entity.getUserId()).orElse(null);
 
         if (user != null) {
-            String rawUsername = user.getUsername() != null ? user.getUsername() : "usuario_" + entity.getUserId();
+            String rawUsername = user.getHandle() != null ? user.getHandle() : "usuario_" + entity.getUserId();
             dto.setUsername(rawUsername.replaceFirst("@.*", ""));
         }
         if (profile != null) {

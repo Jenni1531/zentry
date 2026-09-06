@@ -1,7 +1,5 @@
 package zentry.back.api.core.services;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -9,48 +7,92 @@ import org.springframework.web.server.ResponseStatusException;
 import zentry.back.api.core.dtos.CommentRequest;
 import zentry.back.api.core.dtos.CommentResponse;
 import zentry.back.api.core.models.Comment;
+import zentry.back.api.core.models.Profile;
+import zentry.back.api.core.models.User;
 import zentry.back.api.core.repositories.CommentRepository;
-import zentry.back.api.core.mappers.CoreMappers;
+import zentry.back.api.core.repositories.PostRepository;
+import zentry.back.api.core.repositories.ProfileRepository;
+import zentry.back.api.core.repositories.UserRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@SuppressWarnings("null")
 public class CommentService {
 
     private final CommentRepository repo;
+    private final PostRepository postRepo;
+    private final UserRepository userRepo;
+    private final ProfileRepository profileRepo;
+    private final GamificationEventService gamificationEventService;
 
-    public CommentService(CommentRepository repo) {
+    public CommentService(CommentRepository repo, PostRepository postRepo, UserRepository userRepo,
+                           ProfileRepository profileRepo, GamificationEventService gamificationEventService) {
         this.repo = repo;
+        this.postRepo = postRepo;
+        this.userRepo = userRepo;
+        this.profileRepo = profileRepo;
+        this.gamificationEventService = gamificationEventService;
     }
 
-    public Page<CommentResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(CoreMappers::toResponse);
+    private User resolveUser(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Debes iniciar sesión");
+        }
+        return userRepo.findByUsernameOrEmail(identifier, identifier)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
     }
 
-    public CommentResponse getById(Integer id) {
-        Comment entity = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
-        return CoreMappers.toResponse(entity);
+    public List<CommentResponse> listByPost(Integer postId) {
+        return repo.findByPostIdOrderByCreatedAtAsc(postId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-    public CommentResponse create(CommentRequest request) {
+    public CommentResponse create(Integer postId, String identifier, CommentRequest request) {
+        User user = resolveUser(identifier);
+
+        if (!postRepo.existsById(postId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicación no encontrada");
+        }
+
         Comment entity = Comment.builder()
-                .postId(request.getPostId())
-                .userId(request.getUserId())
+                .postId(postId)
+                .userId(user.getId())
+                .content(request.getContent())
+                .createdAt(LocalDateTime.now())
                 .build();
-        return CoreMappers.toResponse(repo.save(entity));
+        Comment saved = repo.save(entity);
+
+        gamificationEventService.recordMissionProgress(user.getId(), "comment_posts", 1);
+
+        return toResponse(saved);
     }
 
-    public CommentResponse update(Integer id, CommentRequest request) {
+    public void delete(Integer id, String identifier) {
+        User user = resolveUser(identifier);
         Comment entity = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
-        entity.setPostId(request.getPostId());
-        entity.setUserId(request.getUserId());
-        return CoreMappers.toResponse(repo.save(entity));
-    }
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comentario no encontrado"));
 
-    public void delete(Integer id) {
-        Comment entity = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found"));
+        if (!entity.getUserId().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes eliminar el comentario de otro usuario");
+        }
         repo.delete(entity);
+    }
+
+    private CommentResponse toResponse(Comment entity) {
+        User author = userRepo.findById(entity.getUserId()).orElse(new User());
+        Profile profile = profileRepo.findByUserId(entity.getUserId()).orElse(null);
+
+        return CommentResponse.builder()
+                .id(entity.getId())
+                .postId(entity.getPostId())
+                .userId(entity.getUserId())
+                .authorUsername(author.getHandle())
+                .authorAvatarUrl(profile != null ? profile.getAvatarUrl() : null)
+                .content(entity.getContent())
+                .createdAt(entity.getCreatedAt())
+                .build();
     }
 }

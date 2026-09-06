@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Import;
@@ -15,24 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
-import org.springframework.context.annotation.Import;
 import zentry.back.api.config.SecurityConfig;
 import zentry.back.api.business.controllers.MarketplaceOrdersController;
-import org.springframework.context.annotation.Import;
-import zentry.back.api.config.SecurityConfig;
-import zentry.back.api.business.controllers.MarketplaceProductsController;
-import org.springframework.context.annotation.Import;
-import zentry.back.api.config.SecurityConfig;
-import zentry.back.api.business.controllers.InvoicesController;
-import org.springframework.context.annotation.Import;
-import zentry.back.api.config.SecurityConfig;
-import zentry.back.api.business.controllers.InvoicesItemsController;
-import org.springframework.context.annotation.Import;
-import zentry.back.api.config.SecurityConfig;
-import zentry.back.api.business.controllers.PayoutsController;
-import org.springframework.context.annotation.Import;
-import zentry.back.api.config.SecurityConfig;
-import zentry.back.api.business.controllers.WalletTransactionsController;
 import zentry.back.api.business.dtos.*;
 import zentry.back.api.business.services.*;
 
@@ -46,21 +31,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Grouped test for remaining UUID-based controllers that follow an identical
- * CRUD pattern. Each inner @SuppressWarnings("all")
-class targets a different controller.
- *
- * Note: @Import(SecurityConfig.class)
-@WebMvcTest only loads the specified controller per class, so we have
- * one nested @SpringBootTest-free test per controller here as separate inner
- * test classes with shared assertions pattern but individual @Import(SecurityConfig.class)
-@WebMvcTest slices
- * are declared as separate top-level test classes below.
- */
-// ─── MarketplaceOrders ───────────────────────────────────────────────────────
-@Import(SecurityConfig.class)
+@Import({SecurityConfig.class, TestSecurityBeansConfig.class})
 @WebMvcTest(MarketplaceOrdersController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("MarketplaceOrdersController")
 @SuppressWarnings("all")
 class MarketplaceOrdersControllerTest {

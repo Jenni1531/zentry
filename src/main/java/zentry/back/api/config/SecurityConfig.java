@@ -45,14 +45,24 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**", "/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/core/users/login", "/api/core/users").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/core/profiles/**", "/api/v1/profiles/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/core/communities", "/api/core/communities/**", "/api/v1/communities", "/api/v1/communities/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/core/posts", "/api/core/posts/**", "/api/v1/posts", "/api/v1/posts/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/core/stories", "/api/core/stories/**", "/api/v1/stories", "/api/v1/stories/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/core/categories", "/api/core/categories/**", "/api/v1/categories", "/api/v1/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/core/tags", "/api/core/tags/**", "/api/v1/tags", "/api/v1/tags/**").permitAll()
-                        // Friends, notifications and projects are always personal data - never public, not even GET.
+                        .requestMatchers(HttpMethod.GET, "/api/core/communities", "/api/core/communities/**",
+                                "/api/v1/communities", "/api/v1/communities/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/core/explore/**", "/api/v1/explore/**",
+                                "/api/core/search", "/api/v1/search")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/core/posts", "/api/core/posts/**", "/api/v1/posts",
+                                "/api/v1/posts/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/core/categories", "/api/core/categories/**",
+                                "/api/v1/categories", "/api/v1/categories/**")
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/core/tags", "/api/core/tags/**", "/api/v1/tags",
+                                "/api/v1/tags/**")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
@@ -65,23 +75,23 @@ public class SecurityConfig {
         return (web) -> web
                 .httpFirewall(allowUrlEncodedPercentHttpFirewall())
                 .ignoring().requestMatchers(
-                "/v3/api-docs/**",
-                "/swagger-ui/**",
-                "/api-docs/**",
-                "/swagger-resources/**",
-                "/swagger-ui.html",
-                "/webjars/**");
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/api-docs/**",
+                        "/swagger-resources/**",
+                        "/swagger-ui.html",
+                        "/webjars/**");
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
 
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
         configuration.setAllowCredentials(true);
 

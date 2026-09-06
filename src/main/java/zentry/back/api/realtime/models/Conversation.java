@@ -23,4 +23,7 @@ public class Conversation {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "last_message_at")
+    private LocalDateTime lastMessageAt;
 }

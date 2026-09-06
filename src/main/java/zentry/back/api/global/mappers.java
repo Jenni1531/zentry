@@ -536,7 +536,7 @@ public final class mappers {
         if (entity == null) return null;
         return UserResponse.builder()
                 .id(entity.getId())
-                .username(entity.getUsername())
+                .username(entity.getHandle())
                 .email(entity.getEmail())
                 .build();
     }
@@ -880,6 +880,75 @@ public final class mappers {
                 .build();
     }
 
+    public static AchievementResponse toResponse(Achievement entity) {
+        if (entity == null) return null;
+        return AchievementResponse.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .description(entity.getDescription())
+                .rewardCoins(entity.getRewardCoins())
+                .iconUrl(entity.getIconUrl())
+                .requirementType(entity.getRequirementType())
+                .requirementValue(entity.getRequirementValue())
+                .rarity(entity.getRarity())
+                .category(entity.getCategory())
+                .isSecret(entity.getIsSecret())
+                .secretHint(entity.getSecretHint())
+                .progress(0)
+                .unlocked(false)
+                .build();
+    }
+
+    public static MissionResponse toResponse(Mission entity) {
+        if (entity == null) return null;
+        return MissionResponse.builder()
+                .id(entity.getId())
+                .title(entity.getTitle())
+                .description(entity.getDescription())
+                .rewardCoins(entity.getRewardCoins())
+                .requirementType(entity.getRequirementType())
+                .requirementValue(entity.getRequirementValue())
+                .category(entity.getCategory())
+                .iconName(entity.getIconName())
+                .progress(0)
+                .completed(false)
+                .build();
+    }
+
+    public static StoreItemResponse toResponse(StoreItem entity) {
+        if (entity == null) return null;
+        return StoreItemResponse.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .type(entity.getType())
+                .rarity(entity.getRarity())
+                .price(entity.getPrice())
+                .imageUrl(entity.getImageUrl())
+                .owned(false)
+                .build();
+    }
+
+    public static ProjectMemberResponse toResponse(ProjectMember entity) {
+        if (entity == null) return null;
+        return ProjectMemberResponse.builder()
+                .projectId(entity.getProjectId())
+                .username(entity.getUsername())
+                .role(entity.getRole())
+                .joinedAt(entity.getJoinedAt())
+                .build();
+    }
+
+    public static StorePurchaseResponse toResponse(StorePurchase entity) {
+        if (entity == null) return null;
+        return StorePurchaseResponse.builder()
+                .id(entity.getId())
+                .userId(entity.getUserId())
+                .storeItemId(entity.getStoreItemId())
+                .purchaseDate(entity.getPurchaseDate())
+                .build();
+    }
+
     //#endregion
 
     //#region Realtime
@@ -902,6 +971,7 @@ public final class mappers {
                 .name(entity.getName())
                 .createdBy(entity.getCreatedBy())
                 .createdAt(entity.getCreatedAt())
+                .lastMessageAt(entity.getLastMessageAt())
                 .build();
     }
 
@@ -912,6 +982,7 @@ public final class mappers {
                 .userId(entity.getUserId())
                 .role(entity.getRole())
                 .joinedAt(entity.getJoinedAt())
+                .lastReadAt(entity.getLastReadAt())
                 .build();
     }
 

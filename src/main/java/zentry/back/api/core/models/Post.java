@@ -35,6 +35,10 @@ public class Post {
     @Column(name = "visibility")
     private String visibility;
 
+    // Si no es null, la publicación se creó dentro de esta comunidad
+    @Column(name = "community_id")
+    private Integer communityId;
+
     @ElementCollection
     @CollectionTable(name = "post_tools", schema = "zentry_core", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "tool")

@@ -23,13 +23,14 @@ public class DataSeeder {
                         .username("admin")
                         .email("admin@zentry.com")
                         .password(passwordEncoder.encode("admin123"))
+                        .verified(true)
                         .build();
                 admin = userRepo.save(admin);
                 System.out.println("👤 Usuario Administrador de prueba creado: admin@zentry.com");
             }
 
             Integer adminId = admin.getId();
-            String adminUsername = admin.getUsername();
+            String adminUsername = admin.getHandle();
 
             if (!communityRepo.existsBySlug("eterna") && communityRepo.findBySlugOrNombre("eterna").isEmpty()) {
                 communityRepo.save(Community.builder()

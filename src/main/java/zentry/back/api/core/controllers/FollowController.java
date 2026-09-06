@@ -39,6 +39,20 @@ public class FollowController {
         return ResponseEntity.ok(service.list(pageable));
     }
 
+    @GetMapping("/followers/{username}")
+    @Operation(summary = "Obtener lista de seguidores de un usuario", description = "Retorna una lista de perfiles que siguen al usuario.")
+    public ResponseEntity<java.util.List<zentry.back.api.core.dtos.ProfileResponse>> getFollowers(
+            @Parameter(description = "Username del usuario") @PathVariable String username) {
+        return ResponseEntity.ok(service.getFollowers(username));
+    }
+
+    @GetMapping("/following/{username}")
+    @Operation(summary = "Obtener lista de usuarios seguidos por un usuario", description = "Retorna una lista de perfiles a los que el usuario sigue.")
+    public ResponseEntity<java.util.List<zentry.back.api.core.dtos.ProfileResponse>> getFollowing(
+            @Parameter(description = "Username del usuario") @PathVariable String username) {
+        return ResponseEntity.ok(service.getFollowing(username));
+    }
+
     @GetMapping("/{follower}/{following}")
     @Operation(summary = "Obtener seguimiento por clave compuesta",
                description = "Requiere follower y following para identificar el registro.")
