@@ -13,15 +13,18 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import zentry.back.api.core.dtos.PostRequest;
 import zentry.back.api.core.dtos.PostResponse;
+import zentry.back.api.core.models.Bookmark;
 import zentry.back.api.core.models.Profile;
 import zentry.back.api.core.models.User;
 import zentry.back.api.core.models.Post;
 import zentry.back.api.core.models.PostLike;
+import zentry.back.api.core.repositories.BookmarkRepository;
 import zentry.back.api.core.repositories.CommentRepository;
 import zentry.back.api.core.repositories.PostLikeRepository;
 import zentry.back.api.core.repositories.PostRepository;
@@ -37,17 +40,21 @@ public class PostService {
     private final PostLikeRepository postLikeRepo;
     private final CommentRepository commentRepo;
     private final ProfileRepository profileRepo;
+    private final BookmarkRepository bookmarkRepo;
     private final GamificationEventService gamificationEventService;
+    private final NotificationService notificationService;
 
     public PostService(PostRepository postRepo, UserRepository userRepo, PostLikeRepository postLikeRepo,
-                        CommentRepository commentRepo, ProfileRepository profileRepo,
-                        GamificationEventService gamificationEventService) {
+                        CommentRepository commentRepo, ProfileRepository profileRepo, BookmarkRepository bookmarkRepo,
+                        GamificationEventService gamificationEventService, NotificationService notificationService) {
         this.postRepo = postRepo;
         this.userRepo = userRepo;
         this.postLikeRepo = postLikeRepo;
         this.commentRepo = commentRepo;
         this.profileRepo = profileRepo;
+        this.bookmarkRepo = bookmarkRepo;
         this.gamificationEventService = gamificationEventService;
+        this.notificationService = notificationService;
     }
 
     private String filenameSafeHandle(User user) {
@@ -94,9 +101,77 @@ public class PostService {
         return posts.stream().map(p -> mapToResponse(user, p, user.getId())).collect(Collectors.toList());
     }
 
+    public List<PostResponse> getPostsByUsername(String username, String viewerIdentifier) {
+        User targetUser = findUserByIdentifier(username);
+        Integer viewerId = resolveViewerId(viewerIdentifier);
+        List<Post> posts = postRepo.findByUserIdOrderByCreatedAtDesc(targetUser.getId());
+        return posts.stream().map(p -> mapToResponse(targetUser, p, viewerId)).collect(Collectors.toList());
+    }
+
+    private boolean canViewPrivateList(User targetUser, Integer viewerId, java.util.function.Function<Profile, Boolean> flagGetter) {
+        if (viewerId != null && viewerId.equals(targetUser.getId())) return true;
+        Profile profile = profileRepo.findByUserId(targetUser.getId()).orElse(null);
+        if (profile == null) return true;
+        Boolean flag = flagGetter.apply(profile);
+        return !Boolean.FALSE.equals(flag);
+    }
+
+    public List<PostResponse> getLikedPosts(String username, String viewerIdentifier) {
+        User targetUser = findUserByIdentifier(username);
+        Integer viewerId = resolveViewerId(viewerIdentifier);
+
+        if (!canViewPrivateList(targetUser, viewerId, Profile::getShowLikedPosts)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Este usuario mantiene privadas sus publicaciones con me gusta");
+        }
+
+        List<PostLike> likes = postLikeRepo.findByUserIdOrderByCreatedAtDesc(targetUser.getId());
+        return likes.stream()
+                .map(like -> postRepo.findById(like.getPostId()).orElse(null))
+                .filter(Objects::nonNull)
+                .map(post -> {
+                    User author = userRepo.findById(post.getUserId()).orElse(new User());
+                    return mapToResponse(author, post, viewerId);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<PostResponse> getSavedPosts(String username, String viewerIdentifier) {
+        User targetUser = findUserByIdentifier(username);
+        Integer viewerId = resolveViewerId(viewerIdentifier);
+
+        if (!canViewPrivateList(targetUser, viewerId, Profile::getShowSavedPosts)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Este usuario mantiene privados sus guardados");
+        }
+
+        List<Bookmark> bookmarks = bookmarkRepo.findByUserIdOrderByIdDesc(targetUser.getId());
+        return bookmarks.stream()
+                .map(bookmark -> postRepo.findById(bookmark.getPostId()).orElse(null))
+                .filter(Objects::nonNull)
+                .map(post -> {
+                    User author = userRepo.findById(post.getUserId()).orElse(new User());
+                    return mapToResponse(author, post, viewerId);
+                })
+                .collect(Collectors.toList());
+    }
+
+    public java.util.Map<String, Boolean> toggleBookmark(Integer postId, String identifier) {
+        User user = findUserByIdentifier(identifier);
+        if (!postRepo.existsById(postId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Obra no encontrada");
+        }
+
+        boolean alreadySaved = bookmarkRepo.existsByUserIdAndPostId(user.getId(), postId);
+        if (alreadySaved) {
+            bookmarkRepo.deleteByUserIdAndPostId(user.getId(), postId);
+        } else {
+            bookmarkRepo.save(Bookmark.builder().userId(user.getId()).postId(postId).build());
+        }
+        return java.util.Map.of("saved", !alreadySaved);
+    }
+
     public Page<PostResponse> list(Pageable pageable, String viewerIdentifier) {
         Integer viewerId = resolveViewerId(viewerIdentifier);
-        return postRepo.findAll(pageable).map(post -> {
+        return postRepo.findAllByOrderByCreatedAtDesc(pageable).map(post -> {
             User user = userRepo.findById(post.getUserId()).orElse(new User());
             return mapToResponse(user, post, viewerId);
         });
@@ -264,6 +339,18 @@ public class PostService {
 
             long likesOnPost = postLikeRepo.countByPostId(id);
             gamificationEventService.setAchievementProgressAbsolute(author.getId(), "post_reactions", (int) likesOnPost);
+
+            if (!liker.getId().equals(author.getId())) {
+                Profile likerProfile = profileRepo.findByUserId(liker.getId()).orElse(null);
+                notificationService.notify(
+                        author.getId(),
+                        "like",
+                        "@" + filenameSafeHandle(liker) + " le gustó tu publicación \"" + post.getTitle() + "\"",
+                        liker.getHandle(),
+                        likerProfile != null ? likerProfile.getAvatarUrl() : null,
+                        post.getId()
+                );
+            }
         }
 
         return mapToResponse(author, post, liker.getId());
@@ -325,6 +412,7 @@ public class PostService {
         long likesCount = postLikeRepo.countByPostId(post.getId());
         long commentsCount = commentRepo.countByPostId(post.getId());
         boolean liked = viewerUserId != null && postLikeRepo.existsByPostIdAndUserId(post.getId(), viewerUserId);
+        boolean saved = viewerUserId != null && bookmarkRepo.existsByUserIdAndPostId(viewerUserId, post.getId());
         Profile authorProfile = user.getId() != null ? profileRepo.findByUserId(user.getId()).orElse(null) : null;
 
         return PostResponse.builder()
@@ -346,6 +434,7 @@ public class PostService {
                 .likesCount((int) likesCount)
                 .commentsCount((int) commentsCount)
                 .liked(liked)
+                .saved(saved)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();

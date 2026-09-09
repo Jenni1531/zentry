@@ -246,9 +246,10 @@ public class CommunityService {
         } catch (NumberFormatException ignored) {}
 
         String normalized = identifier.replace("-", " ");
-        return repo.findBySlugOrNombre(identifier)
-                .orElseGet(() -> repo.findByNombreIgnoreCase(normalized)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comunidad no encontrada: " + identifier)));
+        List<Community> matches = repo.findAllBySlugOrNombreMatch(identifier);
+        if (!matches.isEmpty()) return matches.get(0);
+        return repo.findByNombreIgnoreCase(normalized)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comunidad no encontrada: " + identifier));
     }
 
     private String generateSlug(String text) {

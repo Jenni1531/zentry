@@ -74,6 +74,8 @@ public final class CoreMappers {
                 .tools(entity.getTools())
                 .rewardCoins(entity.getRewardCoins())
                 .ownerUsername(entity.getOwnerUsername())
+                .published(Boolean.TRUE.equals(entity.getPublished()))
+                .postId(entity.getPostId())
                 .createdAt(entity.getCreatedAt())
                 .lastEditedAt(entity.getLastEditedAt())
                 .build();
@@ -218,7 +220,13 @@ public final class CoreMappers {
         if (entity == null) return null;
         return NotificationResponse.builder()
                 .id(entity.getId())
-                .userId(entity.getUserId())
+                .type(entity.getType())
+                .content(entity.getContent())
+                .sourceUsername(entity.getSourceUsername())
+                .sourceAvatarUrl(entity.getSourceAvatarUrl())
+                .relatedId(entity.getRelatedId())
+                .read(Boolean.TRUE.equals(entity.getRead()))
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 

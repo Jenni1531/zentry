@@ -47,6 +47,22 @@ public class FriendsController {
         return ResponseEntity.ok(service.getPendingRequests(username));
     }
 
+    @GetMapping("/suggestions")
+    @Operation(summary = "Personas que quizás conozcas", description = "Usuarios reales sin amistad ni solicitud pendiente con el usuario autenticado.")
+    public ResponseEntity<List<FriendUserResponse>> getSuggestions(
+            @RequestParam(required = false, defaultValue = "12") int limit,
+            Principal principal) {
+        String username = principal != null ? principal.getName() : "anonimo";
+        return ResponseEntity.ok(service.getSuggestions(username, limit));
+    }
+
+    @GetMapping("/requests/sent")
+    @Operation(summary = "Obtener solicitudes de amistad enviadas y aún pendientes de respuesta")
+    public ResponseEntity<List<FriendUserResponse>> getSentRequests(Principal principal) {
+        String username = principal != null ? principal.getName() : "anonimo";
+        return ResponseEntity.ok(service.getSentRequests(username));
+    }
+
     @PostMapping("/requests/send")
     @Operation(summary = "Enviar solicitud de amistad o colaboración")
     public ResponseEntity<Map<String, Object>> sendRequest(

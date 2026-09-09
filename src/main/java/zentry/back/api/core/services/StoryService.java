@@ -6,11 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import zentry.back.api.core.dtos.StoryGroupResponse;
+import zentry.back.api.core.dtos.StoryReplyRequest;
 import zentry.back.api.core.dtos.StoryRequest;
 import zentry.back.api.core.dtos.StoryResponse;
 import zentry.back.api.core.models.*;
 import zentry.back.api.core.repositories.*;
 import zentry.back.api.core.mappers.CoreMappers;
+import zentry.back.api.realtime.dtos.MessageRequest;
+import zentry.back.api.realtime.service.ConversationService;
+import zentry.back.api.realtime.service.MessageService;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,18 +32,24 @@ public class StoryService {
     private final StoryLikeRepository storyLikeRepo;
     private final UserRepository userRepo;
     private final ProfileRepository profileRepo;
+    private final ConversationService conversationService;
+    private final MessageService messageService;
 
     public StoryService(
             StoryRepository storyRepo,
             StoryViewRepository storyViewRepo,
             StoryLikeRepository storyLikeRepo,
             UserRepository userRepo,
-            ProfileRepository profileRepo) {
+            ProfileRepository profileRepo,
+            ConversationService conversationService,
+            MessageService messageService) {
         this.storyRepo = storyRepo;
         this.storyViewRepo = storyViewRepo;
         this.storyLikeRepo = storyLikeRepo;
         this.userRepo = userRepo;
         this.profileRepo = profileRepo;
+        this.conversationService = conversationService;
+        this.messageService = messageService;
     }
 
     @Transactional
@@ -228,6 +238,34 @@ public class StoryService {
             storyRepo.save(story);
             return true;
         }
+    }
+
+    @Transactional
+    public void replyToStory(Integer storyId, Integer currentUserId, StoryReplyRequest request) {
+        if (currentUserId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+
+        Story story = storyRepo.findById(storyId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Historia no encontrada"));
+
+        if (story.getUserId().equals(currentUserId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puedes responder a tu propia historia");
+        }
+
+        var conversation = conversationService.startDirect(currentUserId, story.getUserId());
+
+        String preview = story.getCaption() != null && !story.getCaption().isBlank()
+                ? story.getCaption()
+                : ("TEXT".equalsIgnoreCase(story.getMediaType()) ? story.getTextContent() : "tu historia");
+
+        MessageRequest messageRequest = MessageRequest.builder()
+                .conversationId(conversation.getId())
+                .content("↩️ " + (preview != null ? "\"" + preview + "\": " : "") + request.getContent())
+                .type("story")
+                .build();
+
+        messageService.create(messageRequest, currentUserId);
     }
 
     @Transactional

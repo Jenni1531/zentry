@@ -55,16 +55,12 @@ public class AuthController {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado en la base de datos"));
 
+        // La verificación por código solo ocurre una vez, durante el registro.
+        // El login nunca vuelve a pedirlo, incluso si el usuario nunca completó
+        // la verificación: simplemente se le marca como verificado al iniciar sesión.
         if (!Boolean.TRUE.equals(user.getVerified())) {
-            generateAndSendOtp(user);
-            UserResponse response = UserResponse.builder()
-                    .message("Debes verificar tu cuenta. Te enviamos un nuevo código de verificación")
-                    .id(user.getId())
-                    .username(user.getHandle())
-                    .email(user.getEmail())
-                    .requiresVerification(true)
-                    .build();
-            return ResponseEntity.ok(response);
+            user.setVerified(true);
+            userRepository.save(user);
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
@@ -82,6 +78,26 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/change-password")
+    @Transactional
+    public ResponseEntity<?> changePassword(@Valid @RequestBody zentry.back.api.core.dtos.ChangePasswordRequest request,
+                                             java.security.Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña actual no es correcta");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(java.util.Map.of("message", "Contraseña actualizada correctamente"));
     }
 
     @PostMapping("/verify-login")

@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ForumThreadRepository extends JpaRepository<ForumThread, Integer> {
     Page<ForumThread> findByCommunityIdOrderByUpdatedAtDesc(Integer communityId, Pageable pageable);
+    java.util.List<ForumThread> findByCommunityId(Integer communityId);
 }

@@ -31,6 +31,15 @@ public class ProfileController {
         return ResponseEntity.ok(service.searchProfiles(query));
     }
 
+    @GetMapping("/me")
+    @Operation(summary = "Obtener mi propio perfil (usuario autenticado)")
+    public ResponseEntity<ProfileResponse> getMyProfile(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(service.getProfileByUsername(principal.getName(), principal.getName()));
+    }
+
     @GetMapping("/by-user-id/{userId}")
     @Operation(summary = "Obtener perfil por ID numérico de usuario",
                description = "Lectura pública de perfil a partir del ID interno del usuario (útil para resolver participantes de una conversación).")

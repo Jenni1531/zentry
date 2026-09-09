@@ -30,13 +30,15 @@ public class MissionService {
     private final UserMissionRepository userMissionRepo;
     private final WalletService walletService;
     private final GamificationEventService gamificationEventService;
+    private final NotificationService notificationService;
 
     public MissionService(MissionRepository missionRepo, UserMissionRepository userMissionRepo, WalletService walletService,
-                           GamificationEventService gamificationEventService) {
+                           GamificationEventService gamificationEventService, NotificationService notificationService) {
         this.missionRepo = missionRepo;
         this.userMissionRepo = userMissionRepo;
         this.walletService = walletService;
         this.gamificationEventService = gamificationEventService;
+        this.notificationService = notificationService;
     }
 
     @PostConstruct
@@ -164,6 +166,15 @@ public class MissionService {
         userMissionRepo.save(userMission);
 
         gamificationEventService.recordAchievementProgress(userId, "missions_completed", 1);
+
+        notificationService.notify(
+                userId,
+                "reward",
+                "Reclamaste " + mission.getRewardCoins() + " Zentry Coins por completar \"" + mission.getTitle() + "\"",
+                null,
+                null,
+                mission.getId()
+        );
 
         MissionResponse response = mappers.toResponse(mission);
         response.setProgress(userMission.getProgress());

@@ -15,4 +15,6 @@ public interface AdsCampaignsRepository extends JpaRepository<AdsCampaigns, UUID
     List<AdsCampaigns> findByNombreContainingIgnoreCase(String nombre);
 
     boolean existsByUserIdAndNombre(Integer userId, String nombre);
+
+    List<AdsCampaigns> findByIsActiveTrueAndPlacementIn(List<String> placements);
 }

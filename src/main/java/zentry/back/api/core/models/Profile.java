@@ -47,6 +47,18 @@ public class Profile {
     @Column(name = "banner_url")
     private String bannerUrl;
 
+    @Column(name = "is_private", columnDefinition = "boolean default false")
+    @Builder.Default
+    private Boolean isPrivate = false;
+
+    @Column(name = "show_saved_posts", columnDefinition = "boolean default true")
+    @Builder.Default
+    private Boolean showSavedPosts = true;
+
+    @Column(name = "show_liked_posts", columnDefinition = "boolean default true")
+    @Builder.Default
+    private Boolean showLikedPosts = true;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

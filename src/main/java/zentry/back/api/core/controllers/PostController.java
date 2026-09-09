@@ -58,6 +58,36 @@ public class PostController {
         return ResponseEntity.ok(service.getMyPosts(principal.getName()));
     }
 
+    @GetMapping("/by-user/{username}")
+    @Operation(summary = "Obtener publicaciones de un usuario específico (para su perfil público)")
+    public ResponseEntity<List<PostResponse>> getPostsByUsername(@PathVariable String username, Principal principal) {
+        String viewer = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.getPostsByUsername(username, viewer));
+    }
+
+    @GetMapping("/liked/{username}")
+    @Operation(summary = "Obtener publicaciones con me gusta de un usuario", description = "Respeta la preferencia de privacidad del usuario (showLikedPosts)")
+    public ResponseEntity<List<PostResponse>> getLikedPosts(@PathVariable String username, Principal principal) {
+        String viewer = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.getLikedPosts(username, viewer));
+    }
+
+    @GetMapping("/saved/{username}")
+    @Operation(summary = "Obtener publicaciones guardadas de un usuario", description = "Respeta la preferencia de privacidad del usuario (showSavedPosts)")
+    public ResponseEntity<List<PostResponse>> getSavedPosts(@PathVariable String username, Principal principal) {
+        String viewer = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.getSavedPosts(username, viewer));
+    }
+
+    @PostMapping("/{id}/bookmark")
+    @Operation(summary = "Guardar o quitar de guardados una publicación (toggle)")
+    public ResponseEntity<java.util.Map<String, Boolean>> toggleBookmark(@PathVariable Integer id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(service.toggleBookmark(id, principal.getName()));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Obtener publicación por ID")
     @ApiResponses({

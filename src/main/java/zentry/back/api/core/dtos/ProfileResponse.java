@@ -18,6 +18,9 @@ public class ProfileResponse {
     private String bio;
     private String avatarUrl;
     private String bannerUrl;
+    private Boolean isPrivate;
+    private Boolean showSavedPosts;
+    private Boolean showLikedPosts;
     private Integer followersCount;
     private Integer followingCount;
 

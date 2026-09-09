@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import zentry.back.api.core.dtos.InviteMemberRequest;
 import zentry.back.api.core.dtos.NoteRequestDTO;
 import zentry.back.api.core.dtos.ProjectLikeResponse;
@@ -112,15 +114,23 @@ public class ProjectController {
         return ResponseEntity.noContent().build();
     }
 
-    // POST /api/core/projects/{id}/resources -> Añadir recurso
-    @PostMapping("/{id}/resources")
-    @Operation(summary = "Añadir recurso o archivo a un proyecto")
+    // POST /api/core/projects/{id}/resources -> Añadir recurso (archivo real o enlace externo)
+    @PostMapping(value = "/{id}/resources", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
+    @Operation(summary = "Añadir recurso o archivo a un proyecto",
+               description = "Acepta JSON con una URL externa, o multipart con un archivo real que se guarda en el servidor.")
     public ResponseEntity<ProjectResource> addResource(
             @PathVariable Long id,
-            @RequestBody ResourceRequestDTO dto,
+            @RequestPart(value = "data", required = false) ResourceRequestDTO jsonDto,
+            @RequestParam(value = "name", required = false) String nameParam,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             Principal principal) {
         String username = principal != null ? principal.getName() : null;
-        return ResponseEntity.ok(projectService.addResource(id, username, dto));
+        ResourceRequestDTO dto = jsonDto;
+        if (dto == null) {
+            dto = new ResourceRequestDTO();
+            dto.setName(nameParam);
+        }
+        return ResponseEntity.ok(projectService.addResource(id, username, dto, file));
     }
 
     // POST /api/core/projects/{id}/notes -> Añadir nota

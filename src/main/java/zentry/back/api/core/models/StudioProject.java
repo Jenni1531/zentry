@@ -44,6 +44,13 @@ public class StudioProject {
     @Column(name = "owner_username", nullable = false, length = 100)
     private String ownerUsername;
 
+    @Column(name = "published", columnDefinition = "boolean default false")
+    @Builder.Default
+    private Boolean published = false;
+
+    @Column(name = "post_id")
+    private Integer postId;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

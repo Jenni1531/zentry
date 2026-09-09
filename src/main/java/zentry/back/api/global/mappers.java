@@ -516,6 +516,13 @@ public final class mappers {
                 .id(entity.getId())
                 .userId(entity.getUserId())
                 .nombre(entity.getNombre())
+                .headline(entity.getHeadline())
+                .body(entity.getBody())
+                .imageUrl(entity.getImageUrl())
+                .linkUrl(entity.getLinkUrl())
+                .ctaLabel(entity.getCtaLabel())
+                .placement(entity.getPlacement())
+                .isActive(entity.getIsActive())
                 .build();
     }
 
@@ -599,6 +606,8 @@ public final class mappers {
                 .tools(entity.getTools())
                 .rewardCoins(entity.getRewardCoins())
                 .ownerUsername(entity.getOwnerUsername())
+                .published(Boolean.TRUE.equals(entity.getPublished()))
+                .postId(entity.getPostId())
                 .createdAt(entity.getCreatedAt())
                 .lastEditedAt(entity.getLastEditedAt())
                 .build();
@@ -743,7 +752,13 @@ public final class mappers {
         if (entity == null) return null;
         return NotificationResponse.builder()
                 .id(entity.getId())
-                .userId(entity.getUserId())
+                .type(entity.getType())
+                .content(entity.getContent())
+                .sourceUsername(entity.getSourceUsername())
+                .sourceAvatarUrl(entity.getSourceAvatarUrl())
+                .relatedId(entity.getRelatedId())
+                .read(Boolean.TRUE.equals(entity.getRead()))
+                .createdAt(entity.getCreatedAt())
                 .build();
     }
 

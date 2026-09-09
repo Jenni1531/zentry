@@ -106,12 +106,39 @@ public class StudioController {
         @ApiResponse(responseCode = "403", description = "No autorizado", content = @Content),
         @ApiResponse(responseCode = "404", description = "Proyecto no encontrado", content = @Content)
     })
-    @PutMapping("/projects/{id}")
+    @PutMapping(value = "/projects/{id}", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<StudioProjectResponse> updateProject(
             @PathVariable Integer id,
-            @Valid @RequestBody StudioProjectRequest request,
+            @RequestPart(value = "data", required = false) @Valid StudioProjectRequest jsonRequest,
+            @RequestParam(value = "title", required = false) String titleParam,
+            @RequestParam(value = "description", required = false) String descriptionParam,
+            @RequestParam(value = "contentData", required = false) String contentDataParam,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             Principal principal) {
-        return ResponseEntity.ok(service.updateProject(id, principal.getName(), request));
+
+        StudioProjectRequest request = jsonRequest;
+        if (request == null) {
+            request = StudioProjectRequest.builder()
+                    .title(titleParam)
+                    .description(descriptionParam)
+                    .contentData(contentDataParam)
+                    .build();
+        }
+
+        return ResponseEntity.ok(service.updateProject(id, principal.getName(), request, file));
+    }
+
+    @Operation(summary = "Publicar un proyecto del estudio al feed principal", description = "Crea una publicación real en el feed a partir del proyecto y lo marca como publicado (deja de ser borrador).")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Proyecto publicado exitosamente"),
+        @ApiResponse(responseCode = "403", description = "No es el propietario", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Proyecto no encontrado", content = @Content)
+    })
+    @PostMapping("/projects/{id}/publish")
+    public ResponseEntity<StudioProjectResponse> publishProject(
+            @PathVariable Integer id,
+            Principal principal) {
+        return ResponseEntity.ok(service.publishProject(id, principal.getName()));
     }
 
     @Operation(summary = "Eliminar proyecto del estudio")

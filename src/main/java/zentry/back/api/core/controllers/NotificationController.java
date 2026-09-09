@@ -1,26 +1,24 @@
 package zentry.back.api.core.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import zentry.back.api.core.dtos.NotificationRequest;
 import zentry.back.api.core.dtos.NotificationResponse;
 import zentry.back.api.core.services.NotificationService;
 
+import java.security.Principal;
+
 @RestController
-@RequestMapping("/api/core/notifications")
-@Tag(name = "Notifications", description = "Gestión de notificaciones de usuarios")
+@RequestMapping({"/api/core/notifications", "/api/v1/notifications"})
+@Tag(name = "Notifications", description = "Notificaciones del usuario autenticado (likes, comentarios, seguidores, solicitudes de amistad)")
 public class NotificationController {
 
     private final NotificationService service;
@@ -30,58 +28,51 @@ public class NotificationController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar notificaciones")
+    @Operation(summary = "Listar mis notificaciones", description = "Devuelve únicamente las notificaciones del usuario autenticado, nunca las de otros usuarios.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente"),
-        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content)
+        @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
     })
-    public ResponseEntity<Page<NotificationResponse>> list(@PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(service.list(pageable));
+    public ResponseEntity<Page<NotificationResponse>> list(
+            @PageableDefault(size = 30) Pageable pageable,
+            Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(service.list(principal.getName(), pageable));
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Obtener notificación por ID")
+    @PutMapping("/{id}/read")
+    @Operation(summary = "Marcar una notificación como leída")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Notificación encontrada"),
-        @ApiResponse(responseCode = "404", description = "No encontrada", content = @Content)
+        @ApiResponse(responseCode = "200", description = "Marcada como leída"),
+        @ApiResponse(responseCode = "404", description = "No encontrada o no pertenece al usuario", content = @Content)
     })
-    public ResponseEntity<NotificationResponse> getById(
-            @Parameter(description = "ID de la notificación") @PathVariable Integer id) {
-        return ResponseEntity.ok(service.getById(id));
+    public ResponseEntity<Void> markAsRead(@PathVariable Integer id, Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        service.markAsRead(id, principal.getName());
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping
-    @Operation(summary = "Crear notificación")
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Creada exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content)
-    })
-    public ResponseEntity<NotificationResponse> create(@Valid @RequestBody NotificationRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
+    @PutMapping("/read-all")
+    @Operation(summary = "Marcar todas mis notificaciones como leídas")
+    public ResponseEntity<Void> markAllAsRead(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        service.markAllAsRead(principal.getName());
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Actualizar notificación")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Actualizada exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
-        @ApiResponse(responseCode = "404", description = "No encontrada", content = @Content)
-    })
-    public ResponseEntity<NotificationResponse> update(
-            @Parameter(description = "ID de la notificación") @PathVariable Integer id,
-            @Valid @RequestBody NotificationRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar notificación")
-    @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Eliminada exitosamente"),
-        @ApiResponse(responseCode = "404", description = "No encontrada", content = @Content)
-    })
-    public ResponseEntity<Void> delete(
-            @Parameter(description = "ID de la notificación") @PathVariable Integer id) {
-        service.delete(id);
+    @DeleteMapping
+    @Operation(summary = "Vaciar mi bandeja de notificaciones")
+    public ResponseEntity<Void> clearAll(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        service.clearAll(principal.getName());
         return ResponseEntity.noContent().build();
     }
 }

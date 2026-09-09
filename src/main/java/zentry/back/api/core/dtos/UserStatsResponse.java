@@ -31,4 +31,12 @@ public class UserStatsResponse {
 
     @JsonProperty("reputation_score")
     private long reputationScore;
+
+    private String rank;
+
+    @JsonProperty("rank_min_score")
+    private long rankMinScore;
+
+    @JsonProperty("next_rank_score")
+    private Long nextRankScore;
 }

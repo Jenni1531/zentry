@@ -26,14 +26,17 @@ public class CommentService {
     private final UserRepository userRepo;
     private final ProfileRepository profileRepo;
     private final GamificationEventService gamificationEventService;
+    private final NotificationService notificationService;
 
     public CommentService(CommentRepository repo, PostRepository postRepo, UserRepository userRepo,
-                           ProfileRepository profileRepo, GamificationEventService gamificationEventService) {
+                           ProfileRepository profileRepo, GamificationEventService gamificationEventService,
+                           NotificationService notificationService) {
         this.repo = repo;
         this.postRepo = postRepo;
         this.userRepo = userRepo;
         this.profileRepo = profileRepo;
         this.gamificationEventService = gamificationEventService;
+        this.notificationService = notificationService;
     }
 
     private User resolveUser(String identifier) {
@@ -53,9 +56,8 @@ public class CommentService {
     public CommentResponse create(Integer postId, String identifier, CommentRequest request) {
         User user = resolveUser(identifier);
 
-        if (!postRepo.existsById(postId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicación no encontrada");
-        }
+        zentry.back.api.core.models.Post post = postRepo.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Publicación no encontrada"));
 
         Comment entity = Comment.builder()
                 .postId(postId)
@@ -66,6 +68,18 @@ public class CommentService {
         Comment saved = repo.save(entity);
 
         gamificationEventService.recordMissionProgress(user.getId(), "comment_posts", 1);
+
+        if (!post.getUserId().equals(user.getId())) {
+            Profile commenterProfile = profileRepo.findByUserId(user.getId()).orElse(null);
+            notificationService.notify(
+                    post.getUserId(),
+                    "comment",
+                    "@" + user.getHandle() + " comentó tu publicación \"" + post.getTitle() + "\"",
+                    user.getHandle(),
+                    commenterProfile != null ? commenterProfile.getAvatarUrl() : null,
+                    post.getId()
+            );
+        }
 
         return toResponse(saved);
     }

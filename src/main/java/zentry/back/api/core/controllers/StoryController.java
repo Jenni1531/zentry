@@ -10,7 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.validation.Valid;
 import zentry.back.api.core.dtos.StoryGroupResponse;
+import zentry.back.api.core.dtos.StoryReplyRequest;
 import zentry.back.api.core.dtos.StoryRequest;
 import zentry.back.api.core.dtos.StoryResponse;
 import zentry.back.api.core.models.User;
@@ -101,6 +103,17 @@ public class StoryController {
         Integer currentUserId = resolveUserId(principal);
         boolean isLiked = service.toggleLike(id, currentUserId);
         return ResponseEntity.ok(Map.of("success", true, "is_liked", isLiked));
+    }
+
+    @PostMapping("/{id}/reply")
+    @Operation(summary = "Responder a una historia", description = "Envía un mensaje directo real al dueño de la historia, igual que un DM de respuesta en Instagram.")
+    public ResponseEntity<?> replyToStory(
+            @PathVariable Integer id,
+            @Valid @RequestBody StoryReplyRequest request,
+            Principal principal) {
+        Integer currentUserId = resolveUserId(principal);
+        service.replyToStory(id, currentUserId, request);
+        return ResponseEntity.ok(Map.of("success", true));
     }
 
     @DeleteMapping("/{id}")

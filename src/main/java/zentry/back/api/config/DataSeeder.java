@@ -6,16 +6,30 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import zentry.back.api.core.models.Community;
 import zentry.back.api.core.models.User;
+import zentry.back.api.core.repositories.CommunityMemberRepository;
 import zentry.back.api.core.repositories.CommunityRepository;
+import zentry.back.api.core.repositories.ForumReplyRepository;
+import zentry.back.api.core.repositories.ForumThreadRepository;
+import zentry.back.api.core.repositories.PostRepository;
 import zentry.back.api.core.repositories.UserRepository;
+import zentry.back.api.business.services.AdsCampaignsService;
 
 import java.util.List;
 
 @Configuration
 public class DataSeeder {
 
+    // Comunidades de muestra que se sembraron en sesiones anteriores y ya no queremos:
+    // se eliminan (junto con sus miembros/hilos/posts huérfanos) en cada arranque.
+    private static final List<String> RETIRED_SAMPLE_SLUGS = List.of(
+            "eterna", "ui-ux-designers", "digital-art", "zentry-network", "zentry-creators"
+    );
+
     @Bean
-    CommandLineRunner initDatabase(CommunityRepository communityRepo, UserRepository userRepo, PasswordEncoder passwordEncoder) {
+    CommandLineRunner initDatabase(CommunityRepository communityRepo, UserRepository userRepo, PasswordEncoder passwordEncoder,
+                                    CommunityMemberRepository communityMemberRepo, ForumThreadRepository forumThreadRepo,
+                                    ForumReplyRepository forumReplyRepo, PostRepository postRepo,
+                                    AdsCampaignsService adsCampaignsService) {
         return args -> {
             User admin = userRepo.findByEmail("admin@zentry.com").orElse(null);
             if (admin == null) {
@@ -32,96 +46,52 @@ public class DataSeeder {
             Integer adminId = admin.getId();
             String adminUsername = admin.getHandle();
 
-            if (!communityRepo.existsBySlug("eterna") && communityRepo.findBySlugOrNombre("eterna").isEmpty()) {
-                communityRepo.save(Community.builder()
-                        .slug("eterna")
-                        .nombre("Eterna")
-                        .descripcion("Comunidad oficial dedicada al arte digital, diseño conceptual y experiencias creativas Eterna.")
-                        .categoria("Arte Digital")
-                        .avatarUrl("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500")
-                        .bannerUrl("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200")
-                        .imageUrl("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500")
-                        .creatorId(adminId)
-                        .ownerUsername(adminUsername)
-                        .rules(List.of(
-                                "Respeto mutuo y trato profesional entre creadores",
-                                "Publicar únicamente contenido y arte original o con licencia adecuada",
-                                "No realizar spam ni contenido no relacionado con la comunidad"
-                        ))
-                        .build());
+            for (String slug : RETIRED_SAMPLE_SLUGS) {
+                // Usamos la variante que devuelve una lista: puede haber más de una
+                // fila duplicada de siembras anteriores, y la versión Optional lanza
+                // una excepción (NonUniqueResultException) si encuentra más de una.
+                for (Community community : communityRepo.findAllBySlugOrNombreMatch(slug)) {
+                    Integer communityId = community.getId();
+                    forumThreadRepo.findByCommunityId(communityId).forEach(thread -> {
+                        forumReplyRepo.deleteByThreadId(thread.getId());
+                    });
+                    forumThreadRepo.deleteAll(forumThreadRepo.findByCommunityId(communityId));
+                    postRepo.deleteAll(postRepo.findByCommunityId(communityId));
+                    communityMemberRepo.deleteByCommunityId(communityId);
+                    communityRepo.delete(community);
+                    System.out.println("🧹 Comunidad de muestra eliminada: " + community.getNombre());
+                }
             }
 
-            if (!communityRepo.existsBySlug("ui-ux-designers") && communityRepo.findBySlugOrNombre("ui-ux-designers").isEmpty()) {
-                communityRepo.save(Community.builder()
-                        .slug("ui-ux-designers")
-                        .nombre("UI/UX Designers")
-                        .descripcion("Comunidad para diseñadores de interfaz y experiencia de usuario. Comparte wireframes, design systems y prototipos.")
-                        .categoria("Diseño UI/UX")
-                        .avatarUrl("https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=500")
-                        .bannerUrl("https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=1200")
-                        .imageUrl("https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=500")
-                        .creatorId(adminId)
-                        .ownerUsername(adminUsername)
-                        .rules(List.of(
-                                "Dar feedback constructivo sobre diseños",
-                                "Respetar derechos de autor en recursos compartidos"
-                        ))
-                        .build());
+            List<Community> existingZentry = communityRepo.findAllBySlugOrNombreMatch("zentry");
+            if (existingZentry.size() > 1) {
+                // Deja solo la primera si por algún motivo quedaron duplicados.
+                for (int i = 1; i < existingZentry.size(); i++) {
+                    communityRepo.delete(existingZentry.get(i));
+                }
             }
-
-            if (!communityRepo.existsBySlug("digital-art") && communityRepo.findBySlugOrNombre("digital-art").isEmpty()) {
+            if (existingZentry.isEmpty()) {
                 communityRepo.save(Community.builder()
-                        .slug("digital-art")
-                        .nombre("Digital Art")
-                        .descripcion("Espacio para artistas digitales, ilustradores y diseñadores 3D. Comparte tu flujo de trabajo y recibe feedback.")
-                        .categoria("Arte y Diseño")
-                        .avatarUrl("https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500")
-                        .bannerUrl("https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=1200")
-                        .imageUrl("https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500")
-                        .creatorId(adminId)
-                        .ownerUsername(adminUsername)
-                        .rules(List.of(
-                                "Muestra siempre el proceso de creación si es solicitado",
-                                "Cita tus herramientas y recursos utilizados"
-                        ))
-                        .build());
-            }
-
-            if (!communityRepo.existsBySlug("zentry-network") && communityRepo.findBySlugOrNombre("zentry-network").isEmpty()) {
-                communityRepo.save(Community.builder()
-                        .slug("zentry-network")
-                        .nombre("Zentry Network")
-                        .descripcion("El espacio oficial para discutir sobre la plataforma, compartir ideas para el sistema de Learning Analytics y conectar con los fundadores.")
+                        .slug("zentry")
+                        .nombre("Zentry")
+                        .descripcion("Comunidad oficial de prueba de Zentry. Habla sobre la plataforma, comparte ideas, reporta bugs y conecta con el equipo.")
                         .categoria("Oficial")
-                        .avatarUrl("https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=500")
-                        .bannerUrl("https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200")
-                        .imageUrl("https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=500")
                         .creatorId(adminId)
                         .ownerUsername(adminUsername)
                         .rules(List.of(
-                                "Comentarios y retroalimentación respetuosa sobre la plataforma"
+                                "Respeto mutuo entre todos los miembros",
+                                "Comentarios y sugerencias constructivas sobre la plataforma"
                         ))
                         .build());
+                System.out.println("🌱 Comunidad de prueba 'Zentry' creada.");
             }
 
-            if (!communityRepo.existsBySlug("zentry-creators") && communityRepo.findBySlugOrNombre("zentry-creators").isEmpty()) {
-                communityRepo.save(Community.builder()
-                        .slug("zentry-creators")
-                        .nombre("Zentry Creators")
-                        .descripcion("Comunidad exclusiva para artistas digitales y desarrolladores. Comparte tu portafolio, recibe feedback y gana recompensas (ZC).")
-                        .categoria("Arte y Desarrollo")
-                        .avatarUrl("https://images.unsplash.com/photo-1552664730-d307ca884978?w=500")
-                        .bannerUrl("https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200")
-                        .imageUrl("https://images.unsplash.com/photo-1552664730-d307ca884978?w=500")
-                        .creatorId(adminId)
-                        .ownerUsername(adminUsername)
-                        .rules(List.of(
-                                "Colaboración libre entre miembros de la red Zentry"
-                        ))
-                        .build());
-            }
-
-            System.out.println("🌱 Comunidades oficiales de Zentry (incluyendo 'UI/UX Designers', 'Eterna' y 'Digital Art') verificadas y sincronizadas.");
+            // Se llama aquí (no @PostConstruct en el propio servicio) porque los CommandLineRunner
+            // se ejecutan después de que todos los beans terminan su inicialización: si el usuario
+            // admin@zentry.com no existía aún, un @PostConstruct en AdsCampaignsService se ejecutaría
+            // ANTES de que este runner lo creara arriba, y la siembra de anuncios se saltaría siempre
+            // en una base de datos nueva.
+            adsCampaignsService.seedHouseAds();
         };
     }
 }

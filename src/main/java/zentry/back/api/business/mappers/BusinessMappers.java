@@ -210,6 +210,13 @@ public final class BusinessMappers {
                 .id(entity.getId())
                 .userId(entity.getUserId())
                 .nombre(entity.getNombre())
+                .headline(entity.getHeadline())
+                .body(entity.getBody())
+                .imageUrl(entity.getImageUrl())
+                .linkUrl(entity.getLinkUrl())
+                .ctaLabel(entity.getCtaLabel())
+                .placement(entity.getPlacement())
+                .isActive(entity.getIsActive())
                 .build();
     }
 

@@ -31,6 +31,20 @@ public class AdsCampaignsController {
         this.service = service;
     }
 
+    @Operation(summary = "Obtener anuncios activos para un lugar del front", description = "placement: FEED, SIDEBAR o BOTH (por defecto BOTH).")
+    @GetMapping("/active")
+    public ResponseEntity<java.util.List<AdsCampaignsResponse>> getActiveAds(
+            @RequestParam(value = "placement", required = false) String placement) {
+        return ResponseEntity.ok(service.getActiveAds(placement));
+    }
+
+    @Operation(summary = "Registrar una impresión (vista) de un anuncio")
+    @PostMapping("/{id}/impression")
+    public ResponseEntity<Void> recordImpression(@PathVariable UUID id) {
+        service.recordImpression(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "Listar campañas publicitarias")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente"),

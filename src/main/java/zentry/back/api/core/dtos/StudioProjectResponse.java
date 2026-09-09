@@ -18,6 +18,8 @@ public class StudioProjectResponse {
     private List<String> tools;
     private Integer rewardCoins;
     private String ownerUsername;
+    private Boolean published;
+    private Integer postId;
     private LocalDateTime createdAt;
     private LocalDateTime lastEditedAt;
 }

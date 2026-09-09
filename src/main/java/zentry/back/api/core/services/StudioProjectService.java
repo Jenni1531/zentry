@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import zentry.back.api.core.dtos.PostRequest;
 import zentry.back.api.core.dtos.StudioProjectRequest;
 import zentry.back.api.core.dtos.StudioProjectResponse;
 import zentry.back.api.core.models.ContentType;
@@ -28,10 +29,12 @@ public class StudioProjectService {
 
     private final StudioProjectRepository repo;
     private final UserRepository userRepo;
+    private final PostService postService;
 
-    public StudioProjectService(StudioProjectRepository repo, UserRepository userRepo) {
+    public StudioProjectService(StudioProjectRepository repo, UserRepository userRepo, PostService postService) {
         this.repo = repo;
         this.userRepo = userRepo;
+        this.postService = postService;
     }
 
     public List<StudioProjectResponse> getUserProjects(String userEmail, ContentType type) {
@@ -83,7 +86,7 @@ public class StudioProjectService {
         return CoreMappers.toResponse(project);
     }
 
-    public StudioProjectResponse updateProject(Integer id, String userEmail, StudioProjectRequest request) {
+    public StudioProjectResponse updateProject(Integer id, String userEmail, StudioProjectRequest request, MultipartFile file) {
         User user = findUserByEmail(userEmail);
         String username = user.getUsername() != null ? user.getUsername() : userEmail;
 
@@ -106,7 +109,9 @@ public class StudioProjectService {
         if (request.getType() != null) {
             project.setType(request.getType());
         }
-        if (request.getMediaUrl() != null) {
+        if (file != null && !file.isEmpty()) {
+            project.setMediaUrl("/uploads/studio/" + saveFile(file));
+        } else if (request.getMediaUrl() != null) {
             project.setMediaUrl(request.getMediaUrl());
         }
         if (request.getTools() != null) {
@@ -115,6 +120,47 @@ public class StudioProjectService {
 
         StudioProject updated = repo.save(project);
         return CoreMappers.toResponse(updated);
+    }
+
+    public StudioProjectResponse publishProject(Integer id, String userEmail) {
+        User user = findUserByEmail(userEmail);
+        String username = user.getUsername() != null ? user.getUsername() : userEmail;
+
+        StudioProject project = repo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proyecto no encontrado"));
+
+        if (!project.getOwnerUsername().equalsIgnoreCase(username) && !project.getOwnerUsername().equalsIgnoreCase(userEmail)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para publicar este proyecto");
+        }
+
+        if (Boolean.TRUE.equals(project.getPublished())) {
+            return CoreMappers.toResponse(project);
+        }
+
+        String contentType = switch (project.getType()) {
+            case CANVAS -> "image";
+            case DOCUMENT -> "text";
+            case IMAGE -> "image";
+            case VIDEO -> "video";
+            case AUDIO -> "audio";
+        };
+
+        PostRequest postRequest = PostRequest.builder()
+                .title(project.getTitle())
+                .contenido(project.getDescription())
+                .contentType(contentType)
+                .visibility("public")
+                .imageUrl(project.getMediaUrl())
+                .thumbnailUrl(project.getMediaUrl())
+                .tools(project.getTools() != null ? String.join(",", project.getTools()) : null)
+                .build();
+
+        var createdPost = postService.create(userEmail, postRequest);
+
+        project.setPublished(true);
+        project.setPostId(createdPost.getId());
+        StudioProject saved = repo.save(project);
+        return CoreMappers.toResponse(saved);
     }
 
     public void deleteProject(Integer id, String userEmail) {

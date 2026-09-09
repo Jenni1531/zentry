@@ -32,11 +32,13 @@ public class ProfileService {
 
     private final FollowRepository followRepo;
     private final GamificationEventService gamificationEventService;
+    private final NotificationService notificationService;
 
     public ProfileService(ProfileRepository profileRepo, UserRepository userRepo, FollowRepository followRepo,
-                           GamificationEventService gamificationEventService) {
+                           GamificationEventService gamificationEventService, NotificationService notificationService) {
         this.profileRepo = profileRepo;
         this.userRepo = userRepo;
+        this.notificationService = notificationService;
         this.followRepo = followRepo;
         this.gamificationEventService = gamificationEventService;
     }
@@ -164,6 +166,16 @@ public class ProfileService {
             isFollowing = true;
 
             gamificationEventService.recordMissionProgress(followerUser.getId(), "follow_users", 1);
+
+            Profile followerProfile = profileRepo.findByUserId(followerUser.getId()).orElse(null);
+            notificationService.notify(
+                    targetUser.getId(),
+                    "follow",
+                    "@" + followerUser.getHandle() + " comenzó a seguirte",
+                    followerUser.getHandle(),
+                    followerProfile != null ? followerProfile.getAvatarUrl() : null,
+                    followerUser.getId()
+            );
         }
 
         long followersCount = followRepo.countByFollowing(targetUser.getId());
@@ -250,6 +262,13 @@ public class ProfileService {
             }
         }
 
+        if (request.getIsPrivate() != null)
+            profile.setIsPrivate(request.getIsPrivate());
+        if (request.getShowSavedPosts() != null)
+            profile.setShowSavedPosts(request.getShowSavedPosts());
+        if (request.getShowLikedPosts() != null)
+            profile.setShowLikedPosts(request.getShowLikedPosts());
+
         Profile savedProfile = profileRepo.save(profile);
 
         gamificationEventService.recordMissionProgress(user.getId(), "update_profile", 1);
@@ -314,6 +333,9 @@ public class ProfileService {
                 .bio(profile.getBio())
                 .avatarUrl(profile.getAvatarUrl())
                 .bannerUrl(profile.getBannerUrl())
+                .isPrivate(Boolean.TRUE.equals(profile.getIsPrivate()))
+                .showSavedPosts(!Boolean.FALSE.equals(profile.getShowSavedPosts()))
+                .showLikedPosts(!Boolean.FALSE.equals(profile.getShowLikedPosts()))
                 .followersCount(0)
                 .followingCount(0)
                 .isFollowing(false)

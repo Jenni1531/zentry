@@ -30,6 +30,15 @@ public class ProfileRequest {
     private MultipartFile avatar;
     private MultipartFile banner;
 
+    @JsonAlias({"is_private", "private"})
+    private Boolean isPrivate;
+
+    @JsonAlias({"show_saved_posts"})
+    private Boolean showSavedPosts;
+
+    @JsonAlias({"show_liked_posts"})
+    private Boolean showLikedPosts;
+
     public String getName() {
         if (name != null && !name.isBlank()) return name;
         if (displayName != null && !displayName.isBlank()) return displayName;

@@ -234,18 +234,37 @@ public class ProjectService {
         projectRepository.save(project);
     }
 
-    // 9. Agregar Recurso
+    // 9. Agregar Recurso (archivo real subido al servidor, o enlace externo)
     @Transactional
-    public ProjectResource addResource(Long projectId, String username, ResourceRequestDTO dto) {
+    public ProjectResource addResource(Long projectId, String username, ResourceRequestDTO dto,
+                                        org.springframework.web.multipart.MultipartFile file) {
         String cleanUser = requireUsername(username);
         Project project = findProjectOrThrow(projectId);
         assertAccess(project, cleanUser);
 
+        String name = dto.getName();
+        String type = dto.getType();
+        String size = dto.getSize();
+        String url = dto.getUrl();
+
+        if (file != null && !file.isEmpty()) {
+            String originalFilename = file.getOriginalFilename();
+            String extension = originalFilename != null && originalFilename.contains(".")
+                    ? originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toUpperCase()
+                    : "BIN";
+            url = "/uploads/projects/" + saveResourceFile(file);
+            type = extension;
+            size = formatFileSize(file.getSize());
+            if (name == null || name.isBlank()) {
+                name = originalFilename != null ? originalFilename : "Archivo";
+            }
+        }
+
         ProjectResource res = ProjectResource.builder()
-                .name(dto.getName() != null ? dto.getName() : "Archivo")
-                .type(dto.getType() != null ? dto.getType() : "PDF")
-                .size(dto.getSize() != null ? dto.getSize() : "1.0 MB")
-                .url(dto.getUrl())
+                .name(name != null ? name : "Archivo")
+                .type(type != null ? type : "LINK")
+                .size(size != null ? size : "—")
+                .url(url)
                 .uploadedBy(cleanUser)
                 .uploadedAt(LocalDateTime.now())
                 .project(project)
@@ -404,6 +423,34 @@ public class ProjectService {
                 .liked(liked)
                 .likesCount(projectLikeRepository.countByProjectId(projectId))
                 .build();
+    }
+
+    private String saveResourceFile(org.springframework.web.multipart.MultipartFile file) {
+        try {
+            java.nio.file.Path uploadPath = java.nio.file.Paths.get("uploads/projects");
+            if (!java.nio.file.Files.exists(uploadPath)) {
+                java.nio.file.Files.createDirectories(uploadPath);
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String extension = originalFilename != null && originalFilename.contains(".")
+                    ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                    : ".bin";
+            String newFilename = "resource_" + java.util.UUID.randomUUID().toString().substring(0, 8) + extension;
+
+            java.nio.file.Path filePath = uploadPath.resolve(newFilename);
+            java.nio.file.Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+            return newFilename;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar el archivo del recurso", e);
+        }
+    }
+
+    private String formatFileSize(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
+        return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
     }
 
     private Project findProjectOrThrow(Long id) {

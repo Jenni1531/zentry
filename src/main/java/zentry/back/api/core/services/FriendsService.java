@@ -34,6 +34,8 @@ public class FriendsService {
 
     private final PostRepository postRepo;
     private final FollowRepository followRepo;
+    private final WalletService walletService;
+    private final NotificationService notificationService;
 
     public FriendsService(
             UserRepository userRepo,
@@ -42,11 +44,15 @@ public class FriendsService {
             FriendshipRepository friendshipRepo,
 
             PostRepository postRepo,
-            FollowRepository followRepo) {
+            FollowRepository followRepo,
+            WalletService walletService,
+            NotificationService notificationService) {
         this.userRepo = userRepo;
         this.profileRepo = profileRepo;
         this.friendRequestRepo = friendRequestRepo;
         this.friendshipRepo = friendshipRepo;
+        this.walletService = walletService;
+        this.notificationService = notificationService;
 
         this.postRepo = postRepo;
         this.followRepo = followRepo;
@@ -97,6 +103,29 @@ public class FriendsService {
         }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+    public List<FriendUserResponse> getSentRequests(String identifier) {
+        User currentUser = resolveUser(identifier);
+        List<FriendRequest> requests = friendRequestRepo.findByUser1(currentUser.getId());
+
+        return requests.stream().map(req -> {
+            User target = userRepo.findById(req.getUser2()).orElse(null);
+            if (target == null) return null;
+
+            Profile profile = profileRepo.findByUserId(target.getId()).orElse(new Profile());
+
+            return FriendUserResponse.builder()
+                    .id(target.getId())
+                    .requestId(req.getId())
+                    .username(target.getHandle())
+                    .name(profile.getName() != null ? profile.getName() : target.getHandle())
+                    .avatarUrl(profile.getAvatarUrl())
+                    .discipline(profile.getDiscipline() != null ? profile.getDiscipline() : "Creador Digital")
+                    .status("pending")
+                    .projectTitle("Solicitud enviada")
+                    .build();
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
     public Map<String, Object> sendRequest(String identifier, SendFriendRequestDTO dto) {
         User sender = resolveUser(identifier);
         User target;
@@ -137,6 +166,16 @@ public class FriendsService {
                 .build();
         FriendRequest saved = friendRequestRepo.save(req);
 
+        Profile senderProfile = profileRepo.findByUserId(sender.getId()).orElse(null);
+        notificationService.notify(
+                target.getId(),
+                "friend_request",
+                "@" + sender.getHandle() + " te envió una solicitud de amistad",
+                sender.getHandle(),
+                senderProfile != null ? senderProfile.getAvatarUrl() : null,
+                saved.getId()
+        );
+
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
         result.put("message", "Solicitud de amistad enviada con éxito");
@@ -166,6 +205,16 @@ public class FriendsService {
 
         // Eliminar solicitud
         friendRequestRepo.delete(req);
+
+        Profile accepterProfile = profileRepo.findByUserId(currentUser.getId()).orElse(null);
+        notificationService.notify(
+                friendId,
+                "friend_accept",
+                "@" + currentUser.getHandle() + " aceptó tu solicitud de amistad",
+                currentUser.getHandle(),
+                accepterProfile != null ? accepterProfile.getAvatarUrl() : null,
+                currentUser.getId()
+        );
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -218,6 +267,7 @@ public class FriendsService {
                 // Si aún no tiene amigos agregados, mostrar otros creadores de la comunidad que estén EN LÍNEA (excluyendo a sí mismo)
                 return userRepo.findAll().stream()
                         .filter(u -> !u.getId().equals(currentUser.getId()))
+                        .filter(u -> !isSeedAdmin(u))
                         .filter(u -> isUserOnline(u.getId()))
                         .limit(8)
                         .map(u -> mapUserToFriendResponse(u, false))
@@ -229,6 +279,7 @@ public class FriendsService {
         if (friendIds.isEmpty()) {
             return userRepo.findAll().stream()
                     .filter(u -> !u.getId().equals(currentUser.getId()))
+                    .filter(u -> !isSeedAdmin(u))
                     .limit(6)
                     .map(u -> mapUserToFriendResponse(u, false))
                     .collect(Collectors.toList());
@@ -240,6 +291,39 @@ public class FriendsService {
                 .filter(Objects::nonNull)
                 .map(u -> mapUserToFriendResponse(u, true))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * "Personas que quizás conozcas": usuarios reales que aún no son amigos y con los
+     * que no hay ninguna solicitud pendiente en ningún sentido.
+     */
+    public List<FriendUserResponse> getSuggestions(String identifier, int limit) {
+        User currentUser = resolveUser(identifier);
+
+        Set<Integer> excluded = new HashSet<>();
+        excluded.add(currentUser.getId());
+
+        for (Friendship f : friendshipRepo.findAllFriendshipsForUser(currentUser.getId())) {
+            excluded.add(f.getUser1());
+            excluded.add(f.getUser2());
+        }
+        for (FriendRequest r : friendRequestRepo.findByUser1(currentUser.getId())) {
+            excluded.add(r.getUser2());
+        }
+        for (FriendRequest r : friendRequestRepo.findByUser2(currentUser.getId())) {
+            excluded.add(r.getUser1());
+        }
+
+        return userRepo.findAll().stream()
+                .filter(u -> !excluded.contains(u.getId()))
+                .filter(u -> !isSeedAdmin(u))
+                .limit(limit)
+                .map(u -> mapUserToFriendResponse(u, false))
+                .collect(Collectors.toList());
+    }
+
+    private boolean isSeedAdmin(User user) {
+        return user != null && "admin@zentry.com".equalsIgnoreCase(user.getEmail());
     }
 
     public Map<String, Object> removeFriend(Integer friendId, String identifier) {
@@ -273,9 +357,10 @@ public class FriendsService {
         long followingCount = followRepo.countByFollower(user.getId());
         long friendsCount = friendshipRepo.findAllFriendshipsForUser(user.getId()).size();
 
-        long zentryCoins = 100 + (postsCount * 25) + (followersCount * 10);
+        long zentryCoins = walletService.getOrCreateWallet(user.getUsername()).getBalance().longValue();
         long coinsToday = Math.max(5, (postsCount * 5));
         long reputationScore = 50 + (postsCount * 10) + (followersCount * 5);
+        zentry.back.api.core.util.RankUtil.RankInfo rankInfo = zentry.back.api.core.util.RankUtil.forScore(reputationScore);
 
         return UserStatsResponse.builder()
                 .userId(user.getId())
@@ -287,6 +372,9 @@ public class FriendsService {
                 .zentryCoins(zentryCoins)
                 .coinsToday(coinsToday)
                 .reputationScore(reputationScore)
+                .rank(rankInfo.name())
+                .rankMinScore(rankInfo.minScore())
+                .nextRankScore(rankInfo.nextThreshold())
                 .build();
     }
 
