@@ -105,15 +105,12 @@ public class StoryService {
         LocalDateTime now = LocalDateTime.now();
         List<Story> activeStories = storyRepo.findByExpiresAtAfterAndIsArchivedFalseOrderByCreatedAtAsc(now);
 
-        if (activeStories.isEmpty()) {
-            return Collections.emptyList();
-        }
-
         // Group stories by userId preserving order
         Map<Integer, List<Story>> storiesByUser = activeStories.stream()
                 .collect(Collectors.groupingBy(Story::getUserId, LinkedHashMap::new, Collectors.toList()));
 
         List<StoryGroupResponse> groups = new ArrayList<>();
+        boolean currentUserHasGroup = false;
 
         for (Map.Entry<Integer, List<Story>> entry : storiesByUser.entrySet()) {
             Integer userId = entry.getKey();
@@ -134,6 +131,7 @@ public class StoryService {
                     : displayName.toUpperCase();
 
             boolean isCurrentUser = currentUserId != null && currentUserId.equals(userId);
+            if (isCurrentUser) currentUserHasGroup = true;
             boolean hasUnseen = false;
             LocalDateTime lastUpdated = userStoryList.get(userStoryList.size() - 1).getCreatedAt();
 
@@ -162,6 +160,12 @@ public class StoryService {
             groups.add(group);
         }
 
+        // El usuario autenticado siempre debe ver su propio círculo, aunque no tenga
+        // historias activas todavía, para poder abrir el flujo de "añadir historia".
+        if (currentUserId != null && !currentUserHasGroup) {
+            groups.add(buildEmptyGroupForUser(currentUserId));
+        }
+
         // Prioritize current user's group at top
         groups.sort((a, b) -> {
             if (Boolean.TRUE.equals(a.getIsUser())) return -1;
@@ -175,6 +179,33 @@ public class StoryService {
         });
 
         return groups;
+    }
+
+    private StoryGroupResponse buildEmptyGroupForUser(Integer userId) {
+        User user = userRepo.findById(userId).orElse(null);
+        Profile profile = profileRepo.findByUserId(userId).orElse(null);
+
+        String rawUsername = user != null && user.getHandle() != null ? user.getHandle() : "usuario_" + userId;
+        String cleanUsername = rawUsername.replaceFirst("@.*", "");
+        String displayName = (profile != null && profile.getName() != null && !profile.getName().isBlank())
+                ? profile.getName()
+                : cleanUsername;
+        String avatarUrl = profile != null ? profile.getAvatarUrl() : null;
+        String initials = displayName.length() >= 2
+                ? displayName.substring(0, 2).toUpperCase()
+                : displayName.toUpperCase();
+
+        return StoryGroupResponse.builder()
+                .userId(userId)
+                .username(cleanUsername)
+                .name(displayName)
+                .avatar(initials)
+                .avatarUrl(avatarUrl)
+                .isUser(true)
+                .hasUnseen(false)
+                .lastUpdated(null)
+                .items(new ArrayList<>())
+                .build();
     }
 
     @Transactional(readOnly = true)

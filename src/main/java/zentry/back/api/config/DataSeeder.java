@@ -25,6 +25,10 @@ public class DataSeeder {
             "eterna", "ui-ux-designers", "digital-art", "zentry-network", "zentry-creators"
     );
 
+    // Cuentas de prueba cuyas publicaciones de relleno ("Lienzo Art", "aaaa", etc.)
+    // seguían apareciendo en el feed principal: se borran sus posts en cada arranque.
+    private static final List<String> RETIRED_TEST_POST_AUTHORS = List.of("usuario");
+
     @Bean
     CommandLineRunner initDatabase(CommunityRepository communityRepo, UserRepository userRepo, PasswordEncoder passwordEncoder,
                                     CommunityMemberRepository communityMemberRepo, ForumThreadRepository forumThreadRepo,
@@ -32,6 +36,8 @@ public class DataSeeder {
                                     AdsCampaignsService adsCampaignsService) {
         return args -> {
             User admin = userRepo.findByEmail("admin@zentry.com").orElse(null);
+            // Comentado a petición: no crear más usuarios de prueba
+            /*
             if (admin == null) {
                 admin = User.builder()
                         .username("admin")
@@ -42,9 +48,10 @@ public class DataSeeder {
                 admin = userRepo.save(admin);
                 System.out.println("👤 Usuario Administrador de prueba creado: admin@zentry.com");
             }
+            */
 
-            Integer adminId = admin.getId();
-            String adminUsername = admin.getHandle();
+            Integer adminId = admin != null ? admin.getId() : 1;
+            String adminUsername = admin != null ? admin.getHandle() : "admin";
 
             for (String slug : RETIRED_SAMPLE_SLUGS) {
                 // Usamos la variante que devuelve una lista: puede haber más de una
@@ -61,6 +68,16 @@ public class DataSeeder {
                     communityRepo.delete(community);
                     System.out.println("🧹 Comunidad de muestra eliminada: " + community.getNombre());
                 }
+            }
+
+            for (String testUsername : RETIRED_TEST_POST_AUTHORS) {
+                userRepo.findByUsername(testUsername).ifPresent(testUser -> {
+                    List<zentry.back.api.core.models.Post> testPosts = postRepo.findByUserIdOrderByCreatedAtDesc(testUser.getId());
+                    if (!testPosts.isEmpty()) {
+                        postRepo.deleteAll(testPosts);
+                        System.out.println("🧹 " + testPosts.size() + " publicaciones de prueba eliminadas (autor: @" + testUsername + ")");
+                    }
+                });
             }
 
             List<Community> existingZentry = communityRepo.findAllBySlugOrNombreMatch("zentry");

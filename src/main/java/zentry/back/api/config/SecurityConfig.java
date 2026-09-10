@@ -18,6 +18,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 
 @Configuration
@@ -27,6 +28,9 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
+
+    @Value("${ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}")
+    private List<String> allowedOrigins;
 
     @Bean
     public HttpFirewall allowUrlEncodedPercentHttpFirewall() {
@@ -47,6 +51,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**", "/api/v1/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/core/users/login", "/api/core/users").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
+                        // El handshake HTTP/SockJS de "/ws" no puede llevar el JWT como header
+                        // (el token viaja dentro del frame STOMP CONNECT, ya sobre la conexión
+                        // establecida). La autenticación real ocurre en StompAuthChannelInterceptor;
+                        // aquí solo se permite abrir la conexión.
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/core/profiles/**", "/api/v1/profiles/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/core/communities", "/api/core/communities/**",
                                 "/api/v1/communities", "/api/v1/communities/**")
@@ -87,9 +96,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
+        configuration.setAllowedOrigins(allowedOrigins);
 
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 

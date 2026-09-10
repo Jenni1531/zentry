@@ -142,39 +142,31 @@ public class PostController {
     @Operation(summary = "Actualizar publicación o proyecto (JSON)")
     public ResponseEntity<PostResponse> updateJson(
             @PathVariable Integer id,
-            @Valid @RequestBody PostRequest request,
-            Principal principal) {
-        String username = principal != null ? principal.getName() : "anonimo";
-        return ResponseEntity.ok(service.update(id, username, request));
+            @Valid @RequestBody PostRequest request) {
+        return ResponseEntity.ok(service.update(id, request));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Actualizar publicación con archivo (Multipart)")
     public ResponseEntity<PostResponse> updateMultipart(
             @PathVariable Integer id,
-            @ModelAttribute PostRequest request,
-            Principal principal) {
-        String username = principal != null ? principal.getName() : "anonimo";
-        return ResponseEntity.ok(service.update(id, username, request));
+            @ModelAttribute PostRequest request) {
+        return ResponseEntity.ok(service.update(id, request));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar publicación (Default)")
     public ResponseEntity<PostResponse> updateDefault(
             @PathVariable Integer id,
-            @RequestBody(required = false) PostRequest request,
-            Principal principal) {
-        String username = principal != null ? principal.getName() : "anonimo";
-        return ResponseEntity.ok(service.update(id, username, request != null ? request : new PostRequest()));
+            @RequestBody(required = false) PostRequest request) {
+        return ResponseEntity.ok(service.update(id, request != null ? request : new PostRequest()));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar publicación")
     public ResponseEntity<Void> delete(
-            @Parameter(description = "ID de la publicación") @PathVariable Integer id,
-            Principal principal) {
-        String username = principal != null ? principal.getName() : "anonimo";
-        service.delete(id, username);
+            @Parameter(description = "ID de la publicación") @PathVariable Integer id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

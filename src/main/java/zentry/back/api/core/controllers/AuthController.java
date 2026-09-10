@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import zentry.back.api.core.dtos.LoginRequest;
 import zentry.back.api.core.dtos.RegisterRequest;
 import zentry.back.api.core.dtos.UserResponse;
+import zentry.back.api.core.services.EmailService;
 import zentry.back.api.core.services.JwtService;
 import zentry.back.api.core.models.User;
 import zentry.back.api.core.models.UserOTP;
@@ -37,6 +38,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final UserOTPRepository userOTPRepository;
     private final zentry.back.api.core.services.GamificationEventService gamificationEventService;
+    private final EmailService emailService;
 
     private static final int OTP_MAX_ATTEMPTS = 5;
 
@@ -199,9 +201,6 @@ public class AuthController {
                 .build();
         userOTPRepository.save(otp);
 
-        System.out.println("\n========== EMAIL SIMULADO ==========");
-        System.out.println("Para: " + user.getEmail());
-        System.out.println("Tu código de verificación de Zentry es: " + code);
-        System.out.println("====================================\n");
+        emailService.sendOtpEmail(user.getEmail(), code);
     }
 }

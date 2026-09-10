@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import zentry.back.api.core.utils.SecurityUtils;
 
 import zentry.back.api.core.dtos.PostRequest;
 import zentry.back.api.core.dtos.PostResponse;
@@ -255,8 +256,9 @@ public class PostService {
         return mapToResponse(user, saved, user.getId());
     }
 
-    public PostResponse update(Integer id, String identifier, PostRequest request) {
-        User user = findUserByIdentifier(identifier);
+    public PostResponse update(Integer id, PostRequest request) {
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        User user = findUserByIdentifier(currentUserEmail);
 
         Post post = postRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Obra no encontrada"));
@@ -305,8 +307,9 @@ public class PostService {
         return mapToResponse(user, postRepo.save(post), user.getId());
     }
 
-    public void delete(Integer id, String identifier) {
-        User user = findUserByIdentifier(identifier);
+    public void delete(Integer id) {
+        String currentUserEmail = SecurityUtils.getCurrentUserEmail();
+        User user = findUserByIdentifier(currentUserEmail);
 
         Post post = postRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Obra no encontrada"));
