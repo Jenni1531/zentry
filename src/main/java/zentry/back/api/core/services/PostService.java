@@ -31,6 +31,7 @@ import zentry.back.api.core.repositories.PostLikeRepository;
 import zentry.back.api.core.repositories.PostRepository;
 import zentry.back.api.core.repositories.ProfileRepository;
 import zentry.back.api.core.repositories.UserRepository;
+import zentry.back.api.core.repositories.PostMediaRepository;
 
 @Service
 @SuppressWarnings("null")
@@ -42,11 +43,13 @@ public class PostService {
     private final CommentRepository commentRepo;
     private final ProfileRepository profileRepo;
     private final BookmarkRepository bookmarkRepo;
+    private final PostMediaRepository postMediaRepo;
     private final GamificationEventService gamificationEventService;
     private final NotificationService notificationService;
 
     public PostService(PostRepository postRepo, UserRepository userRepo, PostLikeRepository postLikeRepo,
                         CommentRepository commentRepo, ProfileRepository profileRepo, BookmarkRepository bookmarkRepo,
+                        PostMediaRepository postMediaRepo,
                         GamificationEventService gamificationEventService, NotificationService notificationService) {
         this.postRepo = postRepo;
         this.userRepo = userRepo;
@@ -54,6 +57,7 @@ public class PostService {
         this.commentRepo = commentRepo;
         this.profileRepo = profileRepo;
         this.bookmarkRepo = bookmarkRepo;
+        this.postMediaRepo = postMediaRepo;
         this.gamificationEventService = gamificationEventService;
         this.notificationService = notificationService;
     }
@@ -220,10 +224,12 @@ public class PostService {
                 .build();
 
         if (request.getThumbnailUrl() != null && !request.getThumbnailUrl().isBlank()) {
-            if (request.getThumbnailUrl().startsWith("data:image/")) {
+            if (request.getThumbnailUrl().startsWith("data:")) {
                 String savedPath = saveBase64Image(request.getThumbnailUrl(), filenameSafeHandle(user), "thumb");
-                post.setThumbnailUrl(savedPath);
-                post.setImageUrl(savedPath);
+                if (savedPath != null) {
+                    post.setThumbnailUrl(savedPath);
+                    post.setImageUrl(savedPath);
+                }
             } else {
                 post.setThumbnailUrl(request.getThumbnailUrl());
                 if (post.getImageUrl() == null) {
@@ -233,7 +239,17 @@ public class PostService {
         }
 
         if (request.getImageUrl() != null && !request.getImageUrl().isBlank()) {
-            post.setImageUrl(request.getImageUrl());
+            if (request.getImageUrl().startsWith("data:")) {
+                String savedPath = saveBase64Image(request.getImageUrl(), filenameSafeHandle(user), "post");
+                if (savedPath != null) {
+                    post.setImageUrl(savedPath);
+                    if (post.getThumbnailUrl() == null) {
+                        post.setThumbnailUrl(savedPath);
+                    }
+                }
+            } else {
+                post.setImageUrl(request.getImageUrl());
+            }
         }
 
         if (request.getImage() != null && !request.getImage().isEmpty()) {
@@ -249,6 +265,33 @@ public class PostService {
         }
 
         Post saved = postRepo.save(post);
+
+        // Procesar archivos multimedia adicionales (fotos, videos, audios)
+        List<MultipartFile> allFiles = new ArrayList<>();
+        if (request.getFiles() != null && request.getFiles().length > 0) {
+            allFiles.addAll(java.util.Arrays.asList(request.getFiles()));
+        }
+        if (request.getMediaFiles() != null && !request.getMediaFiles().isEmpty()) {
+            allFiles.addAll(request.getMediaFiles());
+        }
+
+        for (MultipartFile file : allFiles) {
+            if (file != null && !file.isEmpty()) {
+                String mediaFilename = saveMediaFile(file, filenameSafeHandle(user), "media");
+                String mediaUrl = "/uploads/posts/" + mediaFilename;
+                postMediaRepo.save(zentry.back.api.core.models.PostMedia.builder()
+                        .postId(saved.getId())
+                        .url(mediaUrl)
+                        .build());
+                if (saved.getImageUrl() == null) {
+                    saved.setImageUrl(mediaUrl);
+                }
+                if (saved.getThumbnailUrl() == null) {
+                    saved.setThumbnailUrl(mediaUrl);
+                }
+            }
+        }
+        saved = postRepo.save(saved);
 
         gamificationEventService.recordMissionProgress(user.getId(), "create_post", 1);
         gamificationEventService.recordAchievementProgress(user.getId(), "create_first_project", 1);
@@ -295,12 +338,31 @@ public class PostService {
         }
 
         if (request.getImage() != null && !request.getImage().isEmpty()) {
-            String imageName = saveImage(request.getImage(), filenameSafeHandle(user), "post");
+            String imageName = saveMediaFile(request.getImage(), filenameSafeHandle(user), "post");
             post.setImageUrl("/uploads/posts/" + imageName);
         }
 
         if (request.getTools() != null && !request.getTools().isEmpty()) {
             post.setTools(java.util.Arrays.asList(request.getTools().split(",")));
+        }
+
+        // Procesar archivos adjuntos adicionales si se envían
+        List<MultipartFile> allFiles = new ArrayList<>();
+        if (request.getFiles() != null && request.getFiles().length > 0) {
+            allFiles.addAll(java.util.Arrays.asList(request.getFiles()));
+        }
+        if (request.getMediaFiles() != null && !request.getMediaFiles().isEmpty()) {
+            allFiles.addAll(request.getMediaFiles());
+        }
+
+        for (MultipartFile file : allFiles) {
+            if (file != null && !file.isEmpty()) {
+                String mediaFilename = saveMediaFile(file, filenameSafeHandle(user), "media");
+                postMediaRepo.save(zentry.back.api.core.models.PostMedia.builder()
+                        .postId(post.getId())
+                        .url("/uploads/posts/" + mediaFilename)
+                        .build());
+            }
         }
 
         post.setUpdatedAt(java.time.LocalDateTime.now());
@@ -318,6 +380,7 @@ public class PostService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para eliminar esta obra");
         }
 
+        postMediaRepo.deleteByPostId(id);
         postRepo.delete(post);
     }
 
@@ -360,6 +423,10 @@ public class PostService {
     }
 
     private String saveImage(MultipartFile file, String username, String type) {
+        return saveMediaFile(file, username, type);
+    }
+
+    private String saveMediaFile(MultipartFile file, String username, String type) {
         try {
             Path uploadPath = Paths.get("uploads/posts");
             if (!Files.exists(uploadPath)) {
@@ -367,9 +434,21 @@ public class PostService {
             }
 
             String originalFilename = file.getOriginalFilename();
-            String extension = originalFilename != null && originalFilename.contains(".") 
-                ? originalFilename.substring(originalFilename.lastIndexOf(".")) 
-                : ".jpg";
+            String extension = ".bin";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            } else if (file.getContentType() != null) {
+                String ct = file.getContentType().toLowerCase();
+                if (ct.contains("png")) extension = ".png";
+                else if (ct.contains("jpeg") || ct.contains("jpg")) extension = ".jpg";
+                else if (ct.contains("webp")) extension = ".webp";
+                else if (ct.contains("mp4")) extension = ".mp4";
+                else if (ct.contains("webm")) extension = ".webm";
+                else if (ct.contains("mp3") || ct.contains("mpeg")) extension = ".mp3";
+                else if (ct.contains("wav")) extension = ".wav";
+                else if (ct.contains("ogg")) extension = ".ogg";
+            }
+
             String newFilename = username + "_" + type + "_" + UUID.randomUUID().toString().substring(0, 8) + extension;
 
             Path filePath = uploadPath.resolve(newFilename);
@@ -377,11 +456,13 @@ public class PostService {
 
             return newFilename;
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar la imagen de la obra", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al guardar el archivo multimedia de la obra", e);
         }
     }
 
     private String saveBase64Image(String base64Data, String username, String type) {
+        if (base64Data == null || base64Data.isBlank()) return null;
+        if (!base64Data.startsWith("data:")) return base64Data;
         try {
             Path uploadPath = Paths.get("uploads/posts");
             if (!Files.exists(uploadPath)) {
@@ -392,10 +473,27 @@ public class PostService {
             String extension = ".png";
             if (base64Data.contains(",")) {
                 String[] parts = base64Data.split(",");
-                if (parts[0].contains("image/jpeg") || parts[0].contains("image/jpg")) {
+                String header = parts[0].toLowerCase();
+                if (header.contains("image/jpeg") || header.contains("image/jpg")) {
                     extension = ".jpg";
-                } else if (parts[0].contains("image/webp")) {
+                } else if (header.contains("image/webp")) {
                     extension = ".webp";
+                } else if (header.contains("image/gif")) {
+                    extension = ".gif";
+                } else if (header.contains("video/mp4")) {
+                    extension = ".mp4";
+                } else if (header.contains("video/webm")) {
+                    extension = ".webm";
+                } else if (header.contains("video/quicktime") || header.contains("video/mov")) {
+                    extension = ".mov";
+                } else if (header.contains("audio/mpeg") || header.contains("audio/mp3")) {
+                    extension = ".mp3";
+                } else if (header.contains("audio/wav") || header.contains("audio/x-wav")) {
+                    extension = ".wav";
+                } else if (header.contains("audio/ogg")) {
+                    extension = ".ogg";
+                } else if (header.contains("audio/m4a") || header.contains("audio/aac")) {
+                    extension = ".m4a";
                 }
                 base64Image = parts[1];
             }
@@ -407,7 +505,7 @@ public class PostService {
 
             return "/uploads/posts/" + newFilename;
         } catch (Exception e) {
-            return base64Data;
+            return null;
         }
     }
 
@@ -417,6 +515,17 @@ public class PostService {
         boolean liked = viewerUserId != null && postLikeRepo.existsByPostIdAndUserId(post.getId(), viewerUserId);
         boolean saved = viewerUserId != null && bookmarkRepo.existsByUserIdAndPostId(viewerUserId, post.getId());
         Profile authorProfile = user.getId() != null ? profileRepo.findByUserId(user.getId()).orElse(null) : null;
+
+        List<String> mediaUrls = new ArrayList<>();
+        if (post.getImageUrl() != null && !post.getImageUrl().isBlank()) {
+            mediaUrls.add(post.getImageUrl());
+        }
+        var postMediaList = postMediaRepo.findByPostId(post.getId());
+        for (var pm : postMediaList) {
+            if (pm.getUrl() != null && !mediaUrls.contains(pm.getUrl())) {
+                mediaUrls.add(pm.getUrl());
+            }
+        }
 
         return PostResponse.builder()
                 .id(post.getId())
@@ -432,7 +541,7 @@ public class PostService {
                 .visibility(post.getVisibility())
                 .communityId(post.getCommunityId())
                 .tools(post.getTools() != null ? post.getTools() : new ArrayList<>())
-                .mediaUrls(new ArrayList<>())
+                .mediaUrls(mediaUrls)
                 .tags(new ArrayList<>())
                 .likesCount((int) likesCount)
                 .commentsCount((int) commentsCount)

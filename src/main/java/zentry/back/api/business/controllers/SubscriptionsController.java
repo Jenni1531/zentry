@@ -95,4 +95,16 @@ public class SubscriptionsController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Limpiar todas las membresías/suscripciones de un usuario")
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Membresías del usuario limpiadas exitosamente"),
+        @ApiResponse(responseCode = "400", description = "UserId inválido", content = @Content)
+    })
+    @DeleteMapping("/user/{userId}")
+    public ResponseEntity<Void> cleanUserSubscriptions(
+            @Parameter(description = "ID interno del usuario") @PathVariable Integer userId) {
+        service.cleanUserSubscriptions(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

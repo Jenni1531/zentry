@@ -190,6 +190,60 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/forgot-password")
+    @Transactional
+    public ResponseEntity<UserResponse> forgotPassword(@Valid @RequestBody zentry.back.api.core.dtos.ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No existe una cuenta registrada con este correo electrónico"));
+
+        generateAndSendOtp(user);
+
+        UserResponse response = UserResponse.builder()
+                .message("Código de recuperación enviado al correo")
+                .requiresVerification(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    @Transactional
+    public ResponseEntity<UserResponse> resetPassword(@Valid @RequestBody zentry.back.api.core.dtos.ResetPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        UserOTP otp = userOTPRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No hay un código de recuperación pendiente, solicita uno nuevo"));
+
+        if (otp.getExpirationTime().isBefore(LocalDateTime.now())) {
+            userOTPRepository.deleteByUserId(user.getId());
+            throw new ResponseStatusException(HttpStatus.GONE, "El código ha expirado, solicita uno nuevo");
+        }
+
+        if (!otp.getCode().equals(request.getCode())) {
+            int attempts = otp.getAttempts() + 1;
+            if (attempts >= OTP_MAX_ATTEMPTS) {
+                userOTPRepository.deleteByUserId(user.getId());
+                throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Demasiados intentos fallidos, solicita un nuevo código");
+            }
+            otp.setAttempts(attempts);
+            userOTPRepository.save(otp);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Código incorrecto, intentos restantes: " + (OTP_MAX_ATTEMPTS - attempts));
+        }
+
+        userOTPRepository.deleteByUserId(user.getId());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        UserResponse response = UserResponse.builder()
+                .message("Contraseña restablecida correctamente. Ahora puedes iniciar sesión")
+                .requiresVerification(false)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
     private void generateAndSendOtp(User user) {
         String code = String.format("%06d", new Random().nextInt(1000000));
 

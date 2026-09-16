@@ -37,21 +37,24 @@ public class GamificationEventService {
     private final UserAchievementRepository userAchievementRepo;
     private final UserRepository userRepo;
     private final WalletService walletService;
+    private final StreakService streakService;
 
     public GamificationEventService(MissionRepository missionRepo, UserMissionRepository userMissionRepo,
                                      AchievementRepository achievementRepo, UserAchievementRepository userAchievementRepo,
-                                     UserRepository userRepo, WalletService walletService) {
+                                     UserRepository userRepo, WalletService walletService, StreakService streakService) {
         this.missionRepo = missionRepo;
         this.userMissionRepo = userMissionRepo;
         this.achievementRepo = achievementRepo;
         this.userAchievementRepo = userAchievementRepo;
         this.userRepo = userRepo;
         this.walletService = walletService;
+        this.streakService = streakService;
     }
 
     @Transactional
     public void recordMissionProgress(Integer userId, String eventType, int amount) {
         if (userId == null || eventType == null || amount <= 0) return;
+        streakService.recordActivity(userId);
 
         LocalDate today = LocalDate.now(java.time.ZoneOffset.UTC);
         List<Mission> matching = missionRepo.findByRequirementType(eventType);

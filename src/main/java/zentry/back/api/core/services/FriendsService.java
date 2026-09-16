@@ -203,8 +203,10 @@ public class FriendsService {
             friendshipRepo.save(Friendship.builder().user1(friendId).user2(currentUser.getId()).build());
         }
 
-        // Eliminar solicitud
+        // Eliminar solicitud y cualquier solicitud inversa pendiente
         friendRequestRepo.delete(req);
+        friendRequestRepo.deleteByUser1AndUser2(friendId, currentUser.getId());
+        friendRequestRepo.deleteByUser1AndUser2(currentUser.getId(), friendId);
 
         Profile accepterProfile = profileRepo.findByUserId(currentUser.getId()).orElse(null);
         notificationService.notify(
@@ -232,7 +234,11 @@ public class FriendsService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para modificar esta solicitud");
         }
 
+        Integer otherUserId = req.getUser1().equals(currentUser.getId()) ? req.getUser2() : req.getUser1();
+
         friendRequestRepo.delete(req);
+        friendRequestRepo.deleteByUser1AndUser2(currentUser.getId(), otherUserId);
+        friendRequestRepo.deleteByUser1AndUser2(otherUserId, currentUser.getId());
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);

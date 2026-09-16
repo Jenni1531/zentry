@@ -58,4 +58,12 @@ public class SubscriptionsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subscription not found"));
         repo.delete(entity);
     }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void cleanUserSubscriptions(Integer userId) {
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserId es obligatorio");
+        }
+        repo.deleteByUserId(userId);
+    }
 }

@@ -31,5 +31,7 @@ public class PostRequest {
     private List<String> mediaUrls;
     private List<Integer> tagIds;
     private MultipartFile image;
+    private MultipartFile[] files;
+    private List<MultipartFile> mediaFiles;
     private String tools;
 }

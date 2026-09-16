@@ -242,10 +242,20 @@ public class ProfileService {
 
 
         if (request.getAvatarUrl() != null && !request.getAvatarUrl().isBlank()) {
-            profile.setAvatarUrl(request.getAvatarUrl());
+            if (request.getAvatarUrl().startsWith("data:")) {
+                String savedAvatar = saveBase64Image(request.getAvatarUrl(), "avatar");
+                if (savedAvatar != null) profile.setAvatarUrl(savedAvatar);
+            } else {
+                profile.setAvatarUrl(request.getAvatarUrl());
+            }
         }
         if (request.getBannerUrl() != null && !request.getBannerUrl().isBlank()) {
-            profile.setBannerUrl(request.getBannerUrl());
+            if (request.getBannerUrl().startsWith("data:")) {
+                String savedBanner = saveBase64Image(request.getBannerUrl(), "banner");
+                if (savedBanner != null) profile.setBannerUrl(savedBanner);
+            } else {
+                profile.setBannerUrl(request.getBannerUrl());
+            }
         }
 
         if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
@@ -282,6 +292,41 @@ public class ProfileService {
         response.setFollowingCount((int) followingCount);
         response.setIsFollowing(false);
         return response;
+    }
+
+    public String saveBase64Image(String base64Data, String type) {
+        if (base64Data == null || base64Data.isBlank()) return null;
+        if (!base64Data.startsWith("data:")) return base64Data;
+        try {
+            Path uploadDir = Paths.get("uploads", "profiles");
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+
+            String base64Image = base64Data;
+            String extension = ".png";
+            if (base64Data.contains(",")) {
+                String[] parts = base64Data.split(",");
+                String header = parts[0].toLowerCase();
+                if (header.contains("image/jpeg") || header.contains("image/jpg")) {
+                    extension = ".jpg";
+                } else if (header.contains("image/webp")) {
+                    extension = ".webp";
+                } else if (header.contains("image/gif")) {
+                    extension = ".gif";
+                }
+                base64Image = parts[1];
+            }
+
+            byte[] decodedBytes = java.util.Base64.getDecoder().decode(base64Image.trim());
+            String fileName = type + "_" + UUID.randomUUID().toString().substring(0, 8) + extension;
+            Path targetPath = uploadDir.resolve(fileName);
+            Files.write(targetPath, decodedBytes);
+
+            return "/uploads/profiles/" + fileName;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // MÉTODO SEGURO PARA GUARDAR EN DISCO

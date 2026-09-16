@@ -21,4 +21,6 @@ public interface SubscriptionsRepository extends JpaRepository<Subscriptions, UU
     boolean existsByUserId(Integer userId);
 
     boolean existsByUserIdAndPlanId(Integer userId, UUID planId);
+
+    void deleteByUserId(Integer userId);
 }
