@@ -20,6 +20,9 @@ public class ProfileRequest {
     private String artisticName;
     private String experienceLevel;
     private String rank;
+    private String specialties;
+    private String birthDate;
+    private Boolean onboardingCompleted;
     
     @JsonAlias({"avatar_url", "photo", "image"})
     private String avatarUrl;

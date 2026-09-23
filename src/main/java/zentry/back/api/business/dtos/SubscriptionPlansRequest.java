@@ -8,4 +8,6 @@ import java.math.BigDecimal;
 public class SubscriptionPlansRequest {
     private String name;
     private BigDecimal precio;
+    private String description;
+    private String features;
 }

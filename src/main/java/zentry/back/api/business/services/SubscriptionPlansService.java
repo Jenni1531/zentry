@@ -24,6 +24,45 @@ public class SubscriptionPlansService {
         this.repo = repo;
     }
 
+    @jakarta.annotation.PostConstruct
+    public void seedPlans() {
+        seedPlan(
+            "Gratuito",
+            java.math.BigDecimal.ZERO,
+            "Plan básico para nuevos creadores y miembros de la comunidad",
+            "Crear perfil, Publicar contenido, Explorar artistas, Unirse a comunidades, Interacción básica"
+        );
+        seedPlan(
+            "Premium Creador",
+            new java.math.BigDecimal("9.99"),
+            "Para creadores en crecimiento que buscan mayor alcance y monetización",
+            "Mayor alcance y visibilidad, Monetización de contenido, Más Zentry Coins, Estadísticas avanzadas, Herramientas desbloqueadas y profesionales, Colaboración con marcas y proyectos, Perfil verificado, Acceso anticipado a futuras funciones"
+        );
+        seedPlan(
+            "Premium PRO",
+            new java.math.BigDecimal("19.99"),
+            "Acceso completo a la suite profesional de IA y oportunidades exclusivas",
+            "Todo lo del plan Creador, Herramientas avanzadas con IA, Colaboraciones exclusivas, Acceso a eventos y concursos, Más Zentry Coins bonus, Promoción destacada de proyectos"
+        );
+    }
+
+    private void seedPlan(String name, java.math.BigDecimal precio, String description, String features) {
+        SubscriptionPlans plan = repo.findByName(name).orElse(null);
+        if (plan == null) {
+            repo.save(SubscriptionPlans.builder()
+                    .name(name)
+                    .precio(precio)
+                    .description(description)
+                    .features(features)
+                    .build());
+        } else {
+            plan.setPrecio(precio);
+            plan.setDescription(description);
+            plan.setFeatures(features);
+            repo.save(plan);
+        }
+    }
+
     public Page<SubscriptionPlansResponse> list(Pageable pageable) {
         return repo.findAll(pageable).map(BusinessMappers::toResponse);
     }

@@ -47,6 +47,8 @@ public final class BusinessMappers {
                 .id(entity.getId())
                 .name(entity.getName())
                 .precio(entity.getPrecio())
+                .description(entity.getDescription())
+                .features(entity.getFeatures())
                 .build();
     }
 

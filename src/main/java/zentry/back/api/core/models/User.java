@@ -34,6 +34,10 @@ public class User implements UserDetails {
     @Column(name = "verified", nullable = false, columnDefinition = "boolean default false")
     private Boolean verified = false;
 
+    @Builder.Default
+    @Column(name = "onboarding_completed", columnDefinition = "boolean default false")
+    private Boolean onboardingCompleted = false;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(); // Sin roles por ahora

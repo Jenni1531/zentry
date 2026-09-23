@@ -17,6 +17,9 @@ public class ProfileResponse {
     private String rank;
     private String location;
     private String bio;
+    private String specialties;
+    private String birthDate;
+    private Boolean onboardingCompleted;
 
     @JsonProperty("avatar_url")
     @JsonAlias({"avatar_url", "avatarUrl"})

@@ -272,12 +272,20 @@ public class ProfileService {
             }
         }
 
-        if (request.getIsPrivate() != null)
-            profile.setIsPrivate(request.getIsPrivate());
-        if (request.getShowSavedPosts() != null)
-            profile.setShowSavedPosts(request.getShowSavedPosts());
-        if (request.getShowLikedPosts() != null)
-            profile.setShowLikedPosts(request.getShowLikedPosts());
+        if (request.getSpecialties() != null)
+            profile.setSpecialties(request.getSpecialties());
+
+        if (request.getBirthDate() != null && !request.getBirthDate().isBlank()) {
+            try {
+                profile.setBirthDate(java.time.LocalDate.parse(request.getBirthDate()));
+            } catch (Exception ignored) {}
+        }
+
+        if (Boolean.TRUE.equals(request.getOnboardingCompleted())) {
+            profile.setOnboardingCompleted(true);
+            user.setOnboardingCompleted(true);
+            userRepo.save(user);
+        }
 
         Profile savedProfile = profileRepo.save(profile);
 
@@ -372,6 +380,9 @@ public class ProfileService {
                 .name(profile.getName() != null ? profile.getName() : displayUsername)
                 .artisticName(profile.getArtisticName())
                 .discipline(profile.getDiscipline())
+                .specialties(profile.getSpecialties())
+                .birthDate(profile.getBirthDate() != null ? profile.getBirthDate().toString() : null)
+                .onboardingCompleted(Boolean.TRUE.equals(profile.getOnboardingCompleted()) || Boolean.TRUE.equals(user.getOnboardingCompleted()))
                 .experienceLevel(profile.getExperienceLevel())
                 .rank(profile.getRank())
                 .location(profile.getLocation())

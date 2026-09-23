@@ -39,16 +39,18 @@ public class StoreService {
     private final WalletTransactionRepository txRepo;
     private final UserRepository userRepo;
     private final UserEquippedItemRepository equippedRepo;
+    private final WalletService walletService;
 
     public StoreService(StoreItemRepository storeItemRepo, StorePurchaseRepository storePurchaseRepo,
                         WalletRepository walletRepo, WalletTransactionRepository txRepo, UserRepository userRepo,
-                        UserEquippedItemRepository equippedRepo) {
+                        UserEquippedItemRepository equippedRepo, WalletService walletService) {
         this.storeItemRepo = storeItemRepo;
         this.storePurchaseRepo = storePurchaseRepo;
         this.walletRepo = walletRepo;
         this.txRepo = txRepo;
         this.userRepo = userRepo;
         this.equippedRepo = equippedRepo;
+        this.walletService = walletService;
     }
 
     // El campo "type" guarda la categoría (frames/pets/banners/themes/titles) y
@@ -147,9 +149,7 @@ public class StoreService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya posees este artículo");
         }
 
-        Wallet wallet = walletRepo.findByUsername(user.getUsername())
-                .orElseGet(() -> walletRepo.findByUsername(user.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Billetera no encontrada")));
+        Wallet wallet = walletService.getOrCreateWallet(user.getHandle() != null ? user.getHandle() : user.getEmail());
 
         BigDecimal price = BigDecimal.valueOf(item.getPrice());
 

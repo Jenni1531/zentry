@@ -30,6 +30,29 @@ public class WalletService {
         this.gamificationEventService = gamificationEventService;
     }
 
+    @jakarta.annotation.PostConstruct
+    public void injectDemoCoins() {
+        try {
+            userRepo.findByEmail("dani12@gmail.com").ifPresent(user -> {
+                String targetName = user.getHandle() != null ? user.getHandle() : user.getEmail();
+                Wallet wallet = getOrCreateWallet(targetName);
+                wallet.setBalance(new BigDecimal("5000.00"));
+                walletRepo.save(wallet);
+
+                if (user.getUsername() != null) {
+                    Wallet wUser = getOrCreateWallet(user.getUsername());
+                    wUser.setBalance(new BigDecimal("5000.00"));
+                    walletRepo.save(wUser);
+                }
+
+                walletRepo.findByUsername("dani12@gmail.com").ifPresent(w -> {
+                    w.setBalance(new BigDecimal("5000.00"));
+                    walletRepo.save(w);
+                });
+            });
+        } catch (Exception ignored) {}
+    }
+
     private void trackWalletBalanceAchievement(String username, BigDecimal balance) {
         userRepo.findByEmail(username).ifPresent(u ->
                 gamificationEventService.setAchievementProgressAbsolute(u.getId(), "wallet_balance", balance.intValue()));
@@ -149,10 +172,21 @@ public class WalletService {
     }
 
     public Wallet getOrCreateWallet(String username) {
+        boolean isDemoUser = username != null && ("dani12@gmail.com".equalsIgnoreCase(username) ||
+                userRepo.findByEmail("dani12@gmail.com").map(User::getUsername).filter(u -> u.equalsIgnoreCase(username)).isPresent());
+        BigDecimal initialBalance = isDemoUser ? BigDecimal.valueOf(5000.00) : BigDecimal.valueOf(100.00);
+
         return walletRepo.findByUsername(username)
+                .map(w -> {
+                    if (isDemoUser && w.getBalance().compareTo(BigDecimal.valueOf(1000.00)) < 0) {
+                        w.setBalance(BigDecimal.valueOf(5000.00));
+                        return walletRepo.save(w);
+                    }
+                    return w;
+                })
                 .orElseGet(() -> walletRepo.save(Wallet.builder()
                         .username(username)
-                        .balance(BigDecimal.valueOf(100.00)) // Saldo inicial demo
+                        .balance(initialBalance)
                         .activePlanId("free")
                         .nextBillingDate(LocalDateTime.now().plusDays(30))
                         .build()));

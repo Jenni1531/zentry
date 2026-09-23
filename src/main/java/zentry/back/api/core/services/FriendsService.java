@@ -259,26 +259,18 @@ public class FriendsService {
             }
         }
 
-        // Si pide SOLO usuarios en línea:
+        // Si pide SOLO amigos en línea:
         if (onlineOnly) {
-            if (!friendIds.isEmpty()) {
-                return friendIds.stream()
-                        .filter(id -> !id.equals(currentUser.getId()))
-                        .filter(this::isUserOnline)
-                        .map(id -> userRepo.findById(id).orElse(null))
-                        .filter(Objects::nonNull)
-                        .map(u -> mapUserToFriendResponse(u, true))
-                        .collect(Collectors.toList());
-            } else {
-                // Si aún no tiene amigos agregados, mostrar otros creadores de la comunidad que estén EN LÍNEA (excluyendo a sí mismo)
-                return userRepo.findAll().stream()
-                        .filter(u -> !u.getId().equals(currentUser.getId()))
-                        .filter(u -> !isSeedAdmin(u))
-                        .filter(u -> isUserOnline(u.getId()))
-                        .limit(8)
-                        .map(u -> mapUserToFriendResponse(u, false))
-                        .collect(Collectors.toList());
+            if (friendIds.isEmpty()) {
+                return Collections.emptyList();
             }
+            return friendIds.stream()
+                    .filter(id -> !id.equals(currentUser.getId()))
+                    .filter(this::isUserOnline)
+                    .map(id -> userRepo.findById(id).orElse(null))
+                    .filter(Objects::nonNull)
+                    .map(u -> mapUserToFriendResponse(u, true))
+                    .collect(Collectors.toList());
         }
 
         // Lista general de amigos:
@@ -344,9 +336,17 @@ public class FriendsService {
         return result;
     }
 
+    private static final java.util.concurrent.ConcurrentHashMap<Integer, Long> ACTIVE_PRESENCE = new java.util.concurrent.ConcurrentHashMap<>();
+
     public Map<String, Object> updatePresence(String identifier, String status) {
         User user = resolveUser(identifier);
         String finalStatus = (status != null && !status.isBlank()) ? status : "online";
+
+        if ("offline".equalsIgnoreCase(finalStatus)) {
+            ACTIVE_PRESENCE.remove(user.getId());
+        } else {
+            ACTIVE_PRESENCE.put(user.getId(), System.currentTimeMillis());
+        }
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -384,8 +384,12 @@ public class FriendsService {
                 .build();
     }
 
-    private boolean isUserOnline(Integer userId) {
-        return true; // Supabase handles presence, fallback to true for UI rendering
+    public boolean isUserOnline(Integer userId) {
+        if (userId == null) return false;
+        Long lastPing = ACTIVE_PRESENCE.get(userId);
+        if (lastPing == null) return false;
+        // Considerar online si se envió un ping en los últimos 45 segundos (45.000 ms)
+        return (System.currentTimeMillis() - lastPing) < 45_000L;
     }
 
     private FriendUserResponse mapUserToFriendResponse(User user, boolean isFriend) {

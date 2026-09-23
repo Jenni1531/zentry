@@ -10,4 +10,6 @@ public class SubscriptionPlansResponse {
     private UUID id;
     private String name;
     private BigDecimal precio;
+    private String description;
+    private String features;
 }

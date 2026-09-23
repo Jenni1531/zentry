@@ -31,6 +31,16 @@ public class Profile {
     @Column(name = "discipline")
     private String discipline;
 
+    @Column(name = "specialties", columnDefinition = "TEXT")
+    private String specialties;
+
+    @Column(name = "birth_date")
+    private java.time.LocalDate birthDate;
+
+    @Column(name = "onboarding_completed", columnDefinition = "boolean default false")
+    @Builder.Default
+    private Boolean onboardingCompleted = false;
+
     @Column(name = "experience_level")
     private String experienceLevel;
 

@@ -23,4 +23,10 @@ public class SubscriptionPlans {
 
     @Column(name = "precio", nullable = false, precision = 10, scale = 2)
     private BigDecimal precio;
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "features", columnDefinition = "TEXT")
+    private String features;
 }
