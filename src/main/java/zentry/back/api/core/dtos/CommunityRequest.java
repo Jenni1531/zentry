@@ -28,6 +28,8 @@ public class CommunityRequest {
     private String bannerUrl;
 
     private List<String> rules;
+    /** public | private */
+    private String privacy;
 
     public String getName() {
         return nombre;

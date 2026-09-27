@@ -21,5 +21,13 @@ public class CommunityResponse {
     private List<String> rules;
     private Integer membersCount;
     private Boolean isJoined;
+    private String privacy;
+    /** Rol del usuario que consulta: ADMIN | MODERATOR | MEMBER | PENDING | null */
+    private String myRole;
+    private Boolean isAdmin;
+    private Boolean isOwner;
+    private Boolean hasPendingRequest;
+    /** Solicitudes pendientes (solo se envía a administradores) */
+    private Integer pendingCount;
     private LocalDateTime createdAt;
 }

@@ -41,6 +41,11 @@ public class Community {
     @Column(name = "owner_username", length = 100)
     private String ownerUsername;
 
+    /** public = cualquiera ve y se une · private = hay que solicitar ingreso y solo miembros ven el contenido */
+    @Column(name = "privacy", length = 20)
+    @Builder.Default
+    private String privacy = "public";
+
     @ElementCollection
     @CollectionTable(name = "community_rules", schema = "zentry_core", joinColumns = @JoinColumn(name = "community_id"))
     @Column(name = "rule", length = 500)

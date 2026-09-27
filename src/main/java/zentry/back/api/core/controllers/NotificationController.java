@@ -42,6 +42,19 @@ public class NotificationController {
         return ResponseEntity.ok(service.list(principal.getName(), pageable));
     }
 
+    @GetMapping("/unread-count")
+    @Operation(summary = "Contar notificaciones no leídas del usuario autenticado")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Conteo obtenido"),
+        @ApiResponse(responseCode = "401", description = "No autenticado", content = @Content)
+    })
+    public ResponseEntity<java.util.Map<String, Long>> unreadCount(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(java.util.Map.of("count", service.countUnread(principal.getName())));
+    }
+
     @PutMapping("/{id}/read")
     @Operation(summary = "Marcar una notificación como leída")
     @ApiResponses({

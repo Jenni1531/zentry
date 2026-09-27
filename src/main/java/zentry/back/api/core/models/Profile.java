@@ -69,6 +69,23 @@ public class Profile {
     @Builder.Default
     private Boolean showLikedPosts = true;
 
+    // Preferencias de notificación (Ajustes > Notificaciones)
+    @Column(name = "notify_reactions", columnDefinition = "boolean default true")
+    @Builder.Default
+    private Boolean notifyReactions = true;
+
+    @Column(name = "notify_comments", columnDefinition = "boolean default true")
+    @Builder.Default
+    private Boolean notifyComments = true;
+
+    @Column(name = "notify_messages", columnDefinition = "boolean default true")
+    @Builder.Default
+    private Boolean notifyMessages = true;
+
+    @Column(name = "notify_stories", columnDefinition = "boolean default true")
+    @Builder.Default
+    private Boolean notifyStories = true;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

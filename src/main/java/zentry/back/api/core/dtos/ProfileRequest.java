@@ -42,6 +42,11 @@ public class ProfileRequest {
     @JsonAlias({"show_liked_posts"})
     private Boolean showLikedPosts;
 
+    private Boolean notifyReactions;
+    private Boolean notifyComments;
+    private Boolean notifyMessages;
+    private Boolean notifyStories;
+
     public String getName() {
         if (name != null && !name.isBlank()) return name;
         if (displayName != null && !displayName.isBlank()) return displayName;

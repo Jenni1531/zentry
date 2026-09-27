@@ -275,6 +275,11 @@ public class ProfileService {
         if (request.getSpecialties() != null)
             profile.setSpecialties(request.getSpecialties());
 
+        if (request.getNotifyReactions() != null) profile.setNotifyReactions(request.getNotifyReactions());
+        if (request.getNotifyComments() != null) profile.setNotifyComments(request.getNotifyComments());
+        if (request.getNotifyMessages() != null) profile.setNotifyMessages(request.getNotifyMessages());
+        if (request.getNotifyStories() != null) profile.setNotifyStories(request.getNotifyStories());
+
         if (request.getBirthDate() != null && !request.getBirthDate().isBlank()) {
             try {
                 profile.setBirthDate(java.time.LocalDate.parse(request.getBirthDate()));
@@ -376,6 +381,9 @@ public class ProfileService {
     private ProfileResponse mapToResponse(User user, Profile profile) {
         String displayUsername = user.getHandle() != null ? user.getHandle() : user.getEmail().split("@")[0];
         return ProfileResponse.builder()
+                .userId(user.getId())
+                .isOnline(FriendsService.isOnlineStatic(user.getId()))
+                .lastSeen(FriendsService.lastSeenOf(user.getId()))
                 .username(user.getHandle())
                 .name(profile.getName() != null ? profile.getName() : displayUsername)
                 .artisticName(profile.getArtisticName())
@@ -392,6 +400,10 @@ public class ProfileService {
                 .isPrivate(Boolean.TRUE.equals(profile.getIsPrivate()))
                 .showSavedPosts(!Boolean.FALSE.equals(profile.getShowSavedPosts()))
                 .showLikedPosts(!Boolean.FALSE.equals(profile.getShowLikedPosts()))
+                .notifyReactions(!Boolean.FALSE.equals(profile.getNotifyReactions()))
+                .notifyComments(!Boolean.FALSE.equals(profile.getNotifyComments()))
+                .notifyMessages(!Boolean.FALSE.equals(profile.getNotifyMessages()))
+                .notifyStories(!Boolean.FALSE.equals(profile.getNotifyStories()))
                 .followersCount(0)
                 .followingCount(0)
                 .isFollowing(false)

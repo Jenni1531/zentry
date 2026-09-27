@@ -1,5 +1,6 @@
 package zentry.back.api.core.services;
 
+import zentry.back.api.core.util.ZentryClock;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,7 +88,7 @@ public class MissionService {
      * la misión vuelva a estar disponible hoy (comportamiento real de "misión diaria").
      */
     private boolean resetIfStale(UserMission um) {
-        LocalDate today = LocalDate.now(java.time.ZoneOffset.UTC);
+        LocalDate today = ZentryClock.today();
         if (um.getResetDate() != null && um.getResetDate().isEqual(today)) {
             return false;
         }
@@ -155,13 +156,13 @@ public class MissionService {
                     .progress(mission.getRequirementValue())
                     .isCompleted(true)
                     .completedAt(now)
-                    .resetDate(LocalDate.now(java.time.ZoneOffset.UTC))
+                    .resetDate(ZentryClock.today())
                     .build();
         } else {
             userMission.setProgress(mission.getRequirementValue());
             userMission.setIsCompleted(true);
             userMission.setCompletedAt(now);
-            userMission.setResetDate(LocalDate.now(java.time.ZoneOffset.UTC));
+            userMission.setResetDate(ZentryClock.today());
         }
         userMissionRepo.save(userMission);
 

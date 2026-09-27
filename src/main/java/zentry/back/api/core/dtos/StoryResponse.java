@@ -71,6 +71,8 @@ public class StoryResponse {
 
     @JsonProperty("is_liked")
     private Boolean isLiked;
+    @JsonProperty("my_reaction")
+    private String myReaction;
 
     @JsonProperty("is_archived")
     private Boolean isArchived;

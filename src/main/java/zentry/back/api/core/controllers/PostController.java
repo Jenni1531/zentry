@@ -131,6 +131,22 @@ public class PostController {
         return ResponseEntity.ok(service.toggleLike(id, username));
     }
 
+    @PostMapping("/{id}/react")
+    @Operation(summary = "Reaccionar a una publicación con un emoji",
+               description = "type: like | fire | clap | wow | laugh | idea. Repetir la misma reacción la quita; otra distinta la reemplaza.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Reacción aplicada"),
+        @ApiResponse(responseCode = "400", description = "Tipo de reacción no válido", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Publicación no encontrada", content = @Content)
+    })
+    public ResponseEntity<PostResponse> react(
+            @Parameter(description = "ID de la publicación") @PathVariable Integer id,
+            @RequestBody java.util.Map<String, String> body,
+            Principal principal) {
+        String username = requireUsername(principal);
+        return ResponseEntity.ok(service.react(id, username, body != null ? body.get("type") : null));
+    }
+
     private String requireUsername(Principal principal) {
         if (principal == null) {
             throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "Debes iniciar sesión");
@@ -142,31 +158,40 @@ public class PostController {
     @Operation(summary = "Actualizar publicación o proyecto (JSON)")
     public ResponseEntity<PostResponse> updateJson(
             @PathVariable Integer id,
-            @Valid @RequestBody PostRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
+            @Valid @RequestBody PostRequest request,
+            Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.update(id, username, request));
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Actualizar publicación con archivo (Multipart)")
     public ResponseEntity<PostResponse> updateMultipart(
             @PathVariable Integer id,
-            @ModelAttribute PostRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
+            @ModelAttribute PostRequest request,
+            Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.update(id, username, request));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar publicación (Default)")
     public ResponseEntity<PostResponse> updateDefault(
             @PathVariable Integer id,
-            @RequestBody(required = false) PostRequest request) {
-        return ResponseEntity.ok(service.update(id, request != null ? request : new PostRequest()));
+            @RequestBody(required = false) PostRequest request,
+            Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.update(id, username, request != null ? request : new PostRequest()));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar publicación")
     public ResponseEntity<Void> delete(
-            @Parameter(description = "ID de la publicación") @PathVariable Integer id) {
-        service.delete(id);
+            @Parameter(description = "ID de la publicación") @PathVariable Integer id,
+            Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        service.delete(id, username);
         return ResponseEntity.noContent().build();
     }
 }
+

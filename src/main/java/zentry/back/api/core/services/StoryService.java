@@ -1,5 +1,6 @@
 package zentry.back.api.core.services;
 
+import zentry.back.api.core.util.ReactionTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class StoryService {
     private final ProfileRepository profileRepo;
     private final ConversationService conversationService;
     private final MessageService messageService;
+    private final NotificationService notificationService;
 
     public StoryService(
             StoryRepository storyRepo,
@@ -42,7 +44,8 @@ public class StoryService {
             UserRepository userRepo,
             ProfileRepository profileRepo,
             ConversationService conversationService,
-            MessageService messageService) {
+            MessageService messageService,
+            NotificationService notificationService) {
         this.storyRepo = storyRepo;
         this.storyViewRepo = storyViewRepo;
         this.storyLikeRepo = storyLikeRepo;
@@ -50,6 +53,7 @@ public class StoryService {
         this.profileRepo = profileRepo;
         this.conversationService = conversationService;
         this.messageService = messageService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -242,33 +246,73 @@ public class StoryService {
         return false;
     }
 
+    /** Corazón clásico: quita cualquier reacción previa o pone ❤️. Devuelve si quedó reaccionada. */
     @Transactional
     public boolean toggleLike(Integer storyId, Integer currentUserId) {
+        if (currentUserId != null && storyLikeRepo.existsByStoryIdAndUserId(storyId, currentUserId)) {
+            return react(storyId, currentUserId,
+                    storyLikeRepo.findByStoryIdAndUserId(storyId, currentUserId)
+                            .map(l -> ReactionTypes.orDefault(l.getReactionType()))
+                            .orElse(ReactionTypes.DEFAULT)) != null;
+        }
+        return react(storyId, currentUserId, ReactionTypes.DEFAULT) != null;
+    }
+
+    /**
+     * Reaccionar a una historia: misma reacción = la quita, otra = la cambia.
+     * Devuelve la reacción vigente del usuario (null si la quitó).
+     */
+    @Transactional
+    public String react(Integer storyId, Integer currentUserId, String reactionType) {
         if (currentUserId == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
+        String type = ReactionTypes.normalize(reactionType);
 
         Story story = storyRepo.findById(storyId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Historia no encontrada"));
 
-        boolean alreadyLiked = storyLikeRepo.existsByStoryIdAndUserId(storyId, currentUserId);
-        if (alreadyLiked) {
-            storyLikeRepo.deleteByStoryIdAndUserId(storyId, currentUserId);
-            story.setLikesCount(Math.max(0, (story.getLikesCount() != null ? story.getLikesCount() : 1) - 1));
-            storyRepo.save(story);
-            return false;
-        } else {
-            StoryLike like = StoryLike.builder()
-                    .storyId(storyId)
-                    .userId(currentUserId)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-            storyLikeRepo.save(like);
-
-            story.setLikesCount((story.getLikesCount() != null ? story.getLikesCount() : 0) + 1);
-            storyRepo.save(story);
-            return true;
+        StoryLike existing = storyLikeRepo.findByStoryIdAndUserId(storyId, currentUserId).orElse(null);
+        if (existing != null) {
+            if (type.equals(ReactionTypes.orDefault(existing.getReactionType()))) {
+                storyLikeRepo.delete(existing);
+                story.setLikesCount(Math.max(0, (story.getLikesCount() != null ? story.getLikesCount() : 1) - 1));
+                storyRepo.save(story);
+                return null;
+            }
+            existing.setReactionType(type);
+            storyLikeRepo.save(existing);
+            return type;
         }
+
+        storyLikeRepo.save(StoryLike.builder()
+                .storyId(storyId)
+                .userId(currentUserId)
+                .reactionType(type)
+                .createdAt(LocalDateTime.now())
+                .build());
+        story.setLikesCount((story.getLikesCount() != null ? story.getLikesCount() : 0) + 1);
+        storyRepo.save(story);
+
+        if (!story.getUserId().equals(currentUserId)) {
+            notifyStoryOwner(story, currentUserId, "story_reaction",
+                    " reaccionó " + ReactionTypes.emoji(type) + " a tu historia");
+        }
+        return type;
+    }
+
+    private void notifyStoryOwner(Story story, Integer actorId, String type, String text) {
+        User actor = userRepo.findById(actorId).orElse(null);
+        if (actor == null) return;
+        Profile actorProfile = profileRepo.findByUserId(actorId).orElse(null);
+        notificationService.notify(
+                story.getUserId(),
+                type,
+                "@" + actor.getHandle() + text,
+                actor.getHandle(),
+                actorProfile != null ? actorProfile.getAvatarUrl() : null,
+                story.getId()
+        );
     }
 
     @Transactional
@@ -297,6 +341,7 @@ public class StoryService {
                 .build();
 
         messageService.create(messageRequest, currentUserId);
+        notifyStoryOwner(story, currentUserId, "story_reply", " respondió a tu historia: " + request.getContent());
     }
 
     @Transactional
@@ -330,7 +375,11 @@ public class StoryService {
 
         if (currentUserId != null) {
             dto.setIsViewed(storyViewRepo.existsByStoryIdAndUserId(entity.getId(), currentUserId));
-            dto.setIsLiked(storyLikeRepo.existsByStoryIdAndUserId(entity.getId(), currentUserId));
+            String myReaction = storyLikeRepo.findByStoryIdAndUserId(entity.getId(), currentUserId)
+                    .map(l -> ReactionTypes.orDefault(l.getReactionType()))
+                    .orElse(null);
+            dto.setIsLiked(myReaction != null);
+            dto.setMyReaction(myReaction);
         } else {
             dto.setIsViewed(false);
             dto.setIsLiked(false);

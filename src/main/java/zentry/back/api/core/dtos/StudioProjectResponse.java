@@ -20,6 +20,8 @@ public class StudioProjectResponse {
     private String ownerUsername;
     private Boolean published;
     private Integer postId;
+    private Long projectId;
+    private String lastEditedBy;
     private LocalDateTime createdAt;
     private LocalDateTime lastEditedAt;
 }

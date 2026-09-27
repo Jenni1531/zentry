@@ -17,6 +17,9 @@ import java.util.List;
 @SuppressWarnings("null")
 public class WalletService {
 
+    /** Regalo de bienvenida con el que se crea toda billetera */
+    private static final BigDecimal WELCOME_GIFT = BigDecimal.valueOf(100);
+
     private final WalletRepository walletRepo;
     private final WalletTransactionRepository txRepo;
     private final UserRepository userRepo;
@@ -30,27 +33,73 @@ public class WalletService {
         this.gamificationEventService = gamificationEventService;
     }
 
+    /**
+     * Unifica billeteras duplicadas. Antes cada usuario podía tener una billetera con su email
+     * (página de billetera, recargas, suscripciones) y otra con su @usuario (sidebar, misiones,
+     * logros, tienda), así que el saldo no cuadraba. La clave única ahora es el email (no cambia).
+     * Cada billetera extra se creó con 100 ZC de regalo; ese regalo duplicado se descuenta al fusionar.
+     */
     @jakarta.annotation.PostConstruct
-    public void injectDemoCoins() {
+    public void consolidateWallets() {
         try {
-            userRepo.findByEmail("dani12@gmail.com").ifPresent(user -> {
-                String targetName = user.getHandle() != null ? user.getHandle() : user.getEmail();
-                Wallet wallet = getOrCreateWallet(targetName);
-                wallet.setBalance(new BigDecimal("5000.00"));
-                walletRepo.save(wallet);
+            for (User user : userRepo.findAll()) {
+                if (user.getEmail() == null) continue;
+                String canonical = user.getEmail();
+                java.util.Set<String> aliases = new java.util.LinkedHashSet<>();
+                // getUsername() devuelve el email (contrato de UserDetails); el @usuario real es getHandle()
+                if (user.getHandle() != null && !user.getHandle().isBlank()) aliases.add(user.getHandle());
+                aliases.add(canonical.split("@")[0]);
+                aliases.remove(canonical);
+                if (aliases.isEmpty()) continue;
 
-                if (user.getUsername() != null) {
-                    Wallet wUser = getOrCreateWallet(user.getUsername());
-                    wUser.setBalance(new BigDecimal("5000.00"));
-                    walletRepo.save(wUser);
+                List<Wallet> legacy = walletRepo.findByUsernameIn(aliases);
+                if (legacy.isEmpty()) continue;
+
+                Wallet main = walletRepo.findByUsername(canonical).orElse(null);
+                BigDecimal total = legacy.stream().map(Wallet::getBalance).reduce(BigDecimal.ZERO, BigDecimal::add);
+                int duplicatedGifts = main != null ? legacy.size() : legacy.size() - 1;
+                if (main != null) total = total.add(main.getBalance());
+                total = total.subtract(WELCOME_GIFT.multiply(BigDecimal.valueOf(Math.max(0, duplicatedGifts)))).max(BigDecimal.ZERO);
+
+                Wallet target = main != null ? main : legacy.get(0);
+                String plan = legacy.stream().map(Wallet::getActivePlanId)
+                        .filter(pl -> pl != null && !"free".equalsIgnoreCase(pl)).findFirst()
+                        .orElse(target.getActivePlanId());
+                for (Wallet w : legacy) {
+                    if (w != target) walletRepo.delete(w);
                 }
+                walletRepo.flush();
+                target.setUsername(canonical);
+                target.setBalance(total);
+                target.setActivePlanId(plan);
+                walletRepo.save(target);
 
-                walletRepo.findByUsername("dani12@gmail.com").ifPresent(w -> {
-                    w.setBalance(new BigDecimal("5000.00"));
-                    walletRepo.save(w);
-                });
-            });
-        } catch (Exception ignored) {}
+                List<WalletTransaction> txs = txRepo.findByUsernameIn(aliases);
+                txs.forEach(t -> t.setUsername(canonical));
+                txRepo.saveAll(txs);
+            }
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(WalletService.class).warn("No se pudieron unificar billeteras: {}", e.getMessage());
+        }
+    }
+
+    /** Traduce email / @usuario / prefijo del email a la clave única de la billetera (el email). */
+    public String walletKey(String identifier) {
+        if (identifier == null || identifier.isBlank()) return identifier;
+        return userRepo.findByEmail(identifier)
+                .or(() -> userRepo.findByUsername(identifier))
+                .or(() -> userRepo.findByUsernameOrEmail(identifier, identifier))
+                .map(User::getEmail)
+                .orElse(identifier);
+    }
+
+    /** Monedas ganadas hoy (día local de la plataforma): ingresos + recargas, sin gastos */
+    public BigDecimal earnedToday(String identifier) {
+        java.time.LocalDateTime since = zentry.back.api.core.util.ZentryClock.today()
+                .atStartOfDay(zentry.back.api.core.util.ZentryClock.zone())
+                .withZoneSameInstant(java.time.ZoneId.systemDefault()).toLocalDateTime();
+        BigDecimal sum = txRepo.sumIncomeSince(walletKey(identifier), since);
+        return sum != null ? sum : BigDecimal.ZERO;
     }
 
     private void trackWalletBalanceAchievement(String username, BigDecimal balance) {
@@ -58,14 +107,16 @@ public class WalletService {
                 gamificationEventService.setAchievementProgressAbsolute(u.getId(), "wallet_balance", balance.intValue()));
     }
 
-    public WalletResponse getWallet(String username) {
+    public WalletResponse getWallet(String identifier) {
+        String username = walletKey(identifier);
         Wallet wallet = getOrCreateWallet(username);
         List<WalletTransaction> transactions = txRepo.findByUsernameOrderByCreatedAtDesc(username);
         return CoreMappers.toResponse(wallet, transactions);
     }
 
     @Transactional
-    public WalletResponse subscribe(String username, SubscribeRequest request) {
+    public WalletResponse subscribe(String identifier, SubscribeRequest request) {
+        String username = walletKey(identifier);
         Wallet wallet = getOrCreateWallet(username);
         String planId = request.getPlanId() != null ? request.getPlanId().toLowerCase() : "free";
         String cycle = request.getCycle() != null ? request.getCycle().toLowerCase() : "monthly";
@@ -96,7 +147,8 @@ public class WalletService {
     }
 
     @Transactional
-    public WalletResponse topup(String username, TopupRequest request) {
+    public WalletResponse topup(String identifier, TopupRequest request) {
+        String username = walletKey(identifier);
         Wallet wallet = getOrCreateWallet(username);
         BigDecimal amount = request.getAmount();
 
@@ -121,7 +173,8 @@ public class WalletService {
     }
 
     @Transactional
-    public WalletResponse transfer(String senderUsername, TransferRequest request) {
+    public WalletResponse transfer(String senderIdentifier, TransferRequest request) {
+        String senderUsername = walletKey(senderIdentifier);
         String recipient = request.getRecipientUsername();
         BigDecimal amount = request.getAmount();
 
@@ -162,31 +215,23 @@ public class WalletService {
                 .username(actualRecipientUsername)
                 .type(TransactionType.INGRESO)
                 .amount(amount)
-                .description("Transferencia recibida de " + senderUsername)
+                .description("Transferencia recibida de " + userRepo.findByEmail(senderUsername).map(u -> "@" + u.getHandle()).orElse(senderUsername))
                 .createdAt(LocalDateTime.now())
                 .build());
 
         trackWalletBalanceAchievement(actualRecipientUsername, recipientWallet.getBalance());
+        userRepo.findByEmail(senderUsername).ifPresent(u ->
+                gamificationEventService.recordAchievementProgress(u.getId(), "transfer_coins", 1));
 
         return getWallet(senderUsername);
     }
 
-    public Wallet getOrCreateWallet(String username) {
-        boolean isDemoUser = username != null && ("dani12@gmail.com".equalsIgnoreCase(username) ||
-                userRepo.findByEmail("dani12@gmail.com").map(User::getUsername).filter(u -> u.equalsIgnoreCase(username)).isPresent());
-        BigDecimal initialBalance = isDemoUser ? BigDecimal.valueOf(5000.00) : BigDecimal.valueOf(100.00);
-
+    public Wallet getOrCreateWallet(String identifier) {
+        String username = walletKey(identifier);
         return walletRepo.findByUsername(username)
-                .map(w -> {
-                    if (isDemoUser && w.getBalance().compareTo(BigDecimal.valueOf(1000.00)) < 0) {
-                        w.setBalance(BigDecimal.valueOf(5000.00));
-                        return walletRepo.save(w);
-                    }
-                    return w;
-                })
                 .orElseGet(() -> walletRepo.save(Wallet.builder()
                         .username(username)
-                        .balance(initialBalance)
+                        .balance(WELCOME_GIFT)
                         .activePlanId("free")
                         .nextBillingDate(LocalDateTime.now().plusDays(30))
                         .build()));

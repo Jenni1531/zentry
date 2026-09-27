@@ -13,4 +13,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Integer> {
     Optional<Bookmark> findByUserIdAndPostId(Integer userId, Integer postId);
     boolean existsByUserIdAndPostId(Integer userId, Integer postId);
     void deleteByUserIdAndPostId(Integer userId, Integer postId);
+    void deleteByPostId(Integer postId);
+    List<Bookmark> findByUserIdAndPostIdIn(Integer userId, java.util.Collection<Integer> postIds);
 }

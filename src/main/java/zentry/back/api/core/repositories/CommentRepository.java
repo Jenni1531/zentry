@@ -10,4 +10,9 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     List<Comment> findByPostIdOrderByCreatedAtAsc(Integer postId);
     long countByPostId(Integer postId);
+
+    /** Filas [postId, count] para varias publicaciones en una sola consulta */
+    @org.springframework.data.jpa.repository.Query("SELECT c.postId, COUNT(c) FROM Comment c WHERE c.postId IN :postIds GROUP BY c.postId")
+    List<Object[]> countByPostIds(@org.springframework.data.repository.query.Param("postIds") java.util.Collection<Integer> postIds);
+    void deleteByPostId(Integer postId);
 }

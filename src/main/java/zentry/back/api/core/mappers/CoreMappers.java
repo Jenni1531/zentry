@@ -76,6 +76,8 @@ public final class CoreMappers {
                 .ownerUsername(entity.getOwnerUsername())
                 .published(Boolean.TRUE.equals(entity.getPublished()))
                 .postId(entity.getPostId())
+                .projectId(entity.getProjectId())
+                .lastEditedBy(entity.getLastEditedBy())
                 .createdAt(entity.getCreatedAt())
                 .lastEditedAt(entity.getLastEditedAt())
                 .build();

@@ -26,6 +26,17 @@ public class ProjectResource {
     private String url;
     private String uploadedBy;
 
+    /** Carpeta dentro del drive del proyecto, ej. "/", "/Referencias", "/Audio/Stems" */
+    @Column(name = "folder", length = 255)
+    @Builder.Default
+    private String folder = "/";
+
+    @Column(name = "size_bytes")
+    private Long sizeBytes;
+
+    @Column(name = "mime_type", length = 120)
+    private String mimeType;
+
     @Builder.Default
     private LocalDateTime uploadedAt = LocalDateTime.now();
 

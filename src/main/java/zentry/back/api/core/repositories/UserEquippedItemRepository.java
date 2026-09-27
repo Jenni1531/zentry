@@ -10,5 +10,6 @@ import java.util.Optional;
 @Repository
 public interface UserEquippedItemRepository extends JpaRepository<UserEquippedItem, UserEquippedItem.UserEquippedItemId> {
     List<UserEquippedItem> findByUserId(Integer userId);
+    List<UserEquippedItem> findByUserIdIn(java.util.Collection<Integer> userIds);
     Optional<UserEquippedItem> findByUserIdAndCategory(Integer userId, String category);
 }

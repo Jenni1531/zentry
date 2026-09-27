@@ -1,5 +1,6 @@
 package zentry.back.api.core.services;
 
+import zentry.back.api.core.util.ZentryClock;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +13,6 @@ import zentry.back.api.core.repositories.UserRepository;
 import zentry.back.api.core.repositories.UserStreakRepository;
 
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 
 @Service
 @SuppressWarnings("null")
@@ -46,7 +46,7 @@ public class StreakService {
     public StreakResponse recordActivity(Integer userId) {
         if (userId == null) return null;
 
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate today = ZentryClock.today();
         UserStreak streak = streakRepo.findByUserId(userId)
                 .orElse(UserStreak.builder()
                         .userId(userId)
@@ -55,6 +55,7 @@ public class StreakService {
                         .build());
 
         LocalDate last = streak.getLastActivityDate();
+        boolean alreadyToday = today.equals(last);
         if (last == null) {
             streak.setCurrentStreak(1);
         } else if (last.equals(today)) {
@@ -73,13 +74,15 @@ public class StreakService {
         }
 
         UserStreak saved = streakRepo.save(streak);
-        return mapToResponse(saved, true);
+        StreakResponse response = mapToResponse(saved, true);
+        response.setJustIncreased(!alreadyToday);
+        return response;
     }
 
     @Transactional(readOnly = true)
     public StreakResponse getStreak(String identifier) {
         User user = resolveUser(identifier);
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate today = ZentryClock.today();
 
         UserStreak streak = streakRepo.findByUserId(user.getId())
                 .orElse(UserStreak.builder()
@@ -97,17 +100,33 @@ public class StreakService {
             effectiveCurrentStreak = 0;
         }
 
+        String state;
+        if (activeToday) state = "active";
+        else if (last != null && last.equals(today.minusDays(1)) && effectiveCurrentStreak > 0) state = "at_risk";
+        else if (last != null) state = "lost";
+        else state = "none";
+
         return StreakResponse.builder()
                 .userId(user.getId())
                 .currentStreak(effectiveCurrentStreak)
                 .longestStreak(streak.getLongestStreak())
                 .lastActivityDate(last)
                 .activeToday(activeToday)
+                .state(state)
+                .hoursLeftToday(hoursLeftToday())
                 .build();
+    }
+
+    private long hoursLeftToday() {
+        java.time.ZonedDateTime now = java.time.ZonedDateTime.now(ZentryClock.zone());
+        java.time.ZonedDateTime midnight = ZentryClock.today().plusDays(1).atStartOfDay(ZentryClock.zone());
+        return java.time.Duration.between(now, midnight).toHours();
     }
 
     private StreakResponse mapToResponse(UserStreak streak, boolean activeToday) {
         return StreakResponse.builder()
+                .state(activeToday ? "active" : "none")
+                .hoursLeftToday(hoursLeftToday())
                 .userId(streak.getUserId())
                 .currentStreak(streak.getCurrentStreak())
                 .longestStreak(streak.getLongestStreak())

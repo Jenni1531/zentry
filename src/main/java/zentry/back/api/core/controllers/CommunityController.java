@@ -199,8 +199,36 @@ public class CommunityController {
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
-            @Parameter(description = "ID de la comunidad") @PathVariable Integer id) {
-        service.delete(id);
+            @Parameter(description = "ID de la comunidad") @PathVariable Integer id,
+            java.security.Principal principal) {
+        service.delete(id, principal != null ? principal.getName() : null);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Miembros del grupo", description = "Las solicitudes pendientes solo se muestran a administradores.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Miembros obtenidos"),
+        @ApiResponse(responseCode = "403", description = "Grupo privado", content = @Content)
+    })
+    @GetMapping("/{identifier}/members")
+    public ResponseEntity<java.util.List<Map<String, Object>>> members(
+            @PathVariable String identifier, java.security.Principal principal) {
+        return ResponseEntity.ok(service.listMembers(identifier, principal != null ? principal.getName() : null));
+    }
+
+    @Operation(summary = "Gestionar miembro (solo administradores)",
+               description = "action: approve | reject | promote | demote | remove")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Acción aplicada"),
+        @ApiResponse(responseCode = "403", description = "No es administrador", content = @Content)
+    })
+    @PostMapping("/{identifier}/members/{userId}/{action}")
+    public ResponseEntity<CommunityResponse> manageMember(
+            @PathVariable String identifier, @PathVariable Integer userId, @PathVariable String action,
+            java.security.Principal principal) {
+        if (principal == null) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.UNAUTHORIZED, "Debes iniciar sesión");
+        }
+        return ResponseEntity.ok(service.manageMember(identifier, principal.getName(), userId, action));
     }
 }

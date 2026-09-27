@@ -10,8 +10,13 @@ import lombok.*;
 public class PostResponse {
 
     private Integer id;
+    private Integer userId;
+    private Boolean canEdit;
+    private Boolean canDelete;
 
     private String authorUsername;
+    /** Marco, mascota y título equipados por el autor */
+    private CosmeticsResponse authorCosmetics;
     private String authorAvatar;
     private String authorName;
     private String authorDiscipline;
@@ -40,6 +45,10 @@ public class PostResponse {
     private Integer commentsCount;
     private Boolean liked;
     private Boolean saved;
+    /** Reacción del usuario que consulta (null si no reaccionó) */
+    private String myReaction;
+    /** Conteo por tipo de reacción, ej. {"like": 3, "fire": 1} */
+    private java.util.Map<String, Integer> reactionCounts;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

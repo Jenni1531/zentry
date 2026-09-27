@@ -36,6 +36,7 @@ public class FriendsService {
     private final FollowRepository followRepo;
     private final WalletService walletService;
     private final NotificationService notificationService;
+    private final GamificationEventService gamificationEventService;
 
     public FriendsService(
             UserRepository userRepo,
@@ -46,7 +47,9 @@ public class FriendsService {
             PostRepository postRepo,
             FollowRepository followRepo,
             WalletService walletService,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            @org.springframework.context.annotation.Lazy GamificationEventService gamificationEventService) {
+        this.gamificationEventService = gamificationEventService;
         this.userRepo = userRepo;
         this.profileRepo = profileRepo;
         this.friendRequestRepo = friendRequestRepo;
@@ -203,6 +206,12 @@ public class FriendsService {
             friendshipRepo.save(Friendship.builder().user1(friendId).user2(currentUser.getId()).build());
         }
 
+        // Logro "Conexión Creativa" (10 amigos): progreso absoluto para ambos
+        gamificationEventService.setAchievementProgressAbsolute(currentUser.getId(), "friends_count",
+                friendshipRepo.findAllFriendshipsForUser(currentUser.getId()).size());
+        gamificationEventService.setAchievementProgressAbsolute(friendId, "friends_count",
+                friendshipRepo.findAllFriendshipsForUser(friendId).size());
+
         // Eliminar solicitud y cualquier solicitud inversa pendiente
         friendRequestRepo.delete(req);
         friendRequestRepo.deleteByUser1AndUser2(friendId, currentUser.getId());
@@ -337,15 +346,25 @@ public class FriendsService {
     }
 
     private static final java.util.concurrent.ConcurrentHashMap<Integer, Long> ACTIVE_PRESENCE = new java.util.concurrent.ConcurrentHashMap<>();
+    /** Última vez que se vio a cada usuario (para "visto hace X min") */
+    private static final java.util.concurrent.ConcurrentHashMap<Integer, Long> LAST_SEEN = new java.util.concurrent.ConcurrentHashMap<>();
+    /**
+     * Ventana de "en línea". El front hace ping cada 25 s, pero los navegadores frenan los
+     * temporizadores de pestañas en segundo plano a ~1 por minuto: con 45 s el usuario aparecía
+     * desconectado solo por cambiar de pestaña.
+     */
+    private static final long ONLINE_WINDOW_MS = 90_000L;
 
     public Map<String, Object> updatePresence(String identifier, String status) {
         User user = resolveUser(identifier);
         String finalStatus = (status != null && !status.isBlank()) ? status : "online";
 
+        long now = System.currentTimeMillis();
+        LAST_SEEN.put(user.getId(), now);
         if ("offline".equalsIgnoreCase(finalStatus)) {
             ACTIVE_PRESENCE.remove(user.getId());
         } else {
-            ACTIVE_PRESENCE.put(user.getId(), System.currentTimeMillis());
+            ACTIVE_PRESENCE.put(user.getId(), now);
         }
 
         Map<String, Object> result = new HashMap<>();
@@ -363,8 +382,8 @@ public class FriendsService {
         long followingCount = followRepo.countByFollower(user.getId());
         long friendsCount = friendshipRepo.findAllFriendshipsForUser(user.getId()).size();
 
-        long zentryCoins = walletService.getOrCreateWallet(user.getUsername()).getBalance().longValue();
-        long coinsToday = Math.max(5, (postsCount * 5));
+        long zentryCoins = walletService.getOrCreateWallet(user.getEmail()).getBalance().longValue();
+        long coinsToday = walletService.earnedToday(user.getEmail()).longValue();
         long reputationScore = 50 + (postsCount * 10) + (followersCount * 5);
         zentry.back.api.core.util.RankUtil.RankInfo rankInfo = zentry.back.api.core.util.RankUtil.forScore(reputationScore);
 
@@ -385,11 +404,19 @@ public class FriendsService {
     }
 
     public boolean isUserOnline(Integer userId) {
+        return isOnlineStatic(userId);
+    }
+
+    /** Usado también por mensajes y proyectos (sin inyectar este servicio) */
+    public static boolean isOnlineStatic(Integer userId) {
         if (userId == null) return false;
         Long lastPing = ACTIVE_PRESENCE.get(userId);
-        if (lastPing == null) return false;
-        // Considerar online si se envió un ping en los últimos 45 segundos (45.000 ms)
-        return (System.currentTimeMillis() - lastPing) < 45_000L;
+        return lastPing != null && (System.currentTimeMillis() - lastPing) < ONLINE_WINDOW_MS;
+    }
+
+    public static java.time.LocalDateTime lastSeenOf(Integer userId) {
+        Long ts = userId == null ? null : LAST_SEEN.get(userId);
+        return ts == null ? null : java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(ts), java.time.ZoneId.systemDefault());
     }
 
     private FriendUserResponse mapUserToFriendResponse(User user, boolean isFriend) {
@@ -405,6 +432,7 @@ public class FriendsService {
                 .bio(profile.getBio())
                 .isOnline(isOnline)
                 .status(isOnline ? "online" : "offline")
+                .lastSeen(lastSeenOf(user.getId()))
                 .projectTitle(isFriend ? "Conexión en Zentry" : "Sugerido para ti")
                 .build();
     }

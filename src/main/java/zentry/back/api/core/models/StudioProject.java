@@ -51,6 +51,13 @@ public class StudioProject {
     @Column(name = "post_id")
     private Integer postId;
 
+    /** Si pertenece a un proyecto colaborativo, todos sus miembros pueden editarlo */
+    @Column(name = "project_id")
+    private Long projectId;
+
+    @Column(name = "last_edited_by", length = 100)
+    private String lastEditedBy;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

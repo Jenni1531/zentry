@@ -55,7 +55,21 @@ public class AchievementService {
             achievement("Viajero Astral", "Mantuviste tu presencia en línea durante 7 días consecutivos en Zentry.", 600, "🌠", "MYSTERIOUS", "mystery", "secret_astral_traveler", 7, true, "La constancia infinita forja los lazos con las estrellas."),
             achievement("Metamorfosis Digital", "Personalizaste completamente tu foto de perfil, portada y biografía.", 200, "🎭", "MYSTERIOUS", "mystery", "secret_holographic_mask", 1, true, "Cambia tu rostro, revela tu verdadera aura creativa."),
             achievement("Llave de los Secretos", "Reclamaste más de 3 recompensas de misiones en un solo día.", 250, "🗝️", "MYSTERIOUS", "mystery", "secret_master_key", 3, true, "Tres cofres abiertos revelan la llave oculta."),
-            achievement("Resonancia Armónica", "Conectaste con amigos y recibiste solicitudes de co-creación.", 300, "🎵", "MYSTERIOUS", "mystery", "secret_harmonic_resonance", 1, true, "Cuando dos frecuencias creativas vibran juntas, la melodía despierta.")
+            achievement("Resonancia Armónica", "Conectaste con amigos y recibiste solicitudes de co-creación.", 300, "🎵", "MYSTERIOUS", "mystery", "secret_harmonic_resonance", 1, true, "Cuando dos frecuencias creativas vibran juntas, la melodía despierta."),
+            // --- Nuevos logros (cada uno se activa con una acción real de la plataforma) ---
+            achievement("Chispa Constante", "Mantén tu racha encendida 3 días seguidos", 60, "🕯️", "COMMON", "mastery", "streak_days", 3, false, null),
+            achievement("Racha de Fuego", "Mantén tu racha encendida 7 días seguidos", 150, "🔥", "RARE", "mastery", "streak_days", 7, false, null),
+            achievement("Llama Eterna", "Mantén tu racha encendida 30 días seguidos", 500, "☄️", "LEGENDARY", "mastery", "streak_days", 30, false, null),
+            achievement("Primera Opinión", "Escribe tu primer comentario en la obra de otro creador", 30, "🗨️", "COMMON", "social", "comment_posts", 1, false, null),
+            achievement("Crítico Constructivo", "Deja 25 comentarios en obras de la comunidad", 150, "🧐", "RARE", "social", "comment_posts", 25, false, null),
+            achievement("Pluma Novel", "Escribe 5 capítulos en proyectos de libro", 120, "✒️", "RARE", "creation", "write_chapters", 5, false, null),
+            achievement("Novelista", "Escribe 20 capítulos en proyectos de libro", 350, "📚", "EPIC", "creation", "write_chapters", 20, false, null),
+            achievement("Líder de Equipo", "Invita a tu primer colaborador a uno de tus proyectos", 100, "🧭", "COMMON", "community", "lead_team", 1, false, null),
+            achievement("Estreno en Equipo", "Publica en el feed un proyecto terminado", 200, "🎬", "EPIC", "creation", "publish_project", 1, false, null),
+            achievement("Voz del Equipo", "Únete a la sala de voz de un proyecto", 80, "🎙️", "COMMON", "community", "join_voice", 1, false, null),
+            achievement("Fundador", "Crea tu propia comunidad", 120, "🏰", "RARE", "community", "create_community", 1, false, null),
+            achievement("Coleccionista", "Compra 5 artículos en la Tienda ZC", 200, "🛍️", "RARE", "reputation", "store_purchases", 5, false, null),
+            achievement("Mecenas", "Envía Zentry Coins a otro creador", 100, "💝", "RARE", "social", "transfer_coins", 1, false, null)
         );
 
         catalog.stream()

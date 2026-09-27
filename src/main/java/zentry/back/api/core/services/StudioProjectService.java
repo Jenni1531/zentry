@@ -30,22 +30,39 @@ public class StudioProjectService {
     private final StudioProjectRepository repo;
     private final UserRepository userRepo;
     private final PostService postService;
+    private final ProjectService projectService;
 
-    public StudioProjectService(StudioProjectRepository repo, UserRepository userRepo, PostService postService) {
+    public StudioProjectService(StudioProjectRepository repo, UserRepository userRepo, PostService postService,
+                                ProjectService projectService) {
         this.repo = repo;
         this.userRepo = userRepo;
         this.postService = postService;
+        this.projectService = projectService;
+    }
+
+    private boolean isOwner(StudioProject project, User user, String userEmail) {
+        String owner = project.getOwnerUsername();
+        return owner != null && (owner.equalsIgnoreCase(user.getHandle() != null ? user.getHandle() : userEmail)
+                || owner.equalsIgnoreCase(userEmail));
+    }
+
+    /** Dueño, o miembro del proyecto colaborativo al que pertenece la obra */
+    private boolean canEdit(StudioProject project, User user, String userEmail) {
+        return isOwner(project, user, userEmail)
+                || (project.getProjectId() != null && projectService.isMember(project.getProjectId(), userEmail));
     }
 
     public List<StudioProjectResponse> getUserProjects(String userEmail, ContentType type) {
         User user = findUserByEmail(userEmail);
         String username = user.getUsername() != null ? user.getUsername() : userEmail;
 
+        // Incluye proyectos guardados con el email como dueño (antes de elegir @username en el onboarding)
+        List<String> owners = List.of(username, user.getEmail());
         List<StudioProject> projects;
         if (type != null) {
-            projects = repo.findByOwnerUsernameAndTypeOrderByLastEditedAtDesc(username, type);
+            projects = repo.findByOwnerUsernameInAndTypeOrderByLastEditedAtDesc(owners, type);
         } else {
-            projects = repo.findByOwnerUsernameOrderByLastEditedAtDesc(username);
+            projects = repo.findByOwnerUsernameInOrderByLastEditedAtDesc(owners);
         }
 
         return projects.stream()
@@ -82,6 +99,11 @@ public class StudioProjectService {
     public StudioProjectResponse getProjectDetail(Integer id, String userEmail) {
         StudioProject project = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proyecto no encontrado"));
+        User user = findUserByEmail(userEmail);
+        // Antes cualquiera podía leer cualquier obra por id: solo dueño, colaboradores o si ya está publicada
+        if (!canEdit(project, user, userEmail) && !Boolean.TRUE.equals(project.getPublished())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes acceso a esta obra");
+        }
 
         return CoreMappers.toResponse(project);
     }
@@ -93,9 +115,10 @@ public class StudioProjectService {
         StudioProject project = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Proyecto no encontrado"));
 
-        if (!project.getOwnerUsername().equalsIgnoreCase(username) && !project.getOwnerUsername().equalsIgnoreCase(userEmail)) {
+        if (!canEdit(project, user, userEmail)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para modificar este proyecto");
         }
+        project.setLastEditedBy(user.getHandle() != null ? user.getHandle() : username);
 
         if (request.getTitle() != null && !request.getTitle().isBlank()) {
             project.setTitle(request.getTitle());
@@ -155,7 +178,8 @@ public class StudioProjectService {
                 .tools(project.getTools() != null ? String.join(",", project.getTools()) : null)
                 .build();
 
-        var createdPost = postService.create(userEmail, postRequest);
+        // syncToStudio=false: este proyecto ya vive en el Estudio, no debe duplicarse
+        var createdPost = postService.create(userEmail, postRequest, null, false);
 
         project.setPublished(true);
         project.setPostId(createdPost.getId());

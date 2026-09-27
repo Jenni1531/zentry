@@ -9,6 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import zentry.back.api.core.repositories.UserRepository;
+import zentry.back.api.core.models.Profile;
+import zentry.back.api.core.models.User;
+import zentry.back.api.core.repositories.ProfileRepository;
+import zentry.back.api.core.services.CosmeticsService;
 import zentry.back.api.realtime.dtos.ConversationResponse;
 import zentry.back.api.realtime.dtos.ConversationSummaryResponse;
 import zentry.back.api.realtime.dtos.GroupConversationRequest;
@@ -33,13 +37,18 @@ public class ConversationService {
     private final ConversationParticipantRepository participantRepo;
     private final MessageRepository messageRepo;
     private final UserRepository userRepo;
+    private final ProfileRepository profileRepo;
+    private final CosmeticsService cosmeticsService;
 
     public ConversationService(ConversationRepository conversationRepo, ConversationParticipantRepository participantRepo,
-                                MessageRepository messageRepo, UserRepository userRepo) {
+                                MessageRepository messageRepo, UserRepository userRepo,
+                                ProfileRepository profileRepo, CosmeticsService cosmeticsService) {
         this.conversationRepo = conversationRepo;
         this.participantRepo = participantRepo;
         this.messageRepo = messageRepo;
         this.userRepo = userRepo;
+        this.profileRepo = profileRepo;
+        this.cosmeticsService = cosmeticsService;
     }
 
     @Transactional
@@ -113,6 +122,56 @@ public class ConversationService {
         }
 
         return mappers.toResponse(conversation);
+    }
+
+    /**
+     * Chat de grupo de un proyecto: puede empezar solo con el creador (los miembros se suman al
+     * invitarlos). Solo los participantes pueden leer y escribir (MessageService lo verifica).
+     */
+    @Transactional
+    public Integer createProjectChat(Integer creatorId, String name, java.util.Collection<Integer> memberIds) {
+        LocalDateTime now = LocalDateTime.now();
+        Conversation conversation = conversationRepo.save(Conversation.builder()
+                .isGroup(true)
+                .name(name)
+                .createdBy(creatorId)
+                .createdAt(now)
+                .lastMessageAt(now)
+                .build());
+        participantRepo.save(ConversationParticipant.builder()
+                .conversationId(conversation.getId()).userId(creatorId).role("admin").joinedAt(now).build());
+        for (Integer memberId : memberIds) {
+            if (memberId != null && !memberId.equals(creatorId)) addParticipant(conversation.getId(), memberId);
+        }
+        return conversation.getId();
+    }
+
+    @Transactional
+    public void addParticipant(Integer conversationId, Integer userId) {
+        if (conversationId == null || userId == null) return;
+        if (participantRepo.existsByConversationIdAndUserId(conversationId, userId)) return;
+        participantRepo.save(ConversationParticipant.builder()
+                .conversationId(conversationId).userId(userId).role("member").joinedAt(LocalDateTime.now()).build());
+    }
+
+    @Transactional
+    public void removeParticipant(Integer conversationId, Integer userId) {
+        if (conversationId == null || userId == null) return;
+        participantRepo.findByConversationIdAndUserId(conversationId, userId).ifPresent(participantRepo::delete);
+    }
+
+    @Transactional
+    public void renameConversation(Integer conversationId, String name) {
+        if (conversationId == null) return;
+        conversationRepo.findById(conversationId).ifPresent(c -> { c.setName(name); conversationRepo.save(c); });
+    }
+
+    @Transactional
+    public void deleteConversation(Integer conversationId) {
+        if (conversationId == null) return;
+        messageRepo.deleteByConversationId(conversationId);
+        participantRepo.findByConversationId(conversationId).forEach(participantRepo::delete);
+        conversationRepo.findById(conversationId).ifPresent(conversationRepo::delete);
     }
 
     public Page<ConversationSummaryResponse> listMine(Integer userId, Pageable pageable) {
@@ -199,12 +258,44 @@ public class ConversationService {
         long unread = messageRepo.countByConversationIdAndSenderIdNotAndCreatedAtAfter(conversation.getId(), userId, since);
 
         Integer otherUserId = null;
+        String otherUsername = null;
+        String otherName = null;
+        String otherAvatarUrl = null;
+        String otherUserFrame = null;
+        String otherUserPet = null;
+        String otherUserTitle = null;
+
         if (!Boolean.TRUE.equals(conversation.getIsGroup())) {
             otherUserId = participantRepo.findByConversationId(conversation.getId()).stream()
                     .map(ConversationParticipant::getUserId)
                     .filter(id -> !id.equals(userId))
                     .findFirst()
                     .orElse(null);
+
+            if (otherUserId != null) {
+                User otherUser = userRepo.findById(otherUserId).orElse(null);
+                if (otherUser != null) {
+                    otherUsername = otherUser.getHandle() != null ? otherUser.getHandle() : otherUser.getUsername();
+                }
+                Profile otherProfile = profileRepo.findByUserId(otherUserId).orElse(null);
+                if (otherProfile != null) {
+                    otherName = otherProfile.getName();
+                    otherAvatarUrl = otherProfile.getAvatarUrl();
+                }
+                if (otherName == null) {
+                    otherName = otherUsername;
+                }
+
+                var cosmetics = cosmeticsService.forUser(otherUserId);
+                if (cosmetics != null) {
+                    // Marco: la rareza define el anillo (mismo estilo que perfil, feed y sidebar)
+                    otherUserFrame = cosmetics.getFrameRarity();
+                    otherUserPet = cosmetics.getPetIcon();
+                    otherUserTitle = cosmetics.getTitleName() != null
+                            ? (cosmetics.getTitleIcon() != null ? cosmetics.getTitleIcon() + " " : "") + cosmetics.getTitleName()
+                            : null;
+                }
+            }
         }
 
         return ConversationSummaryResponse.builder()
@@ -212,6 +303,14 @@ public class ConversationService {
                 .isGroup(conversation.getIsGroup())
                 .name(conversation.getName())
                 .otherUserId(otherUserId)
+                .otherUsername(otherUsername)
+                .otherName(otherName)
+                .otherAvatarUrl(otherAvatarUrl)
+                .otherUserFrame(otherUserFrame)
+                .otherUserPet(otherUserPet)
+                .otherUserTitle(otherUserTitle)
+                .otherUserOnline(zentry.back.api.core.services.FriendsService.isOnlineStatic(otherUserId))
+                .otherUserLastSeen(zentry.back.api.core.services.FriendsService.lastSeenOf(otherUserId))
                 .lastMessageContent(lastMessage != null ? lastMessage.getContent() : null)
                 .lastMessageSenderId(lastMessage != null ? lastMessage.getSenderId() : null)
                 .lastMessageAt(conversation.getLastMessageAt())

@@ -21,6 +21,10 @@ public class StoryLike {
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
+    /** like | fire | clap | wow | laugh | idea (null en filas antiguas = like) */
+    @Column(name = "reaction_type", length = 20)
+    private String reactionType;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

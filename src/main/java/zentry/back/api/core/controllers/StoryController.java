@@ -105,6 +105,22 @@ public class StoryController {
         return ResponseEntity.ok(Map.of("success", true, "is_liked", isLiked));
     }
 
+    @PostMapping("/{id}/react")
+    @Operation(summary = "Reaccionar a una historia con un emoji",
+               description = "type: like | fire | clap | wow | laugh | idea. Repetir la misma reacción la quita.")
+    public ResponseEntity<?> react(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> body,
+            Principal principal) {
+        Integer currentUserId = resolveUserId(principal);
+        String reaction = service.react(id, currentUserId, body != null ? body.get("type") : null);
+        java.util.Map<String, Object> res = new java.util.HashMap<>();
+        res.put("success", true);
+        res.put("is_liked", reaction != null);
+        res.put("reaction", reaction);
+        return ResponseEntity.ok(res);
+    }
+
     @PostMapping("/{id}/reply")
     @Operation(summary = "Responder a una historia", description = "Envía un mensaje directo real al dueño de la historia, igual que un DM de respuesta en Instagram.")
     public ResponseEntity<?> replyToStory(

@@ -9,7 +9,11 @@ import lombok.*;
 @AllArgsConstructor @NoArgsConstructor
 public class ProfileResponse {
 
+    private Integer userId;
     private String username;
+    /** Presencia real (ping de los últimos 90 s) */
+    private Boolean isOnline;
+    private LocalDateTime lastSeen;
     private String name;
     private String artisticName;
     private String discipline;
@@ -42,7 +46,13 @@ public class ProfileResponse {
     private Boolean isPrivate;
     private Boolean showSavedPosts;
     private Boolean showLikedPosts;
+    private Boolean notifyReactions;
+    private Boolean notifyComments;
+    private Boolean notifyMessages;
+    private Boolean notifyStories;
     private Integer followersCount;
+    /** Marco, mascota y título equipados */
+    private CosmeticsResponse cosmetics;
     private Integer followingCount;
 
     @Builder.Default

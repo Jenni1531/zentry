@@ -10,4 +10,6 @@ public class UnifiedSearchResponse {
     private List<ProfileResponse> users;
     private List<PostResponse> arts;
     private List<TrendingTopicResponse> trending;
+    private List<ProjectResponse> projects;
+    private List<CommunityResponse> communities;
 }

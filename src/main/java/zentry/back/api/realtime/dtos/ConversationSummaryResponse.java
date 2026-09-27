@@ -10,6 +10,14 @@ public class ConversationSummaryResponse {
     private Boolean isGroup;
     private String name;
     private Integer otherUserId;
+    private String otherUsername;
+    private String otherName;
+    private String otherAvatarUrl;
+    private String otherUserFrame;
+    private String otherUserPet;
+    private String otherUserTitle;
+    private Boolean otherUserOnline;
+    private java.time.LocalDateTime otherUserLastSeen;
     private String lastMessageContent;
     private Integer lastMessageSenderId;
     private LocalDateTime lastMessageAt;

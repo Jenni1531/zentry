@@ -13,6 +13,19 @@ public class CommentResponse {
     private Integer userId;
     private String authorUsername;
     private String authorAvatarUrl;
+    private CosmeticsResponse authorCosmetics;
     private String content;
     private LocalDateTime createdAt;
+
+    @Builder.Default
+    private Integer likesCount = 0;
+
+    @Builder.Default
+    private Boolean liked = false;
+
+    @Builder.Default
+    private Boolean canEdit = false;
+
+    @Builder.Default
+    private Boolean canDelete = false;
 }

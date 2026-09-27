@@ -17,6 +17,12 @@ import zentry.back.api.realtime.repositories.ConversationRepository;
 import zentry.back.api.realtime.repositories.MessageRepository;
 import zentry.back.api.global.mappers;
 import zentry.back.api.core.services.GamificationEventService;
+import zentry.back.api.core.services.NotificationService;
+import zentry.back.api.core.models.Profile;
+import zentry.back.api.core.models.User;
+import zentry.back.api.core.repositories.ProfileRepository;
+import zentry.back.api.core.repositories.UserRepository;
+import zentry.back.api.realtime.models.ConversationParticipant;
 
 import java.time.LocalDateTime;
 
@@ -29,15 +35,22 @@ public class MessageService {
     private final ConversationRepository conversationRepo;
     private final SimpMessagingTemplate messagingTemplate;
     private final GamificationEventService gamificationEventService;
+    private final NotificationService notificationService;
+    private final UserRepository userRepo;
+    private final ProfileRepository profileRepo;
 
     public MessageService(MessageRepository repo, ConversationParticipantRepository participantRepo,
                            ConversationRepository conversationRepo, SimpMessagingTemplate messagingTemplate,
-                           GamificationEventService gamificationEventService) {
+                           GamificationEventService gamificationEventService, NotificationService notificationService,
+                           UserRepository userRepo, ProfileRepository profileRepo) {
         this.repo = repo;
         this.participantRepo = participantRepo;
         this.conversationRepo = conversationRepo;
         this.messagingTemplate = messagingTemplate;
         this.gamificationEventService = gamificationEventService;
+        this.notificationService = notificationService;
+        this.userRepo = userRepo;
+        this.profileRepo = profileRepo;
     }
 
     public Page<MessageResponse> listByConversation(Integer conversationId, Integer requesterId, Pageable pageable) {
@@ -74,6 +87,8 @@ public class MessageService {
         gamificationEventService.recordMissionProgress(senderId, "send_message", 1);
         gamificationEventService.recordAchievementProgress(senderId, "send_messages", 1);
 
+        notifyRecipients(saved);
+
         MessageResponse response = mappers.toResponse(saved);
         messagingTemplate.convertAndSend("/topic/conversations/" + request.getConversationId(), response);
         return response;
@@ -93,6 +108,29 @@ public class MessageService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Message not found"));
         requireOwner(entity, requesterId);
         repo.delete(entity);
+    }
+
+    /** Una sola notificación sin leer por conversación: se actualiza con el último mensaje. */
+    private void notifyRecipients(Message message) {
+        User sender = userRepo.findById(message.getSenderId()).orElse(null);
+        if (sender == null) return;
+        Profile senderProfile = profileRepo.findByUserId(sender.getId()).orElse(null);
+
+        String content = message.getContent() != null ? message.getContent() : "";
+        String preview = content.length() > 80 ? content.substring(0, 80) + "…" : content;
+        if (preview.isBlank()) preview = "Te envió un archivo";
+
+        for (ConversationParticipant participant : participantRepo.findByConversationId(message.getConversationId())) {
+            if (participant.getUserId().equals(sender.getId())) continue;
+            notificationService.notifyGrouped(
+                    participant.getUserId(),
+                    "message",
+                    "@" + sender.getHandle() + ": " + preview,
+                    sender.getHandle(),
+                    senderProfile != null ? senderProfile.getAvatarUrl() : null,
+                    message.getConversationId()
+            );
+        }
     }
 
     private void requireParticipant(Integer conversationId, Integer userId) {

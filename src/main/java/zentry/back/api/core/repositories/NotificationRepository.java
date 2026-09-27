@@ -16,6 +16,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     Page<Notification> findByUserIdOrderByCreatedAtDesc(Integer userId, Pageable pageable);
     Optional<Notification> findByIdAndUserId(Integer id, Integer userId);
     void deleteByUserId(Integer userId);
+    long countByUserIdAndReadFalse(Integer userId);
+    Optional<Notification> findFirstByUserIdAndTypeAndRelatedIdAndReadFalse(Integer userId, String type, Integer relatedId);
 
     @Modifying
     @Query("UPDATE CoreNotification n SET n.read = true WHERE n.userId = :userId AND n.read = false")

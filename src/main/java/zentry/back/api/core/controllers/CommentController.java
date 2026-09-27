@@ -33,8 +33,10 @@ public class CommentController {
     @Operation(summary = "Listar comentarios de una publicación", description = "Devuelve los comentarios de un post ordenados cronológicamente.")
     @GetMapping("/post/{postId}")
     public ResponseEntity<List<CommentResponse>> listByPost(
-            @Parameter(description = "ID de la publicación") @PathVariable Integer postId) {
-        return ResponseEntity.ok(service.listByPost(postId));
+            @Parameter(description = "ID de la publicación") @PathVariable Integer postId,
+            Principal principal) {
+        String username = principal != null ? principal.getName() : null;
+        return ResponseEntity.ok(service.listByPost(postId, username));
     }
 
     @Operation(summary = "Crear comentario en una publicación")
@@ -52,10 +54,34 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(postId, username, request));
     }
 
-    @Operation(summary = "Eliminar comentario propio")
+    @Operation(summary = "Editar comentario propio")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Comentario actualizado exitosamente"),
+        @ApiResponse(responseCode = "403", description = "No es el autor del comentario", content = @Content),
+        @ApiResponse(responseCode = "404", description = "Comentario no encontrado", content = @Content)
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<CommentResponse> update(
+            @Parameter(description = "ID del comentario") @PathVariable Integer id,
+            @Valid @RequestBody CommentRequest request,
+            Principal principal) {
+        String username = requireUsername(principal);
+        return ResponseEntity.ok(service.update(id, username, request));
+    }
+
+    @Operation(summary = "Dar o quitar me gusta / reaccionar a un comentario")
+    @PostMapping("/{id}/like")
+    public ResponseEntity<CommentResponse> toggleLike(
+            @Parameter(description = "ID del comentario") @PathVariable Integer id,
+            Principal principal) {
+        String username = requireUsername(principal);
+        return ResponseEntity.ok(service.toggleLike(id, username));
+    }
+
+    @Operation(summary = "Eliminar comentario propio o de mi publicación")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Comentario eliminado exitosamente"),
-        @ApiResponse(responseCode = "403", description = "No es el autor del comentario", content = @Content),
+        @ApiResponse(responseCode = "403", description = "Sin autorización", content = @Content),
         @ApiResponse(responseCode = "404", description = "Comentario no encontrado", content = @Content)
     })
     @DeleteMapping("/{id}")

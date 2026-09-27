@@ -1,5 +1,6 @@
 package zentry.back.api.core.services;
 
+import zentry.back.api.core.util.ZentryClock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,10 +39,12 @@ public class GamificationEventService {
     private final UserRepository userRepo;
     private final WalletService walletService;
     private final StreakService streakService;
+    private final NotificationService notificationService;
 
     public GamificationEventService(MissionRepository missionRepo, UserMissionRepository userMissionRepo,
                                      AchievementRepository achievementRepo, UserAchievementRepository userAchievementRepo,
-                                     UserRepository userRepo, WalletService walletService, StreakService streakService) {
+                                     UserRepository userRepo, WalletService walletService, StreakService streakService,
+                                     NotificationService notificationService) {
         this.missionRepo = missionRepo;
         this.userMissionRepo = userMissionRepo;
         this.achievementRepo = achievementRepo;
@@ -49,15 +52,16 @@ public class GamificationEventService {
         this.userRepo = userRepo;
         this.walletService = walletService;
         this.streakService = streakService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
     public void recordMissionProgress(Integer userId, String eventType, int amount) {
         if (userId == null || eventType == null || amount <= 0) return;
-        streakService.recordActivity(userId);
 
-        LocalDate today = LocalDate.now(java.time.ZoneOffset.UTC);
+        LocalDate today = ZentryClock.today();
         List<Mission> matching = missionRepo.findByRequirementType(eventType);
+        boolean missionCompletedNow = false;
         for (Mission mission : matching) {
             UserMission progress = userMissionRepo.findByUserIdAndMissionId(userId, mission.getId()).orElse(null);
 
@@ -75,6 +79,19 @@ public class GamificationEventService {
             int current = progress != null && progress.getProgress() != null ? progress.getProgress() : 0;
             int next = Math.min(mission.getRequirementValue(), current + amount);
 
+            // La racha se enciende en cuanto el usuario completa una misión del día
+            if (current < mission.getRequirementValue() && next >= mission.getRequirementValue()) {
+                missionCompletedNow = true;
+                notificationService.notify(
+                        userId,
+                        "mission",
+                        "✅ Completaste la misión \"" + mission.getTitle() + "\". Reclama tus +" + mission.getRewardCoins() + " ZC en Misiones",
+                        null,
+                        null,
+                        mission.getId()
+                );
+            }
+
             if (progress == null) {
                 progress = UserMission.builder()
                         .userId(userId)
@@ -88,6 +105,25 @@ public class GamificationEventService {
                 progress.setResetDate(today);
             }
             userMissionRepo.save(progress);
+        }
+
+        if (missionCompletedNow) {
+            var streak = streakService.recordActivity(userId);
+            // Como TikTok: aviso cuando la racha suma el día de hoy
+            if (streak != null && Boolean.TRUE.equals(streak.getJustIncreased())) {
+                int days = streak.getCurrentStreak() != null ? streak.getCurrentStreak() : 1;
+                setAchievementProgressAbsolute(userId, "streak_days", days);
+                notificationService.notify(
+                        userId,
+                        "streak",
+                        days == 1
+                                ? "🔥 ¡Encendiste tu racha! Vuelve mañana y completa una misión para mantenerla"
+                                : "🔥 ¡Racha de " + days + " días! Completa una misión cada día para no perderla",
+                        null,
+                        null,
+                        days
+                );
+            }
         }
     }
 
@@ -130,6 +166,16 @@ public class GamificationEventService {
                 unlocked.setUnlockedAt(LocalDateTime.now());
                 userAchievementRepo.save(unlocked);
                 grantReward(userId, achievement.getRewardCoins());
+                notificationService.notify(
+                        userId,
+                        "achievement",
+                        "🏆 Desbloqueaste el logro \"" + achievement.getTitle() + "\""
+                                + (achievement.getRewardCoins() != null && achievement.getRewardCoins() > 0
+                                    ? " (+" + achievement.getRewardCoins() + " ZC)" : ""),
+                        null,
+                        null,
+                        achievement.getId()
+                );
             } else {
                 userAchievementRepo.save(unlocked);
             }

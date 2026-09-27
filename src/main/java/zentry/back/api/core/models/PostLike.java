@@ -22,6 +22,10 @@ public class PostLike {
 
     private LocalDateTime createdAt;
 
+    /** like | fire | clap | wow | laugh | idea (null en filas antiguas = like) */
+    @Column(name = "reaction_type", length = 20)
+    private String reactionType;
+
     @Getter @Setter @NoArgsConstructor @AllArgsConstructor @EqualsAndHashCode
     public static class PostLikeId implements Serializable {
         private Integer postId;

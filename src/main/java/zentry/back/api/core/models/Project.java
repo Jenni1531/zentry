@@ -62,6 +62,31 @@ public class Project {
     // Etiquetas separadas por comas (ej. "Next.js,Tailwind")
     private String tags;
 
+    /** private = solo miembros · public = cualquiera puede verlo (solo lectura) y aparece en Explorar */
+    @Column(name = "visibility", length = 20)
+    @Builder.Default
+    private String visibility = "private";
+
+    /** general · book (libro por capítulos) · image · video · audio (obra compartida en el editor) */
+    @Column(name = "project_type", length = 20)
+    @Builder.Default
+    private String projectType = "general";
+
+    @Column(name = "cover_url", length = 500)
+    private String coverUrl;
+
+    /** Chat de grupo del proyecto (solo miembros) */
+    @Column(name = "conversation_id")
+    private Integer conversationId;
+
+    /** Obra compartida en el editor del Estudio (proyectos de imagen, video o audio) */
+    @Column(name = "studio_project_id")
+    private Integer studioProjectId;
+
+    /** Publicación del feed creada al completar el proyecto */
+    @Column(name = "published_post_id")
+    private Integer publishedPostId;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) createdAt = LocalDateTime.now();

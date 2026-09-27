@@ -12,4 +12,9 @@ public class ProjectRequestDTO {
     private String status; // "active", "completed", "paused"
     private String deadline;
     private List<String> tags;
+    /** private | public */
+    private String visibility;
+    /** general | book | image | video | audio (solo al crear) */
+    private String projectType;
+    private String coverUrl;
 }
